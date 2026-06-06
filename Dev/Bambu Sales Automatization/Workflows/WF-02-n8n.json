@@ -1,0 +1,488 @@
+{
+  "name": "WF-02: Outbound Automatizado — Lusha + Claude + Instantly",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 7 * * 1"
+            }
+          ]
+        }
+      },
+      "id": "cron-trigger",
+      "name": "Cron — Lunes 7am CDMX",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ══════════════════════════════════════════════════════════════\n// WF-02 — CONFIGURACIÓN GLOBAL\n// ══════════════════════════════════════════════════════════════\n\n// Vertical activo para esta ejecución\n// Rotar semanalmente: 'financiero' → 'retail' → 'manufactura'\nconst VERTICAL_ACTIVO = 'financiero';\n\n// Tamaño de lista por ejecución\nconst PAGE_SIZE = 25; // Lusha max 50 por request\nconst PAGINAS    = 4;  // 4 páginas × 25 = 100 contactos/semana\n\n// Instantly — campaña ID por vertical (llenar tras crear campañas en Instantly)\nconst INSTANTLY_CAMPAIGNS = {\n  financiero:  'INSTANTLY_CAMPAIGN_ID_FINANCIERO',\n  retail:      'INSTANTLY_CAMPAIGN_ID_RETAIL',\n  manufactura: 'INSTANTLY_CAMPAIGN_ID_MANUFACTURA',\n  salud:       'INSTANTLY_CAMPAIGN_ID_SALUD',\n  gobierno:    'INSTANTLY_CAMPAIGN_ID_GOBIERNO'\n};\n\n// Filtros Lusha por vertical\nconst VERTICAL_CONFIG = {\n  financiero: {\n    label: 'Financiero / Seguros',\n    framework: 'PAS',\n    jobTitles: ['CTO', 'Director TI', 'Director Tecnología', 'VP Tecnología', 'Gerente TI', 'Chief Technology Officer'],\n    industries: ['Financial Services', 'Insurance', 'Banking'],\n    companySize: [{ min: 200, max: 5000 }]\n  },\n  retail: {\n    label: 'Retail / eCommerce',\n    framework: 'AIDA',\n    jobTitles: ['CTO', 'Director Digital', 'CDO', 'Director Transformación Digital', 'eCommerce Director'],\n    industries: ['Retail', 'Consumer Goods'],\n    companySize: [{ min: 500, max: 10000 }]\n  },\n  manufactura: {\n    label: 'Manufactura / Industrial',\n    framework: 'BEFORE_AFTER',\n    jobTitles: ['CTO', 'Director TI', 'Director Operaciones', 'COO', 'Director Manufactura'],\n    industries: ['Manufacturing', 'Industrial Machinery', 'Automotive'],\n    companySize: [{ min: 300, max: 5000 }]\n  },\n  salud: {\n    label: 'Salud / Healthcare',\n    framework: 'CASE_STUDY',\n    jobTitles: ['Director TI', 'CTO', 'Director Transformación Digital', 'Director Médico Informático'],\n    industries: ['Healthcare', 'Hospital & Health Care', 'Medical Devices'],\n    companySize: [{ min: 200, max: 3000 }]\n  },\n  gobierno: {\n    label: 'Gobierno / Sector Público',\n    framework: 'PAS_NORMATIVO',\n    jobTitles: ['Director General TI', 'Director Informática', 'Subdirector TI', 'Director Transformación Digital'],\n    industries: ['Government Administration', 'Public Sector'],\n    companySize: [{ min: 100, max: 10000 }]\n  }\n};\n\nconst config = VERTICAL_CONFIG[VERTICAL_ACTIVO];\n\nreturn [{\n  json: {\n    vertical: VERTICAL_ACTIVO,\n    verticalLabel: config.label,\n    framework: config.framework,\n    jobTitles: config.jobTitles,\n    industries: config.industries,\n    companySize: config.companySize,\n    pageSize: PAGE_SIZE,\n    totalPages: PAGINAS,\n    campaignId: INSTANTLY_CAMPAIGNS[VERTICAL_ACTIVO],\n    currentPage: 0\n  }\n}];"
+      },
+      "id": "config-node",
+      "name": "Config — Vertical y Parámetros",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.lusha.com/v1/contacts/search",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "api_key", "value": "={{ $credentials.lushaApiKey }}" }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "=",
+              "value": "={{ JSON.stringify({\n  jobTitles: $json.jobTitles,\n  companySize: $json.companySize,\n  countries: ['MX'],\n  page: $json.currentPage,\n  page_size: $json.pageSize\n}) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "lusha-search",
+      "name": "Lusha — Buscar Contactos",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [680, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "LUSHA_CREDENTIAL_ID",
+          "name": "Lusha API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.lusha.com/v1/contacts/enrich",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "api_key", "value": "={{ $credentials.lushaApiKey }}" }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "=",
+              "value": "={{ JSON.stringify({ ids: $json.contacts.map(c => String(c.id)) }) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "lusha-enrich",
+      "name": "Lusha — Enriquecer (emails + teléfonos)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [900, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "LUSHA_CREDENTIAL_ID",
+          "name": "Lusha API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// ══════════════════════════════════════════════════════════════\n// DEDUP + LIMPIEZA DE LISTA\n// ══════════════════════════════════════════════════════════════\n// Filtra contactos sin email, ya en Pipedrive, o duplicados en esta ejecución\n\nconst contacts = $input.all();\nconst seen = new Set();\nconst clean = [];\n\nfor (const item of contacts) {\n  const c = item.json;\n\n  // Requiere email válido\n  if (!c.email || !c.email.includes('@')) continue;\n\n  // Dedup por email en esta ejecución\n  if (seen.has(c.email)) continue;\n  seen.add(c.email);\n\n  // Requiere nombre y empresa\n  if (!c.firstName || !c.companyName) continue;\n\n  clean.push({\n    json: {\n      lusha_id:      c.id,\n      first_name:    c.firstName,\n      last_name:     c.lastName || '',\n      email:         c.email,\n      title:         c.title || '',\n      company_name:  c.companyName,\n      company_size:  c.companySize || '',\n      industry:      c.industry || '',\n      linkedin_url:  c.linkedinUrl || '',\n      phone:         c.phone || '',\n      city:          c.city || '',\n      country:       c.country || 'México',\n      // pasamos el vertical desde el primer nodo config\n      vertical:      $('Config — Vertical y Parámetros').first().json.vertical,\n      verticalLabel: $('Config — Vertical y Parámetros').first().json.verticalLabel,\n      framework:     $('Config — Vertical y Parámetros').first().json.framework,\n      campaign_id:   $('Config — Vertical y Parámetros').first().json.campaignId\n    }\n  });\n}\n\nreturn clean;"
+      },
+      "id": "dedup-clean",
+      "name": "Dedup + Limpieza de Lista",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1120, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ══════════════════════════════════════════════════════════════\n// BUILD PROMPT PARA CLAUDE — Copy A/B por vertical\n// ══════════════════════════════════════════════════════════════\n\nconst FRAMEWORK_INSTRUCTIONS = {\n  PAS: `Framework PAS (Problem-Agitate-Solution) para sector Financiero/Seguros:\n1. PROBLEM (1-2 líneas): Nombrar un problema específico del sector (legacy systems, regulación CNBV/CNSF, integraciones core bancario, tiempo de TTM)\n2. AGITATE (1-2 líneas): Consecuencia real de no resolver\n3. SOLUTION (1-2 líneas): Cómo Bambu lo resuelve sin vender, solo mostrando el camino\nEjemplo de asunto: \"integración core bancario sin reemplazarlo\"`,\n\n  AIDA: `Framework AIDA (Attention-Interest-Desire-Action) para sector Retail/eCommerce:\n1. ATTENTION (1 línea): Dato o pregunta que interrumpa — específico para retail mexicano\n2. INTEREST (1-2 líneas): Contexto relevante para la empresa del contacto\n3. DESIRE (1-2 líneas): Resultado concreto de un cliente similar (Bonafont, Office Depot)\n4. ACTION (1 línea): Una sola pregunta para abrir conversación\nEjemplo de asunto: \"inventario unificado en línea y tienda física\"`,\n\n  BEFORE_AFTER: `Framework Before-After para Manufactura/Industrial:\n1. BEFORE (1-2 líneas): Situación actual sin resolver — específica para manufactura\n2. AFTER (1-2 líneas): Cómo sería diferente con la solución correcta\n3. BRIDGE (1 línea): Bambu como el puente entre ambos estados\n4. CTA (1 línea): Pregunta concreta sobre su situación actual\nEjemplo de asunto: \"datos de planta en tiempo real sin cambiar el ERP\"`,\n\n  CASE_STUDY: `Framework Case Study para Sector Salud:\n1. CONTEXTO (1 línea): Presentar brevemente un caso análogo\n2. PROBLEMA que tenía ese cliente (1 línea)\n3. LO QUE HIZO Bambu (1-2 líneas, técnico pero entendible)\n4. RESULTADO (1 línea con métrica si es posible)\n5. CONEXIÓN (1 línea): \"En [empresa] podría aplicar algo similar porque...\"\n6. CTA (1 línea): Pregunta abierta\nEjemplo de asunto: \"expediente clínico integrado sin reemplazar el HIS\"`,\n\n  PAS_NORMATIVO: `Framework PAS-Normativo para Gobierno/Sector Público:\n1. PROBLEM (1-2 líneas): Reto de modernización con restricciones presupuestales o normativas\n2. AGITATE (1 línea): Consecuencia (rezago ciudadano, auditorías, cambio de administración)\n3. SOLUTION (1-2 líneas): Desarrollo a la medida que respeta marco normativo existente\n4. CREDENCIAL (1 línea): Mención a DINA u otro cliente de sector público/industrial\nNota: Tono más formal. Usar \"usted\". Evitar anglicismos.\nEjemplo de asunto: \"modernización sin reemplazar sistemas críticos\"`\n};\n\nconst c = $input.first().json;\nconst framework = FRAMEWORK_INSTRUCTIONS[c.framework] || FRAMEWORK_INSTRUCTIONS.PAS;\n\nconst systemPrompt = `Eres un experto en ventas B2B consultivas para empresas de tecnología en México.\nEscribes emails fríos de alta personalización que se sienten como de colega a colega, no como spam corporativo.`;\n\nconst userPrompt = `Escribe DOS variantes de email frío (A y B) para el siguiente contacto.\n\nDATOS DEL CONTACTO:\n- Nombre: ${c.first_name} ${c.last_name}\n- Cargo: ${c.title}\n- Empresa: ${c.company_name}\n- Tamaño empresa: ${c.company_size} empleados\n- Industria: ${c.industry}\n- Vertical objetivo: ${c.verticalLabel}\n- Ciudad: ${c.city}, ${c.country}\n\nSOBRE BAMBU TECH SERVICES:\nBambu es una empresa mexicana de desarrollo de software a la medida, integraciones estratégicas (SAP, Oracle, Salesforce, sistemas legados), cloud e infraestructura, y soluciones de Data & AI. 10+ años de experiencia, 500+ proyectos entregados. Clientes: Gayosso, Bonafont, Office Depot, GNP Seguros, Farmacia San Pablo, DINA.\n\nCASO DE ÉXITO CLAVE:\nIsela Montenegro, Directora de Tecnología de Grupo Gayosso, habla sobre cómo Bambu transformó su operación tecnológica.\nVideo: https://youtu.be/6y1Jm8M-V38\n\nREGLAS:\n- Asunto: máx 8 palabras, sin signos de exclamación\n- Cuerpo: máx 120 palabras\n- Tono: directo, colega a colega, sin jerga de ventas\n- Primera línea: mención específica a ${c.company_name} o al rol de ${c.title}\n- NO usar: \"espero que estés bien\", \"me permito escribirte\", \"a quien corresponda\"\n- NO mencionar precios ni \"soluciones innovadoras\"\n- Cierre: UNA sola pregunta abierta o CTA específico\n- Las dos variantes deben tener enfoques distintos (ángulo diferente del mismo problema)\n\nFRAMEWORK PARA ESTE VERTICAL:\n${framework}\n\nRESPUNDE ÚNICAMENTE CON JSON VÁLIDO (sin texto adicional, sin markdown):\n{\n  \"email_a\": { \"subject\": \"...\", \"body\": \"...\" },\n  \"email_b\": { \"subject\": \"...\", \"body\": \"...\" }\n}`;\n\nreturn [{\n  json: {\n    ...c,\n    claude_system: systemPrompt,\n    claude_user: userPrompt\n  }\n}];"
+      },
+      "id": "build-prompt",
+      "name": "Build Prompt Claude",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1340, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "anthropic-version", "value": "2023-06-01" },
+            { "name": "x-api-key", "value": "={{ $credentials.anthropicApiKey }}" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({\n  model: 'claude-sonnet-4-6',\n  max_tokens: 1024,\n  system: $json.claude_system,\n  messages: [{ role: 'user', content: $json.claude_user }]\n}) }}",
+        "options": {}
+      },
+      "id": "claude-copy",
+      "name": "Claude — Generar Copy A/B",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1560, 300],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "ANTHROPIC_CREDENTIAL_ID",
+          "name": "Anthropic API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// ══════════════════════════════════════════════════════════════\n// PARSE RESPUESTA DE CLAUDE + MERGE CON DATOS DEL CONTACTO\n// ══════════════════════════════════════════════════════════════\n\nconst item = $input.first();\nconst contact = $('Build Prompt Claude').first().json;\n\nlet emailA, emailB;\ntry {\n  const raw = item.json.content[0].text;\n  // Claude a veces envuelve en ```json ... ```\n  const cleaned = raw.replace(/```json\\n?/g, '').replace(/```\\n?/g, '').trim();\n  const parsed = JSON.parse(cleaned);\n  emailA = parsed.email_a;\n  emailB = parsed.email_b;\n} catch(e) {\n  // Si Claude no devuelve JSON válido, log y skip\n  return [{ json: { error: true, reason: 'Claude parse error', contact_email: contact.email } }];\n}\n\nreturn [{\n  json: {\n    // Datos del contacto\n    lusha_id:     contact.lusha_id,\n    first_name:   contact.first_name,\n    last_name:    contact.last_name,\n    email:        contact.email,\n    title:        contact.title,\n    company_name: contact.company_name,\n    industry:     contact.industry,\n    linkedin_url: contact.linkedin_url,\n    phone:        contact.phone,\n    vertical:     contact.vertical,\n    campaign_id:  contact.campaign_id,\n    // Copy generado\n    subject_a:    emailA.subject,\n    body_a:       emailA.body,\n    subject_b:    emailB.subject,\n    body_b:       emailB.body,\n    // Variante asignada (A/B por paridad del lusha_id)\n    variant:      (parseInt(contact.lusha_id) % 2 === 0) ? 'A' : 'B',\n    subject_final: (parseInt(contact.lusha_id) % 2 === 0) ? emailA.subject : emailB.subject,\n    body_final:    (parseInt(contact.lusha_id) % 2 === 0) ? emailA.body    : emailB.body\n  }\n}];"
+      },
+      "id": "parse-copy",
+      "name": "Parse Copy + Asignar Variante A/B",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1780, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.error }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "notEquals" }
+            }
+          ]
+        }
+      },
+      "id": "filter-errors",
+      "name": "Filtrar Errores de Claude",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [2000, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.instantly.ai/api/v1/lead/add",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "Authorization", "value": "Bearer INSTANTLY_API_KEY" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({\n  campaign_id: $json.campaign_id,\n  email: $json.email,\n  first_name: $json.first_name,\n  last_name: $json.last_name,\n  company_name: $json.company_name,\n  personalization: $json.body_final,\n  custom_variables: {\n    subject_personalizado: $json.subject_final,\n    cargo: $json.title,\n    linkedin: $json.linkedin_url,\n    vertical: $json.vertical,\n    variante_ab: $json.variant,\n    lusha_id: $json.lusha_id\n  }\n}) }}",
+        "options": {}
+      },
+      "id": "instantly-add-lead",
+      "name": "Instantly — Agregar Lead a Campaña",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [2220, 220]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "mode": "id",
+          "value": "WF02_GOOGLE_SHEET_ID"
+        },
+        "sheetName": {
+          "mode": "name",
+          "value": "Outbound Log"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "fecha":          "={{ new Date().toISOString().split('T')[0] }}",
+            "vertical":       "={{ $json.vertical }}",
+            "email":          "={{ $json.email }}",
+            "nombre":         "={{ $json.first_name + ' ' + $json.last_name }}",
+            "cargo":          "={{ $json.title }}",
+            "empresa":        "={{ $json.company_name }}",
+            "industria":      "={{ $json.industry }}",
+            "variante_ab":    "={{ $json.variant }}",
+            "asunto":         "={{ $json.subject_final }}",
+            "campaign_id":    "={{ $json.campaign_id }}",
+            "lusha_id":       "={{ $json.lusha_id }}",
+            "estado":         "enviado",
+            "respuesta":      "",
+            "clasificacion":  "",
+            "deal_creado":    "no"
+          }
+        }
+      },
+      "id": "sheets-log",
+      "name": "Google Sheets — Log Outbound",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [2220, 440],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "Bambu Google Sheets"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "webhook-reply",
+      "name": "Webhook — Respuesta Instantly",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 700],
+      "webhookId": "wf02-instantly-reply",
+      "parameters": {
+        "path": "wf02-instantly-reply",
+        "responseMode": "immediately",
+        "responseData": "firstEntryJson"
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "anthropic-version", "value": "2023-06-01" },
+            { "name": "x-api-key", "value": "={{ $credentials.anthropicApiKey }}" }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({\n  model: 'claude-sonnet-4-6',\n  max_tokens: 256,\n  messages: [{\n    role: 'user',\n    content: 'Clasifica la siguiente respuesta de email de ventas en UNA de estas categorías: POSITIVA, NEGATIVA, OOO, NO_APTO, REFERIDO.\\n\\nRESPUESTA:\\n\"' + $json.body.reply_text + '\"\\n\\nRESPUNDE ÚNICAMENTE CON JSON VÁLIDO (sin markdown):\\n{\"categoria\":\"...\",\"razon\":\"...\",\"accion_sugerida\":\"...\",\"contacto_referido\":null,\"reactivar_en_dias\":null}'\n  }]\n}) }}",
+        "options": {}
+      },
+      "id": "claude-classify",
+      "name": "Claude — Clasificar Respuesta",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 700],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "ANTHROPIC_CREDENTIAL_ID",
+          "name": "Anthropic API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first();\nconst reply = $('Webhook — Respuesta Instantly').first().json;\n\nlet classification;\ntry {\n  const raw = item.json.content[0].text;\n  const cleaned = raw.replace(/```json\\n?/g,'').replace(/```\\n?/g,'').trim();\n  classification = JSON.parse(cleaned);\n} catch(e) {\n  classification = { categoria: 'NEGATIVA', razon: 'Parse error', accion_sugerida: 'Revisar manualmente' };\n}\n\nreturn [{\n  json: {\n    // Datos del reply de Instantly\n    reply_email:    reply.body?.email || reply.email || '',\n    reply_text:     reply.body?.reply_text || '',\n    campaign_id:    reply.body?.campaign_id || '',\n    // Clasificación de Claude\n    categoria:       classification.categoria,\n    razon:           classification.razon,\n    accion:          classification.accion_sugerida,\n    referido:        classification.contacto_referido,\n    reactivar_dias:  classification.reactivar_en_dias,\n    es_positiva:     classification.categoria === 'POSITIVA'\n  }\n}];"
+      },
+      "id": "parse-reply",
+      "name": "Parse Clasificación",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 700]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.es_positiva }}",
+              "rightValue": true,
+              "operator": { "type": "boolean", "operation": "equals" }
+            }
+          ]
+        }
+      },
+      "id": "if-positiva",
+      "name": "¿Respuesta POSITIVA?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [900, 700]
+    },
+    {
+      "parameters": {
+        "jsCode": "// ══════════════════════════════════════════════════════════════\n// ASIGNACIÓN ALEATORIA — Pre Sales\n// ══════════════════════════════════════════════════════════════\n// Usa hash del email del prospecto para asignación determinista:\n// el mismo contacto siempre cae al mismo Pre Sales (evita reasignaciones).\n\nconst PRE_SALES = [\n  { pipedrive_id: 24060159, nombre: 'Samantha Rivas',  email: 'samantha.rivas@bambu-techservices.com' },\n  { pipedrive_id: 25431089, nombre: 'Vicente Varela',  email: 'vicente.varela@bambu-techservices.com' },\n  { pipedrive_id: 25752795, nombre: 'Emilio Mendoza',  email: 'emilio.mendoza@bambu-techservices.com' },\n  { pipedrive_id: 11865784, nombre: 'Sofia Santiago',  email: 'sofia@bambu-techservices.com'          },\n  { pipedrive_id: 26438238, nombre: 'Harold Bautista', email: 'harold.bautista@bambu-techservices.com' }\n];\n\nconst replyEmail = $json.reply_email || '';\n\n// Hash simple: suma de char codes del email % cantidad de reps\nconst hash = replyEmail.split('').reduce((acc, ch) => acc + ch.charCodeAt(0), 0);\nconst assigned = PRE_SALES[hash % PRE_SALES.length];\n\nreturn [{\n  json: {\n    ...$json,\n    presales_pipedrive_id: assigned.pipedrive_id,\n    presales_nombre:       assigned.nombre,\n    presales_email:        assigned.email\n  }\n}];"
+      },
+      "id": "assign-presales",
+      "name": "Asignar Pre Sales Aleatorio",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1010, 700]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.pipedrive.com/v1/deals",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpQueryAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({\n  title: $json.reply_email.split('@')[0] + ' — Outbound WF-02 (' + new Date().toISOString().split('T')[0] + ')',\n  pipeline_id: 1,\n  stage_id: 1,\n  status: 'open',\n  user_id: $json.presales_pipedrive_id,\n  '6f2c4a0b8e1d3f7a9c5b2e4d8f1a3c6e': 'outbound_wf02'\n}) }}",
+        "options": {}
+      },
+      "id": "pipedrive-create-deal",
+      "name": "Pipedrive — Crear Deal MQL",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1120, 580],
+      "credentials": {
+        "httpQueryAuth": {
+          "id": "PIPEDRIVE_CREDENTIAL_ID",
+          "name": "Pipedrive API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.pipedrive.com/v1/notes",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpQueryAuth",
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={{ JSON.stringify({\n  content: '🟢 RESPUESTA POSITIVA — Outbound WF-02\\n\\nEmail: ' + $json.reply_email + '\\nRespuesta: ' + $json.reply_text + '\\n\\nClaude dice: ' + $json.razon + '\\nAcción sugerida: ' + $json.accion,\n  deal_id: $('Pipedrive — Crear Deal MQL').first().json.data.id\n}) }}",
+        "options": {}
+      },
+      "id": "pipedrive-note",
+      "name": "Pipedrive — Agregar Nota con Respuesta",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1340, 580],
+      "credentials": {
+        "httpQueryAuth": {
+          "id": "PIPEDRIVE_CREDENTIAL_ID",
+          "name": "Pipedrive API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "roberto.esparza@bambu-techservices.com",
+        "toEmail": "roberto.esparza@bambu-techservices.com",
+        "subject": "🟢 Respuesta positiva outbound: {{ $json.reply_email }}",
+        "emailType": "html",
+        "html": "<h2 style='color:#00AA00;'>Respuesta positiva — WF-02 Outbound</h2><p><strong>De:</strong> {{ $json.reply_email }}</p><p><strong>Respuesta:</strong></p><blockquote>{{ $json.reply_text }}</blockquote><p><strong>Claude dice:</strong> {{ $json.razon }}</p><p><strong>Acción sugerida:</strong> {{ $json.accion }}</p><p><a href='https://bambumobile.pipedrive.com/deals'>Ver deal en Pipedrive →</a></p>",
+        "options": {}
+      },
+      "id": "email-notify-cgo",
+      "name": "Email — Notificar CGO (Roberto)",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [1340, 420],
+      "credentials": {
+        "smtp": {
+          "id": "SMTP_CREDENTIAL_ID",
+          "name": "Gmail SMTP Bambu"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "roberto.esparza@bambu-techservices.com",
+        "toEmail": "={{ $('Asignar Pre Sales Aleatorio').first().json.presales_email }}",
+        "subject": "=🟢 Nuevo lead asignado a ti — {{ $('Asignar Pre Sales Aleatorio').first().json.reply_email }}",
+        "emailType": "html",
+        "html": "=<h2 style='color:#00AA00;'>Tienes un nuevo lead outbound asignado</h2><p>Hola <strong>{{ $('Asignar Pre Sales Aleatorio').first().json.presales_nombre.split(' ')[0] }}</strong>,</p><p>El sistema de outbound WF-02 detectó una respuesta positiva y el deal fue creado en Pipedrive con tú como propietario.</p><table style='border-collapse:collapse;width:100%;'><tr><td style='padding:8px;border:1px solid #ddd;'><strong>Prospecto</strong></td><td style='padding:8px;border:1px solid #ddd;'>{{ $('Asignar Pre Sales Aleatorio').first().json.reply_email }}</td></tr><tr><td style='padding:8px;border:1px solid #ddd;'><strong>Su mensaje</strong></td><td style='padding:8px;border:1px solid #ddd;'>{{ $('Asignar Pre Sales Aleatorio').first().json.reply_text }}</td></tr><tr><td style='padding:8px;border:1px solid #ddd;'><strong>Acción sugerida</strong></td><td style='padding:8px;border:1px solid #ddd;'>{{ $('Asignar Pre Sales Aleatorio').first().json.accion }}</td></tr></table><br><p><strong>Próximo paso:</strong> Contáctalo en las próximas <strong>4 horas</strong> para agendar un Taller de Requerimientos.</p><p><a href='https://bambumobile.pipedrive.com/deals' style='background:#00AA00;color:#fff;padding:10px 20px;text-decoration:none;border-radius:4px;'>Ver deal en Pipedrive →</a></p><br><p style='color:#888;font-size:12px;'>Deal asignado automáticamente por WF-02 Outbound · Bambu Tech Services</p>",
+        "options": {}
+      },
+      "id": "email-notify-presales",
+      "name": "Email — Notificar Pre Sales Asignado",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [1560, 580],
+      "credentials": {
+        "smtp": {
+          "id": "SMTP_CREDENTIAL_ID",
+          "name": "Gmail SMTP Bambu"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Cron — Lunes 7am CDMX": {
+      "main": [[{ "node": "Config — Vertical y Parámetros", "type": "main", "index": 0 }]]
+    },
+    "Config — Vertical y Parámetros": {
+      "main": [[{ "node": "Lusha — Buscar Contactos", "type": "main", "index": 0 }]]
+    },
+    "Lusha — Buscar Contactos": {
+      "main": [[{ "node": "Lusha — Enriquecer (emails + teléfonos)", "type": "main", "index": 0 }]]
+    },
+    "Lusha — Enriquecer (emails + teléfonos)": {
+      "main": [[{ "node": "Dedup + Limpieza de Lista", "type": "main", "index": 0 }]]
+    },
+    "Dedup + Limpieza de Lista": {
+      "main": [[{ "node": "Build Prompt Claude", "type": "main", "index": 0 }]]
+    },
+    "Build Prompt Claude": {
+      "main": [[{ "node": "Claude — Generar Copy A/B", "type": "main", "index": 0 }]]
+    },
+    "Claude — Generar Copy A/B": {
+      "main": [[{ "node": "Parse Copy + Asignar Variante A/B", "type": "main", "index": 0 }]]
+    },
+    "Parse Copy + Asignar Variante A/B": {
+      "main": [[{ "node": "Filtrar Errores de Claude", "type": "main", "index": 0 }]]
+    },
+    "Filtrar Errores de Claude": {
+      "main": [
+        [
+          { "node": "Instantly — Agregar Lead a Campaña", "type": "main", "index": 0 },
+          { "node": "Google Sheets — Log Outbound", "type": "main", "index": 0 }
+        ],
+        []
+      ]
+    },
+    "Webhook — Respuesta Instantly": {
+      "main": [[{ "node": "Claude — Clasificar Respuesta", "type": "main", "index": 0 }]]
+    },
+    "Claude — Clasificar Respuesta": {
+      "main": [[{ "node": "Parse Clasificación", "type": "main", "index": 0 }]]
+    },
+    "Parse Clasificación": {
+      "main": [[{ "node": "¿Respuesta POSITIVA?", "type": "main", "index": 0 }]]
+    },
+    "¿Respuesta POSITIVA?": {
+      "main": [
+        [{ "node": "Asignar Pre Sales Aleatorio", "type": "main", "index": 0 }],
+        []
+      ]
+    },
+    "Asignar Pre Sales Aleatorio": {
+      "main": [[
+        { "node": "Pipedrive — Crear Deal MQL", "type": "main", "index": 0 },
+        { "node": "Email — Notificar CGO (Roberto)", "type": "main", "index": 0 }
+      ]]
+    },
+    "Pipedrive — Crear Deal MQL": {
+      "main": [[
+        { "node": "Pipedrive — Agregar Nota con Respuesta", "type": "main", "index": 0 },
+        { "node": "Email — Notificar Pre Sales Asignado", "type": "main", "index": 0 }
+      ]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "America/Mexico_City"
+  },
+  "staticData": null,
+  "tags": [{ "name": "outbound" }, { "name": "lusha" }, { "name": "instantly" }, { "name": "wf-02" }],
+  "pinData": {}
+}
