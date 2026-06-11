@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema de Automatización Comercial — Bambu Tech Services</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  :root {
+    --gold: #f5c842;
+    --gold-light: #fde68a;
+    --bg: #0f0f0f;
+    --bg-card: #1a1a1a;
+    --bg-table: #141414;
+    --border: #2a2a2a;
+    --text: #e5e5e5;
+    --text-muted: #888;
+    --green: #22c55e;
+    --yellow: #f59e0b;
+    --blue: #3b82f6;
+    --purple: #a855f7;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    font-size: 15px;
+  }
+  /* NAV */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: #0a0a0a;
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex; align-items: center; gap: 2rem;
+    height: 52px; overflow-x: auto;
+  }
+  nav .logo { color: var(--gold); font-weight: 700; font-size: 14px; white-space: nowrap; }
+  nav a {
+    color: var(--text-muted); text-decoration: none; font-size: 13px;
+    white-space: nowrap; transition: color .2s;
+  }
+  nav a:hover { color: var(--gold); }
+  /* HERO */
+  .hero {
+    background: linear-gradient(135deg, #0f0f0f 0%, #1a1200 100%);
+    border-bottom: 1px solid #2a1f00;
+    padding: 3.5rem 2rem 3rem;
+    text-align: center;
+  }
+  .hero h1 { font-size: 2rem; font-weight: 700; color: var(--gold); margin-bottom: .5rem; }
+  .hero h2 { font-size: 1.1rem; font-weight: 400; color: var(--text-muted); margin-bottom: 1.5rem; }
+  .hero-meta { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+  .badge {
+    display: inline-flex; align-items: center; gap: .4rem;
+    background: #1f1600; border: 1px solid #3d2e00;
+    color: var(--gold-light); font-size: 12px; font-weight: 500;
+    padding: .3rem .8rem; border-radius: 99px;
+  }
+  /* LAYOUT */
+  .container { max-width: 1100px; margin: 0 auto; padding: 2.5rem 2rem; }
+  /* SECTIONS */
+  section { margin-bottom: 4rem; }
+  .section-header {
+    display: flex; align-items: center; gap: .75rem;
+    margin-bottom: 1.5rem; padding-bottom: .75rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-num {
+    background: var(--gold); color: #000;
+    font-size: 11px; font-weight: 700;
+    padding: .2rem .55rem; border-radius: 4px;
+  }
+  .section-header h2 { font-size: 1.25rem; font-weight: 600; color: var(--text); }
+  .section-intro { color: var(--text-muted); margin-bottom: 1.5rem; font-size: 14px; }
+  /* INTRO BOX */
+  .intro-box {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--gold);
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .intro-box p { color: var(--text); line-height: 1.8; }
+  .intro-box .stack {
+    margin-top: .75rem; font-size: 13px; color: var(--text-muted);
+    display: flex; align-items: center; gap: .5rem; flex-wrap: wrap;
+  }
+  .stack-item {
+    background: #1f1f1f; border: 1px solid var(--border);
+    border-radius: 4px; padding: .2rem .6rem;
+    font-size: 12px; color: var(--gold-light);
+  }
+  /* MERMAID */
+  .diagram-wrap {
+    background: #111;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.5rem;
+    overflow-x: auto;
+  }
+  .diagram-wrap .mermaid { text-align: center; }
+  /* TABLES */
+  .table-wrap { overflow-x: auto; border-radius: 8px; border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; background: var(--bg-table); font-size: 13.5px; }
+  th {
+    background: #1f1f1f;
+    color: var(--gold);
+    text-align: left; padding: .7rem 1rem;
+    font-size: 12px; font-weight: 600; letter-spacing: .03em;
+    border-bottom: 1px solid var(--border);
+  }
+  td { padding: .65rem 1rem; border-bottom: 1px solid #1e1e1e; color: var(--text); }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #1c1c1c; }
+  /* STATUS BADGES */
+  .status-prod   { color: #4ade80; font-weight: 600; }
+  .status-active { color: #86efac; }
+  .status-warn   { color: #fbbf24; }
+  .status-dev    { color: #9ca3af; }
+  /* WF CARDS */
+  .cards-grid { display: grid; gap: 1.5rem; grid-template-columns: 1fr; }
+  .wf-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .wf-card-header {
+    background: #1f1f1f;
+    padding: 1rem 1.5rem;
+    display: flex; align-items: center; gap: .75rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .wf-icon { font-size: 1.5rem; }
+  .wf-title-block .wf-name { font-size: 1.05rem; font-weight: 600; color: var(--text); }
+  .wf-title-block .wf-tagline { font-size: 13px; color: var(--text-muted); font-style: italic; }
+  .wf-card-badge {
+    margin-left: auto;
+    font-size: 11px; font-weight: 600;
+    padding: .25rem .7rem; border-radius: 99px;
+  }
+  .badge-prod   { background: #052e16; color: #4ade80; border: 1px solid #14532d; }
+  .badge-active { background: #052e16; color: #86efac; border: 1px solid #166534; }
+  .badge-warn   { background: #1c1400; color: #fbbf24; border: 1px solid #78350f; }
+  .badge-dev    { background: #1c1c1c; color: #9ca3af; border: 1px solid #374151; }
+  .wf-card-body { padding: 1.25rem 1.5rem; }
+  .wf-card-body p { color: var(--text); margin-bottom: 1rem; font-size: 14px; }
+  .wf-card-body h4 { font-size: 12px; font-weight: 600; color: var(--gold); text-transform: uppercase; letter-spacing: .05em; margin: 1rem 0 .5rem; }
+  .wf-card-body ul { padding-left: 1.25rem; color: var(--text); font-size: 14px; }
+  .wf-card-body ul li { margin-bottom: .3rem; }
+  .wf-card-body strong { color: var(--gold-light); }
+  .wf-card-body .table-wrap { margin-top: .5rem; }
+  .wf-card-footer {
+    background: #141414;
+    border-top: 1px solid var(--border);
+    padding: .65rem 1.5rem;
+    display: flex; gap: 1.5rem; flex-wrap: wrap;
+    font-size: 12px; color: var(--text-muted);
+  }
+  .wf-card-footer span { display: flex; align-items: center; gap: .3rem; }
+  /* PENDING CARDS */
+  .pending-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  .pending-card {
+    background: #111;
+    border: 1px solid #2a2a2a;
+    border-top: 2px solid #374151;
+    border-radius: 8px;
+    padding: 1.25rem;
+  }
+  .pending-card .pc-header { display: flex; align-items: center; gap: .6rem; margin-bottom: .75rem; }
+  .pending-card .pc-icon { font-size: 1.25rem; }
+  .pending-card .pc-name { font-size: .95rem; font-weight: 600; color: var(--text); }
+  .pending-card .pc-sub { font-size: 11px; color: var(--text-muted); }
+  .pending-card p { font-size: 13px; color: #aaa; line-height: 1.6; }
+  .pending-card .pc-connects {
+    margin-top: .75rem; font-size: 11px;
+    color: var(--text-muted);
+    display: flex; align-items: center; gap: .4rem; flex-wrap: wrap;
+  }
+  .connects-to {
+    background: #1a1a1a; border: 1px solid var(--border);
+    border-radius: 4px; padding: .15rem .5rem;
+    color: #888; font-size: 11px;
+  }
+  /* SCHEDULE GRID */
+  .schedule-grid {
+    background: #111;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .sched-row {
+    display: flex; align-items: stretch;
+    border-bottom: 1px solid var(--border);
+  }
+  .sched-row:last-child { border-bottom: none; }
+  .sched-label {
+    min-width: 170px; max-width: 170px;
+    padding: .9rem 1rem;
+    font-size: 12px; font-weight: 700;
+    display: flex; align-items: center;
+    border-right: 1px solid var(--border);
+    letter-spacing: .02em;
+  }
+  .sched-label.realtime { background: #1a1200; color: var(--gold); border-right-color: #3d2e00; }
+  .sched-label.lv       { background: #0d1f0d; color: #4ade80; }
+  .sched-label.lxv      { background: #1a1000; color: #fbbf24; }
+  .sched-label.mar      { background: #0d0d1f; color: #818cf8; }
+  .sched-label.vie      { background: #1a0d0d; color: #f87171; }
+  .sched-events {
+    flex: 1; padding: .55rem .75rem;
+    display: flex; flex-direction: column; gap: .35rem;
+  }
+  .sched-event {
+    display: flex; align-items: baseline; gap: .5rem;
+    font-size: 13px; color: var(--text);
+    padding: .3rem .5rem;
+    border-radius: 5px;
+    background: #181818;
+  }
+  .sched-time {
+    min-width: 52px;
+    font-size: 11px; font-weight: 700;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+  /* DIVIDER */
+  hr { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 1.5rem 2rem;
+    text-align: center;
+    font-size: 12px; color: var(--text-muted);
+  }
+  footer strong { color: var(--gold); }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <span class="logo">⚡ Bambu Automatización</span>
+  <a href="#intro">Qué es</a>
+  <a href="#mapa">Mapa del proceso</a>
+  <a href="#cadencia">Cadencia</a>
+  <a href="#estado">Estado actual</a>
+  <a href="#modulos">Módulos activos</a>
+  <a href="#proximos">Próximas incorporaciones</a>
+  <a href="#arquitectura">Arquitectura</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <h1>Sistema de Automatización Comercial con IA</h1>
+  <h2>Bambu Tech Services — Guía del Equipo Comercial</h2>
+  <div class="hero-meta">
+    <span class="badge">📅 Junio 2026</span>
+    <span class="badge">⚙️ v1.1</span>
+    <span class="badge">✅ 8 módulos activos</span>
+    <span class="badge">⏳ 4 en desarrollo</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- INTRO -->
+  <section id="intro">
+    <div class="intro-box">
+      <p>Una red de <strong>11 módulos automatizados</strong> conectados a Pipedrive que trabajan en segundo plano para que el equipo no pierda ningún deal por descuido, reciba leads ya calificados, y tenga visibilidad de su pipeline en tiempo real.</p>
+      <div class="stack">
+        <span>Stack:</span>
+        <span class="stack-item">Pipedrive</span>
+        <span class="stack-item">n8n Cloud</span>
+        <span class="stack-item">Claude AI</span>
+        <span class="stack-item">Gmail SMTP</span>
+        <span class="stack-item">Google Sheets</span>
+        <span class="stack-item">Tavily</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAPA -->
+  <section id="mapa">
+    <div class="section-header">
+      <span class="section-num">1</span>
+      <h2>Mapa del Proceso Comercial</h2>
+    </div>
+    <p class="section-intro">Dónde interviene cada módulo en el journey de un lead, desde la captación hasta el cierre.</p>
+    <div class="diagram-wrap">
+      <div class="mermaid">
+%%{init: {'theme': 'dark', 'themeVariables': {'primaryColor': '#1f1f1f', 'primaryTextColor': '#e5e5e5', 'primaryBorderColor': '#3b82f6', 'lineColor': '#555', 'secondaryColor': '#1a1a1a', 'tertiaryColor': '#111', 'background': '#111', 'mainBkg': '#1a1a1a', 'nodeBorder': '#3b82f6', 'clusterBkg': '#141414', 'titleColor': '#f5c842', 'edgeLabelBackground': '#1f1f1f', 'fontFamily': 'sans-serif'}}}%%
+flowchart LR
+    IN([🌐 Lead\nEntrante])
+
+    subgraph PS["👋 PRE-SALES — Samantha · Vicente · Emilio · Sofia · Harold"]
+        direction TB
+        MQL["📋 MQL\nLead Frío"]
+        BANT["🔍 Lead In\nBANT"]
+        CRED["🎤 Presentar\nCredenciales"]
+    end
+
+    subgraph TR["🤝 PRE-SALES + BDR"]
+        TALLER["🛠️ Taller de\nRequerimientos"]
+    end
+
+    subgraph BDR_SUB["💼 BDR — Cecia · Itzel · Luis · Victor · Gabriela · Nayeli"]
+        direction TB
+        PROP_R["📝 Realizando\nPropuesta"]
+        PROP_E["📨 Propuesta\nEnviada"]
+        NEG["🤝 Negociaciones"]
+        HOT_S["🔥 Calientes"]
+    end
+
+    WIN([✅ Ganado])
+    LOST([❌ Perdido])
+
+    IN -->|"✅ WF-10C\nCaptura automática"| MQL
+    MQL -->|"🎯 WF-01\nScore asignado"| BANT
+    BANT --> CRED --> TALLER --> PROP_R --> PROP_E --> NEG --> HOT_S
+    HOT_S --> WIN & LOST
+
+    WF03(["⚠️ WF-03 Deal Alerts\nL · X · V 8am\nDetecta estancamiento"])
+    WF10B_C(["📧 WF-10B Campañas\nReactiva contactos\ndormidos desde CRM"])
+    WF11(["🔄 WF-11 Re-engagement\nLunes 8am\nReactiva deals dormidos"])
+
+    WF03 -.-> PS & TR & BDR_SUB
+    WF10B_C -.->|"nutre top-of-funnel"| IN
+    WF11 -.->|"segunda oportunidad"| MQL & BANT
+      </div>
+    </div>
+  </section>
+
+  <!-- CADENCIA -->
+  <section id="cadencia">
+    <div class="section-header">
+      <span class="section-num">2</span>
+      <h2>Cuándo actúa cada módulo</h2>
+    </div>
+    <p class="section-intro">Cadencia de automatizaciones a lo largo de la semana.</p>
+    <div class="schedule-grid">
+
+      <div class="sched-row">
+        <div class="sched-label realtime">⚡ Tiempo real<br>Siempre activo</div>
+        <div class="sched-events">
+          <div class="sched-event"><span>🎯</span><span><strong>WF-01 Lead Scoring</strong> — califica cada deal nuevo al entrar o actualizarse en Pipedrive</span></div>
+          <div class="sched-event"><span>📥</span><span><strong>WF-10C Inbound Lead</strong> — registra leads de Cliengo y WhatsApp, asigna Pre Sales</span></div>
+          <div class="sched-event"><span>🔔</span><span><strong>WF-10B Hot Signal</strong> — alerta al BDR cuando su contacto abre un email de campaña</span></div>
+          <div class="sched-event"><span>🔄</span><span><strong>WF-11 Re-engagement Fase 2</strong> — polling cada 5 min; envía email de re-engagement al aprobar en Sheet</span></div>
+        </div>
+      </div>
+
+      <div class="sched-row">
+        <div class="sched-label lv">📅 Lunes<br>a Viernes</div>
+        <div class="sched-events">
+          <div class="sched-event"><span class="sched-time">6:30 am</span><span>📰</span><span><strong>WF-10A Intel Brief</strong> — brief de noticias con ángulos de venta para el CGO</span></div>
+          <div class="sched-event"><span class="sched-time">7:00 am</span><span>📉</span><span><strong>WF-01 Decay</strong> — recalcula scores reduciendo puntos por inactividad</span></div>
+        </div>
+      </div>
+
+      <div class="sched-row">
+        <div class="sched-label lv">📅 Lunes</div>
+        <div class="sched-events">
+          <div class="sched-event"><span class="sched-time">8:00 am</span><span>🔄</span><span><strong>WF-11 Re-engagement Fase 1</strong> — detecta deals dormidos y envía resumen de aprobación al CGO</span></div>
+        </div>
+      </div>
+
+      <div class="sched-row">
+        <div class="sched-label lxv">📅 L · X · V</div>
+        <div class="sched-events">
+          <div class="sched-event"><span class="sched-time">8:00 am</span><span>⚠️</span><span><strong>WF-03 Deal Alerts</strong> — correos de alerta por estancamiento a cada rep</span></div>
+        </div>
+      </div>
+
+      <div class="sched-row">
+        <div class="sched-label mar">📅 Martes</div>
+        <div class="sched-events">
+          <div class="sched-event"><span class="sched-time">9:00 am</span><span>📧</span><span><strong>WF-10B Campaña</strong> — envío masivo al segmento aprobado (tras aprobar Intel Brief)</span></div>
+        </div>
+      </div>
+
+      <div class="sched-row">
+        <div class="sched-label vie">📅 Viernes</div>
+        <div class="sched-events">
+          <div class="sched-event"><span class="sched-time">5:00 pm</span><span>📊</span><span><strong>WF-08 Coaching Digest</strong> — tarjeta de desempeño individual por rep + resumen CGO</span></div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ESTADO -->
+  <section id="estado">
+    <div class="section-header">
+      <span class="section-num">3</span>
+      <h2>Estado actual del sistema</h2>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Módulo</th>
+            <th>Nombre técnico</th>
+            <th>Estado</th>
+            <th>Frecuencia</th>
+            <th>¿Quién recibe?</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>01</td><td>Lead Scoring</td><td>WF-01 Score Engine</td><td><span class="status-prod">✅ Producción</span></td><td>Tiempo real (webhook)</td><td>Rep asignado + CGO (Hot/Caliente)</td></tr>
+          <tr><td>01D</td><td>Score Decay</td><td>WF-01 Decay Engine</td><td><span class="status-prod">✅ Producción</span></td><td>Diario 7am</td><td>CGO (digest de cambios)</td></tr>
+          <tr><td>03</td><td>Deal Alerts</td><td>WF-03 Stall Detection</td><td><span class="status-prod">✅ Producción</span></td><td>L/X/V 8am</td><td>Rep propietario + CGO (escalaciones)</td></tr>
+          <tr><td>08</td><td>Coaching Digest</td><td>WF-08 Pipeline Pulse</td><td><span class="status-prod">✅ Producción</span></td><td>Viernes 5pm</td><td>Cada rep (individual) + CGO</td></tr>
+          <tr><td>10A</td><td>Intel Brief</td><td>WF-10A News Engine</td><td><span class="status-active">🟢 Activo</span></td><td>L-V 6:30am</td><td>CGO + 18 destinatarios equipo</td></tr>
+          <tr><td>10B</td><td>Campañas</td><td>WF-10B Campaign Creator</td><td><span class="status-warn">🟡 En activación</span></td><td>Al aprobar brief</td><td>Segmento CRM + BDR (hot signals)</td></tr>
+          <tr><td>10B</td><td>Engagement Handler</td><td>WF-10B Hot Signal</td><td><span class="status-active">🟢 Activo</span></td><td>Tiempo real</td><td>BDR cuando su contacto abre email</td></tr>
+          <tr><td>10C</td><td>Inbound Lead</td><td>WF-10C Lead Ingestion</td><td><span class="status-active">🟢 Activo</span></td><td>Tiempo real</td><td>Pre Sales asignado + CGO</td></tr>
+          <tr><td>11</td><td>Re-engagement</td><td>WF-11 Re-engagement Queue</td><td><span class="status-warn">🟡 Activando</span></td><td>Lunes 8am (F1) · Tiempo real (F2)</td><td>CGO (resumen aprobación) + Contacto (email)</td></tr>
+          <tr><td>02</td><td>Enrichment</td><td>WF-02 Apollo/Clay</td><td><span class="status-dev">⏳ En desarrollo</span></td><td>—</td><td>—</td></tr>
+          <tr><td>04</td><td>Proposal Gen</td><td>WF-04 PandaDoc Auto</td><td><span class="status-dev">⏳ En desarrollo</span></td><td>—</td><td>—</td></tr>
+          <tr><td>06</td><td>WhatsApp Router</td><td>WF-06 WA Business</td><td><span class="status-dev">⏳ En desarrollo</span></td><td>—</td><td>—</td></tr>
+          <tr><td>09</td><td>Follow-up / Referidos</td><td>WF-09 Anti-ghosting</td><td><span class="status-dev">⏳ En desarrollo</span></td><td>—</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- MÓDULOS ACTIVOS -->
+  <section id="modulos">
+    <div class="section-header">
+      <span class="section-num">4</span>
+      <h2>Módulos activos — descripción para el equipo</h2>
+    </div>
+    <div class="cards-grid">
+
+      <!-- WF-01 -->
+      <div class="wf-card">
+        <div class="wf-card-header">
+          <span class="wf-icon">🎯</span>
+          <div class="wf-title-block">
+            <div class="wf-name">WF-01 — Lead Scoring</div>
+            <div class="wf-tagline">"¿A qué lead llamo primero?"</div>
+          </div>
+          <span class="wf-card-badge badge-prod">✅ Producción</span>
+        </div>
+        <div class="wf-card-body">
+          <p>Cada vez que entra o se actualiza un deal en Pipedrive, el sistema lo analiza en segundos y le asigna un <strong>puntaje del 0 al 100</strong>. Incluye decay diario a las 7am que reduce el score si el deal lleva días sin movimiento.</p>
+          <h4>Cómo califica</h4>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Componente</th><th>Peso</th><th>Qué mide</th></tr></thead>
+              <tbody>
+                <tr><td>Firmográfico</td><td>30 pts</td><td>Tamaño empresa, industria, cargo del contacto</td></tr>
+                <tr><td>Comportamiento</td><td>30 pts</td><td>Velocidad de respuesta, número de interacciones</td></tr>
+                <tr><td>BANT</td><td>40 pts</td><td>Budget, Autoridad, Necesidad, Timeline detectados</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <h4>Clasificaciones y SLA</h4>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Score</th><th>Clasificación</th><th>SLA de contacto</th></tr></thead>
+              <tbody>
+                <tr><td>71–100</td><td>🔥 Hot</td><td>&lt; 1 hora</td></tr>
+                <tr><td>51–70</td><td>🟠 Caliente</td><td>&lt; 4 horas</td></tr>
+                <tr><td>26–50</td><td>🟡 Tibio</td><td>&lt; 24 horas</td></tr>
+                <tr><td>0–25</td><td>🔵 Frío</td><td>Nurturing automático</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="wf-card-footer">
+          <span>⏰ Tiempo real + Diario 7am</span>
+          <span>📧 Rep asignado + CGO (si Hot/Caliente)</span>
+        </div>
+      </div>
+
+      <!-- WF-03 -->
+      <div class="wf-card">
+        <div class="wf-card-header">
+          <span class="wf-icon">⚠️</span>
+          <div class="wf-title-block">
+            <div class="wf-name">WF-03 — Deal Alerts</div>
+            <div class="wf-tagline">"Este deal lleva demasiado tiempo quieto."</div>
+          </div>
+          <span class="wf-card-badge badge-prod">✅ Producción</span>
+        </div>
+        <div class="wf-card-body">
+          <p>Lunes, miércoles y viernes a las 8am, el sistema revisa todos los deals abiertos y avisa si alguno lleva demasiado tiempo en la misma etapa. Cada alerta queda registrada en Google Sheets.</p>
+          <h4>Tipos de alerta</h4>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Tipo</th><th>Ícono</th><th>Cuándo llega</th><th>A quién</th></tr></thead>
+              <tbody>
+                <tr><td>Suave</td><td>⚠️</td><td>60% del tiempo límite consumido</td><td>Rep</td></tr>
+                <tr><td>Urgente</td><td>🔴</td><td>100% del tiempo límite agotado</td><td>Rep</td></tr>
+                <tr><td>Escalación</td><td>🚨</td><td>+20% sobre el límite (deadline superado)</td><td>Rep + CGO</td></tr>
+                <tr><td>Inactividad</td><td>💤</td><td>5+ días sin ningún movimiento en Pipedrive</td><td>Rep</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <h4>Plazos máximos por etapa</h4>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Etapa</th><th>Tiempo límite</th></tr></thead>
+              <tbody>
+                <tr><td>MQL — Lead Frío</td><td>5 días</td></tr>
+                <tr><td>Lead In · BANT</td><td>7 días</td></tr>
+                <tr><td>Presentar Credenciales</td><td>10 días</td></tr>
+                <tr><td>Taller Requerimientos</td><td>10 días</td></tr>
+                <tr><td>Realizando Propuesta</td><td>7 días</td></tr>
+                <tr><td>Propuesta Enviada</td><td>14 días</td></tr>
+                <tr><td>Negociaciones</td><td>15 días</td></tr>
+                <tr><td>Calientes</td><td>10 días</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="wf-card-footer">
+          <span>📅 Lunes · Miércoles · Viernes 8am</span>
+          <span>📧 Rep propietario + CGO (escalaciones)</span>
+          <span>📊 Log: WF-03 Alert Log - Bambu</span>
+        </div>
+      </div>
+
+      <!-- WF-08 -->
+      <div class="wf-card">
+        <div class="wf-card-header">
+          <span class="wf-icon">📊</span>
+          <div class="wf-title-block">
+            <div class="wf-name">WF-08 — Coaching Digest</div>
+            <div class="wf-tagline">"¿Cómo fue tu semana?"</div>
+          </div>
+          <span class="wf-card-badge badge-prod">✅ Producción</span>
+        </div>
+        <div class="wf-card-body">
+          <p>Cada <strong>viernes a las 5pm</strong> recibes tu tarjeta de desempeño semanal personalizada. El CGO recibe 1 copia de cada tarjeta individual + 1 resumen ejecutivo global con ranking del equipo.</p>
+          <h4>Qué contiene tu tarjeta</h4>
+          <ul>
+            <li><strong>Semáforo de semana</strong> 🟢🟡🟠🔴 con diagnóstico</li>
+            <li>Deals activos y valor total en tu pipeline</li>
+            <li>Deals que avanzaste esta semana</li>
+            <li>Deals sin actividad (en riesgo)</li>
+            <li>Resumen de alertas WF-03 recibidas</li>
+            <li><strong>Top 3 deals más urgentes</strong> con link directo a Pipedrive</li>
+            <li><strong>Recomendación de acción</strong> basada en tu estado actual</li>
+          </ul>
+        </div>
+        <div class="wf-card-footer">
+          <span>📅 Viernes 5pm</span>
+          <span>📧 Cada rep (individual) + CGO</span>
+          <span>📊 Log: Coaching Log</span>
+        </div>
+      </div>
+
+      <!-- WF-10A -->
+      <div class="wf-card">
+        <div class="wf-card-header">
+          <span class="wf-icon">📰</span>
+          <div class="wf-title-block">
+            <div class="wf-name">WF-10A — Intel Brief</div>
+            <div class="wf-tagline">"¿Qué pasa en los sectores de nuestros clientes?"</div>
+          </div>
+          <span class="wf-card-badge badge-active">🟢 Activo</span>
+        </div>
+        <div class="wf-card-body">
+          <p>De <strong>lunes a viernes a las 6:30am</strong>, el sistema recopila automáticamente noticias relevantes de 4 verticales clave y las analiza con Claude AI para identificar ángulos de venta para Bambu.</p>
+          <h4>Verticales monitoreadas</h4>
+          <p>Manufactura &nbsp;·&nbsp; Financiero &nbsp;·&nbsp; Retail &nbsp;·&nbsp; Ciberseguridad / Cloud / IA</p>
+          <h4>Por cada noticia incluye</h4>
+          <ul>
+            <li>Contexto de la noticia</li>
+            <li>Quién es el decisor afectado en el cliente</li>
+            <li>Ángulo comercial para Bambu</li>
+            <li>Nivel de urgencia</li>
+          </ul>
+          <h4>Flujo de aprobación</h4>
+          <p>CGO recibe el brief &nbsp;→&nbsp; lo revisa &nbsp;→&nbsp; aprueba en Google Sheets &nbsp;→&nbsp; se activa WF-10B Campaign.</p>
+        </div>
+        <div class="wf-card-footer">
+          <span>📅 L-V 6:30am</span>
+          <span>📧 CGO + equipo (18 destinatarios)</span>
+          <span>📊 Sheet: Intel Briefs</span>
+        </div>
+      </div>
+
+      <!-- WF-10B -->
+      <div class="wf-card">
+        <div class="wf-card-header">
+          <span class="wf-icon">📧</span>
+          <div class="wf-title-block">
+            <div class="wf-name">WF-10B — Campaign Engine</div>
+            <div class="wf-tagline">"Campaña lista para enviar."</div>
+          </div>
+          <span class="wf-card-badge badge-warn">🟡 En activación</span>
+        </div>
+        <div class="wf-card-body">
+          <p>Cuando el CGO aprueba un Intel Brief en Google Sheets, el sistema genera automáticamente la campaña completa lista para enviar.</p>
+          <h4>Qué genera</h4>
+          <ul>
+            <li><strong>Email de campaña HTML</strong> listo para enviar al segmento de Pipedrive (~150–600 contactos)</li>
+            <li><strong>Mensaje de WhatsApp</strong> pre-redactado para envío manual desde WA Business</li>
+            <li><strong>Alerta Hot Signal</strong> al BDR cuando su contacto abre el correo: <em>"X de [empresa] abrió tu email. Score: 78. Buen momento para llamar."</em></li>
+          </ul>
+          <h4>Activación pendiente</h4>
+          <p>Se activa automáticamente cuando el primer brief pase a estado <strong>aprobado</strong> en el Sheet.</p>
+        </div>
+        <div class="wf-card-footer">
+          <span>📅 Martes 9am (tras aprobación)</span>
+          <span>📧 Segmento CRM + BDR (hot signals)</span>
+          <span>📊 Sheet: Campañas</span>
+        </div>
+      </div>
+
+      <!-- WF-10C -->
+      <div class="wf-card">
+        <div class="wf-card-header">
+          <span class="wf-icon">📥</span>
+          <div class="wf-title-block">
+            <div class="wf-name">WF-10C — Inbound Lead</div>
+            <div class="wf-tagline">"Llegó un lead nuevo, ya está en Pipedrive."</div>
+          </div>
+          <span class="wf-card-badge badge-active">🟢 Activo</span>
+        </div>
+        <div class="wf-card-body">
+          <p>Captura leads de dos canales y los registra automáticamente en Pipedrive. <strong>Meta: primer contacto en menos de 2 horas.</strong></p>
+          <h4>Canales de entrada</h4>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Canal</th><th>Cómo funciona</th></tr></thead>
+              <tbody>
+                <tr><td>🤖 Cliengo (web)</td><td>El chatbot envía el lead directo a Pipedrive vía webhook</td></tr>
+                <tr><td>📱 WhatsApp manual</td><td>El rep llena un formulario web y el sistema crea el deal</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <h4>Qué hace al recibir un lead</h4>
+          <ul>
+            <li>Crea la persona y organización en Pipedrive (si no existen)</li>
+            <li>Crea el deal en etapa MQL con nota del mensaje inicial</li>
+            <li>Dispara WF-01 para scoring inmediato</li>
+            <li>Asigna un Pre Sales por rotación (Samantha · Vicente · Emilio · Sofia · Harold)</li>
+            <li>Envía email de notificación al Pre Sales asignado con link al deal</li>
+          </ul>
+        </div>
+        <div class="wf-card-footer">
+          <span>⏰ Tiempo real</span>
+          <span>📧 Pre Sales asignado + CGO</span>
+          <span>📊 Sheet: Inbound Leads</span>
+        </div>
+      </div>
+
+      <!-- WF-11 -->
+      <div class="wf-card">
+        <div class="wf-card-header">
+          <span class="wf-icon">🔄</span>
+          <div class="wf-title-block">
+            <div class="wf-name">WF-11 — Re-engagement</div>
+            <div class="wf-tagline">"Este cliente dormido merece una segunda oportunidad."</div>
+          </div>
+          <span class="wf-card-badge badge-warn">🟡 Activando</span>
+        </div>
+        <div class="wf-card-body">
+          <p>Cada <strong>lunes a las 8am</strong>, detecta deals con 30+ días de inactividad que aún tienen potencial. Claude redacta un email de re-engagement personalizado por deal y envía al CGO un resumen con tabla de aprobación. Al aprobar en Google Sheets, el email sale automáticamente.</p>
+          <h4>Flujo en 2 fases</h4>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Fase</th><th>Qué hace</th><th>Cuándo</th></tr></thead>
+              <tbody>
+                <tr><td>Fase 1</td><td>Detecta deals dormidos, genera borradores con IA, envía resumen al CGO</td><td>Lunes 8am</td></tr>
+                <tr><td>Fase 2</td><td>Al marcar como <em>aprobado</em> en Sheet, envía el email y actualiza Pipedrive</td><td>Tiempo real (polling 5 min)</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <h4>Qué hace al enviar el re-engagement</h4>
+          <ul>
+            <li>Envía email personalizado al contacto del deal</li>
+            <li>Registra la fecha de último re-engagement en Pipedrive</li>
+            <li>Actualiza el estado en el Sheet (<em>enviado</em>)</li>
+            <li>Dispara WF-01 para recalcular score si hay respuesta</li>
+          </ul>
+        </div>
+        <div class="wf-card-footer">
+          <span>📅 Lunes 8am (Fase 1) · Tiempo real (Fase 2)</span>
+          <span>📧 CGO (resumen) + Contacto (email directo)</span>
+          <span>📊 Sheet: WF-11 Re-engagement Queue</span>
+        </div>
+      </div>
+
+    </div><!-- /cards-grid -->
+  </section>
+
+  <!-- PRÓXIMAS -->
+  <section id="proximos">
+    <div class="section-header">
+      <span class="section-num">5</span>
+      <h2>Próximas incorporaciones</h2>
+    </div>
+    <p class="section-intro">Módulos en desarrollo que se integrarán al sistema existente.</p>
+
+    <div class="diagram-wrap" style="margin-bottom:1.5rem;">
+      <div class="mermaid">
+%%{init: {'theme': 'dark', 'themeVariables': {'background': '#111', 'primaryColor': '#1f1f1f', 'primaryTextColor': '#e5e5e5', 'primaryBorderColor': '#555', 'lineColor': '#555', 'secondaryColor': '#1a1a1a', 'titleColor': '#f5c842', 'fontFamily': 'sans-serif', 'edgeLabelBackground': '#1a1a1a'}}}%%
+flowchart LR
+    subgraph NEXT["⏳ En Desarrollo"]
+        WF02["📊 WF-02\nEnrichment\nApollo + Clay"]
+        WF04["📝 WF-04\nProposal Gen\nPandaDoc + Claude"]
+        WF06["💬 WF-06\nWhatsApp Router\nWA Business API"]
+        WF09["🔁 WF-09\nAnti-ghosting\n& Referidos"]
+    end
+
+    WF02 -.->|"mejora scoring"| WF01_R["🎯 WF-01\nScoring\n✅ activo"]
+    WF04 -.->|"activa propuesta"| PROP["📝 Realizando\nPropuesta\n(etapa CRM)"]
+    WF06 -.->|"alimenta CRM"| WF10C_R["📥 WF-10C\nInbound\n✅ activo"]
+    WF09 -.->|"reactiva deal"| MQL_R["📋 MQL\nLead Frío\n(etapa CRM)"]
+      </div>
+    </div>
+
+    <div class="pending-grid">
+      <div class="pending-card">
+        <div class="pc-header">
+          <span class="pc-icon">📊</span>
+          <div>
+            <div class="pc-name">WF-02 — Enrichment</div>
+            <div class="pc-sub">Apollo.io + Clay</div>
+          </div>
+        </div>
+        <p>Cuando entra un deal, consulta Apollo y Clay para añadir automáticamente: facturación estimada, número de empleados, stack tecnológico y cargo exacto del contacto. Mejora la precisión del scoring de WF-01.</p>
+        <div class="pc-connects">Mejora → <span class="connects-to">🎯 WF-01 Scoring</span></div>
+      </div>
+      <div class="pending-card">
+        <div class="pc-header">
+          <span class="pc-icon">📝</span>
+          <div>
+            <div class="pc-name">WF-04 — Proposal Gen</div>
+            <div class="pc-sub">PandaDoc + Claude AI</div>
+          </div>
+        </div>
+        <p>Cuando un deal avanza a "Realizando Propuesta", Claude analiza el historial del deal y genera un borrador personalizado en PandaDoc. El BDR solo revisa y ajusta detalles finales. Objetivo: propuestas listas en horas, no días.</p>
+        <div class="pc-connects">Activa en → <span class="connects-to">📝 Realizando Propuesta</span></div>
+      </div>
+      <div class="pending-card">
+        <div class="pc-header">
+          <span class="pc-icon">💬</span>
+          <div>
+            <div class="pc-name">WF-06 — WhatsApp Router</div>
+            <div class="pc-sub">WA Business API</div>
+          </div>
+        </div>
+        <p>Centraliza los mensajes de WhatsApp del equipo comercial: captura conversaciones, las etiqueta por intent, las registra en Pipedrive y las routea al rep correcto. Captura de leads 24/7 sin intervención manual.</p>
+        <div class="pc-connects">Alimenta → <span class="connects-to">📥 WF-10C Inbound</span></div>
+      </div>
+      <div class="pending-card">
+        <div class="pc-header">
+          <span class="pc-icon">🔁</span>
+          <div>
+            <div class="pc-name">WF-09 — Anti-ghosting & Referidos</div>
+            <div class="pc-sub">Claude AI + Pipedrive</div>
+          </div>
+        </div>
+        <p><strong>Anti-ghosting:</strong> Si un deal lleva X días sin respuesta del cliente, envía un follow-up personalizado con contexto del deal (sin spam).<br><br><strong>Referidos:</strong> Al cerrar un deal ganado, activa una secuencia para solicitar referencias a clientes satisfechos.</p>
+        <div class="pc-connects">Reactiva → <span class="connects-to">📋 MQL Lead Frío</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ARQUITECTURA -->
+  <section id="arquitectura">
+    <div class="section-header">
+      <span class="section-num">6</span>
+      <h2>Arquitectura del sistema</h2>
+    </div>
+    <div class="diagram-wrap">
+      <div class="mermaid">
+%%{init: {'theme': 'dark', 'themeVariables': {'background': '#111', 'primaryColor': '#1a1a1a', 'primaryTextColor': '#e5e5e5', 'primaryBorderColor': '#3b82f6', 'lineColor': '#555', 'secondaryColor': '#1a1a1a', 'titleColor': '#f5c842', 'fontFamily': 'sans-serif', 'clusterBkg': '#141414', 'edgeLabelBackground': '#1a1a1a'}}}%%
+flowchart TD
+    PIPEDRIVE["🗂️ PIPEDRIVE\nHub central de datos\n1,163 deals · 15 usuarios"]
+    N8N["⚙️ n8n Cloud\nOrquestador de workflows\nbambu-techservices.app.n8n.cloud"]
+
+    subgraph IA["🤖 IA & Enriquecimiento"]
+        CLAUDE["Claude AI\nAnálisis · Copy · Scoring"]
+        TAVILY["Tavily\nInteligencia de mercado"]
+        LUSHA["Lusha\nEnrichment (pausado)"]
+    end
+
+    subgraph SALIDAS["📤 Canales de salida"]
+        GMAIL["Gmail SMTP\nEmails individuales y masivos"]
+        SHEETS["Google Sheets\nLogs · Briefs · Campañas"]
+        PIPEDRIVE2["Pipedrive\nActualización de fields y deals"]
+    end
+
+    PIPEDRIVE <-->|webhooks + API| N8N
+    N8N <--> CLAUDE & TAVILY & LUSHA
+    N8N --> GMAIL & SHEETS & PIPEDRIVE2
+      </div>
+    </div>
+    <div style="margin-top:1.25rem;">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Google Sheet</th><th>Contenido</th></tr></thead>
+          <tbody>
+            <tr><td>WF-03 Alert Log - Bambu</td><td>Historial de todas las alertas de estancamiento (tab: Alertas)</td></tr>
+            <tr><td>WF-01 Lead Scoring Log</td><td>Scores asignados y decay diario (tabs: Scores, Decay)</td></tr>
+            <tr><td>WF-10 Campaign Engine - Bambu</td><td>Intel Briefs, Campañas, Inbound Leads, Análisis CRM</td></tr>
+            <tr><td>WF-11 Re-engagement Queue — Bambu</td><td>Cola de deals dormidos con borradores IA y estados de aprobación</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /container -->
+
+<footer>
+  Generado con <strong>Claude AI</strong> &nbsp;·&nbsp; <strong>Bambu Tech Services</strong> &nbsp;·&nbsp; Junio 2026
+</footer>
+
+<script>
+  mermaid.initialize({
+    startOnLoad: true,
+    theme: 'dark',
+    securityLevel: 'loose',
+    fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    flowchart: { useMaxWidth: true, htmlLabels: true }
+  });
+</script>
+</body>
+</html>
