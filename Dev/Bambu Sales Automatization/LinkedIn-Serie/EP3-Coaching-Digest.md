@@ -2,7 +2,7 @@
 
 **Serie:** Automatización Comercial con IA en Bambu Tech Services
 **Episodio:** 3 de 9 — Bloque Ventas
-**Estado:** ✍️ Borrador listo para revisar
+**Estado:** ✅ Listo para publicar
 **Publicar:** [fecha a definir]
 
 ---
@@ -95,7 +95,7 @@ En paralelo al envío, un nodo `Append CoachingLog` registra cada card en una ta
 
 ### La decisión de diseño que más me costó
 
-Lo que tardé más en definir no fue técnica — fue de criterio de management.
+La parte que más me costó definir no fue técnica — fue de criterio de management.
 
 ¿Qué pone el mensaje de coaching?
 
@@ -137,9 +137,17 @@ Si alguien está en 🔴 el viernes, ya sé exactamente qué decirle en el 1:1 d
 
 ### Lo que cambió en el equipo
 
+La primera semana, el sistema marcó más de 400 deals en rojo.
+
+El equipo se abrumó. De repente tenían en su bandeja notificaciones sobre todos los deals que llevaban semanas — o meses — sin seguimiento. Fue incómodo. Y era exactamente lo que necesitaba pasar.
+
+Paulatinamente el número fue bajando. No porque el sistema se suavizara — sino porque el equipo empezó a mover los deals. La presión de ver tu semáforo en 🔴 el viernes es motivación suficiente para hacer algo el lunes.
+
+Hoy el sistema hace énfasis en tres señales que más predicen un deal que se está muriendo en silencio: **deals sin movimiento, escalaciones acumuladas y mismatches de rol/etapa**. Cuando las tres se juntan en el mismo rep la misma semana, la conversación del 1:1 ya está escrita.
+
 Antes: la retroalimentación era esporádica, dependía de mi agenda, y solo llegaba a quien la pedía o al que tenía un problema urgente.
 
-Después: cada viernes a las 5pm, los 10 reps del equipo reciben retroalimentación estructurada sobre su semana. Sin excepción. Sin importar si yo tuve un viernes cargado o si estuve en reuniones todo el día.
+Después: cada viernes a las 5pm, los 10 reps reciben retroalimentación estructurada sobre su semana. Sin excepción. Sin importar si yo tuve un viernes cargado o si estuve en reuniones todo el día.
 
 Algunos lo leen el viernes en la tarde. Otros el domingo en la noche. Otros el lunes temprano. Pero lo leen. Y llegan al inicio de la semana con contexto sobre lo que dejaron pendiente.
 
@@ -151,9 +159,9 @@ Eso es exactamente lo que buscaba: no sustituir el coaching humano, sino garanti
 
 Si lo veo en el contexto del sistema completo:
 
-- **WF-01** resuelve la priorización: qué deals trabajar
-- **WF-03** resuelve la detección: cuándo algo está mal
-- **WF-08** resuelve la reflexión: cómo está el rep en su conjunto
+- **WF-01** resuelve la priorización: qué deals trabajar y en qué orden
+- **WF-03** resuelve la detección en tiempo real: cuándo un deal específico está en riesgo (lo cubro en el próximo episodio)
+- **WF-08** resuelve la reflexión semanal: cómo está el rep en su conjunto, no deal por deal
 
 Los tres juntos forman un ciclo de retroalimentación completo — sin que yo tenga que operar ninguno manualmente.
 
@@ -163,7 +171,7 @@ Los tres juntos forman un ciclo de retroalimentación completo — sin que yo te
 
 El coaching semanal resuelve el problema de visibilidad hacia atrás: qué pasó esta semana.
 
-Pero hay otro problema que ninguno de los tres workflows resuelve: qué hacer con los deals que llevan meses sin movimiento y que ya nadie persigue activamente.
+Pero hay un problema que este workflow — y ninguno de los anteriores — resuelve directamente: los deals que llevan meses sin contacto y que ya nadie persigue activamente. Los que el CRM sigue mostrando como "activos" pero que en realidad están muertos.
 
 Eso es lo que construí en WF-11 — el sistema de reactivación de deals dormidos. Y es el tema del próximo artículo.
 
