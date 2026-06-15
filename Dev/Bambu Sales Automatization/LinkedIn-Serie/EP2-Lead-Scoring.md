@@ -1,7 +1,7 @@
-# EP1 — Lead Scoring: cómo dejé de adivinar y empecé a saber qué deals valían la pena.
+# EP2 — Lead Scoring: cómo dejé de adivinar y empecé a saber qué deals valían la pena.
 
 **Serie:** Automatización Comercial con IA en Bambu Tech Services
-**Episodio:** 1 de 9 — Bloque Ventas
+**Episodio:** 2 de 9 — Bloque Ventas
 **Estado:** ✅ Listo para publicar
 **Publicar:** [fecha a definir]
 
