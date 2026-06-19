@@ -102,16 +102,15 @@ const MAX_ALERTS_PER_RUN = 0;
 // Recomendado: true en la primera fase (son deals dormidos que necesitan limpieza manual)
 const EXCLUDE_RECONTACTAR = true;
 
-// Rotacion L/X/V de alertas no-criticas para reducir fatiga
-// Cuando esta activo:
-//   - Urgentes, mismatches y traspasos: SIEMPRE se envian (en cada run)
-//   - Escalaciones, suaves e inactividad: se reparten en 3 buckets por `deal.id % 3`
-//       * Bucket 0 -> Lunes
-//       * Bucket 1 -> Miercoles
-//       * Bucket 2 -> Viernes
-//   - Cada deal no-critico se ve 1 vez por semana en lugar de 3
+// Rotacion L/X/V: cada deal aparece exactamente 1 vez por semana.
+// Criticos (cada run): solo urgentes (time-sensitive).
+// Rotativos (1x/semana por bucket deal.id % 3):
+//   - Bucket 0 (deal_id % 3 === 0) -> Lunes
+//   - Bucket 1 (deal_id % 3 === 1) -> Miercoles
+//   - Bucket 2 (deal_id % 3 === 2) -> Viernes
+// Incluye: escalaciones, suaves, inactividad, traspasos y mismatches.
 // Sin estado externo: determinista por ID de deal.
-// Si un deal sube de prioridad (escalacion -> urgente), se envia inmediatamente en el siguiente run.
+// Si un deal sube a urgente, sale en el siguiente run sin esperar su dia.
 const ROTATION_MODE = true;
 
 
@@ -453,12 +452,11 @@ if (ROTATION_MODE) {
   const dayBucket = dayOfWeek === 1 ? 0 : dayOfWeek === 3 ? 1 : dayOfWeek === 5 ? 2 : 0;
   const dayLabel = dayOfWeek === 1 ? 'Lunes' : dayOfWeek === 3 ? 'Miercoles' : dayOfWeek === 5 ? 'Viernes' : 'Dia fuera de L/X/V (fallback: bucket 0)';
 
-  const criticalAlerts = alerts.filter(a =>
-    a.alert_type === 'urgente' || a.mismatch_flag || a.traspaso_flag
-  );
-  const rotatableAlerts = alerts.filter(a =>
-    (a.alert_type === 'suave' || a.alert_type === 'inactividad' || a.alert_type === 'escalacion') && !a.mismatch_flag && !a.traspaso_flag
-  );
+  // Solo urgentes salen siempre (son time-sensitive).
+  // Todo lo demas rota: escalacion, suave, inactividad, traspaso, mismatch.
+  // Cada deal aparece exactamente 1 vez por semana -> una semana para higienizar el pipeline.
+  const criticalAlerts = alerts.filter(a => a.alert_type === 'urgente');
+  const rotatableAlerts = alerts.filter(a => a.alert_type !== 'urgente');
   const rotatedSubset = rotatableAlerts.filter(a => (Number(a.deal_id) % 3) === dayBucket);
 
   // Mantener orden de prioridad: criticas primero, luego rotadas
