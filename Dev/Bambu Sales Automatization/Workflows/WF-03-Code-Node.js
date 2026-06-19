@@ -76,18 +76,27 @@ const INACTIVITY_DAYS = 7;
 
 // Dias en Taller de Requerimientos con owner BDR antes de disparar alerta de traspaso.
 // Si un BDR tiene un deal en Stage 3 por mas de este numero de dias,
-// se genera alerta de traspaso al BDR + CGO para coordinar el cambio de propietario.
+// se genera alerta de traspaso al BDR + su Pre Sales asignado + CGO.
 const TALLER_TRASPASO_DAYS = 5;
+
+// Pre Sales asignado a cada BDR para los traspasos de Taller.
+// Si un BDR NO aparece aqui, sus deals en Taller NO generan alerta de traspaso.
+// (Ejemplo: Nayeli Gomez no tiene Pre Sales asignado — excluida intencionalmente.)
+const BDR_PRESALES_MAP = {
+  23975173: { name: 'Sofia Santiago',   email: 'sofia@bambu-techservices.com' },          // Itzel → Sofia
+  25224993: { name: 'Vicente Varela',   email: 'vicente.varela@bambu-techservices.com' },  // Luis  → Vicente
+  16167654: { name: 'Samantha Rivas',   email: 'samantha.rivas@bambu-techservices.com' },  // Cecia → Samantha
+  26082729: { name: 'Emilio Mendoza',   email: 'emilio.mendoza@bambu-techservices.com' },  // Victor → Emilio
+  26148685: { name: 'Harold Bautista',  email: 'harold.bautista@bambu-techservices.com' }, // Gabriela → Harold
+  // Nayeli Gomez (25898347): sin Pre Sales asignado → NO genera traspaso
+};
 
 // Subdominio de Pipedrive
 const PIPEDRIVE_DOMAIN = 'bambumobile';
 
-// Limitar alertas para evitar flood de emails
-// En la primera ejecucion con 1,600+ deals, la mayoria estara en alerta.
-// Este limite previene enviar cientos de emails de golpe.
-// Ajustar a 0 para desactivar el limite.
-// ROLLOUT: 1 (prueba) -> 10 (semana 1) -> 30 (semana 2) -> 50 (semana 3) -> 100 (full)
-const MAX_ALERTS_PER_RUN = 100;
+// Limitar alertas para evitar flood de emails.
+// 0 = sin limite (enviar todas).
+const MAX_ALERTS_PER_RUN = 0;
 
 // Excluir etapa "Re-contactar" de alertas?
 // Recomendado: true en la primera fase (son deals dormidos que necesitan limpieza manual)
@@ -251,10 +260,17 @@ for (const deal of allDeals) {
   // --- Regla especial: BDR en Taller > TALLER_TRASPASO_DAYS = traspaso pendiente ---
   // Stage 3 acepta ambos roles, pero si el BDR tiene el deal por mas de N dias
   // es senal de que el taller ya termino y el deal debe pasar a Pre Sales.
+  // Solo aplica si el BDR tiene un Pre Sales asignado en BDR_PRESALES_MAP.
   let traspasoFlag = false;
+  let traspasoPreSales = null;
   if (stageId === 3 && ownerInfo.role === 'bdr' && daysInStage >= TALLER_TRASPASO_DAYS) {
-    alertType = 'traspaso';
-    traspasoFlag = true;
+    const assignedPreSales = BDR_PRESALES_MAP[userId];
+    if (assignedPreSales) {
+      alertType = 'traspaso';
+      traspasoFlag = true;
+      traspasoPreSales = assignedPreSales;
+    }
+    // Si no hay Pre Sales asignado (ej. Nayeli), no genera alerta de traspaso
   }
 
   // Re-obtener config tras posible cambio de alertType
@@ -264,10 +280,8 @@ for (const deal of allDeals) {
   let mismatchFlag = false;
 
   if (traspasoFlag) {
-    // Traspaso: siempre al BDR + CGO
-    recipients = ownerInfo.email !== CGO_EMAIL
-      ? `${ownerInfo.email},${CGO_EMAIL}`
-      : CGO_EMAIL;
+    // Traspaso: BDR + Pre Sales asignado + CGO
+    recipients = `${ownerInfo.email},${traspasoPreSales.email},${CGO_EMAIL}`;
   } else if (roleMatchesStage) {
     // Caso 1: alerta normal
     recipients = config.sendToCGO && ownerInfo.email !== CGO_EMAIL
@@ -363,19 +377,17 @@ for (const deal of allDeals) {
     ${traspasoFlag ? `
     <div style="margin:20px 0;padding:16px;background:#f3e5f5;border-left:4px solid #8e44ad;border-radius:0 4px 4px 0">
       <strong style="color:#6c3483">🔄 Traspaso a Pre Sales requerido:</strong>
-      <span style="color:#555"> Este deal lleva <strong>${daysInStage} días</strong> en Taller de Requerimientos. El taller ha concluido — el deal debe cambiar de propietario a un Pre Sales para continuar el proceso de propuesta.</span>
+      <span style="color:#555"> Este deal lleva <strong>${daysInStage} días</strong> en Taller de Requerimientos. El taller ha concluido — el deal debe cambiar de propietario a Pre Sales para continuar el proceso de propuesta.</span>
+      <br><br>
+      <strong style="color:#333">Pre Sales asignado:</strong>
+      <span style="color:#555"> ${traspasoPreSales.name} — <a href="mailto:${traspasoPreSales.email}" style="color:#8e44ad">${traspasoPreSales.email}</a></span>
       <br><br>
       <strong style="color:#333">Pasos a seguir:</strong>
       <ol style="color:#555;margin:8px 0;padding-left:20px">
-        <li>Abre el deal en Pipedrive</li>
-        <li>Haz clic en el nombre del propietario actual</li>
-        <li>Asigna a uno de los siguientes Pre Sales:</li>
+        <li>Abre el deal en Pipedrive (botón abajo)</li>
+        <li>Haz clic en el nombre del propietario actual (${ownerInfo.name})</li>
+        <li>Asigna a <strong>${traspasoPreSales.name}</strong></li>
       </ol>
-      <table style="width:100%;font-size:13px;margin-top:4px">
-        ${Object.values(SALES_TEAM).filter(m => m.role === 'pre_sales').map(m =>
-          `<tr><td style="padding:3px 0;color:#555;">· ${m.name}</td><td style="padding:3px 0;color:#888;">${m.email}</td></tr>`
-        ).join('')}
-      </table>
     </div>` : ''}
     <div style="margin:20px 0;padding:16px;background:#fff8e1;border-left:4px solid ${config.bgColor};border-radius:0 4px 4px 0">
       <strong style="color:#333">Accion requerida:</strong>
