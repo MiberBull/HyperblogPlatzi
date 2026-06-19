@@ -71,19 +71,75 @@ const SCORING_MODEL = {
     maxPoints: 30,
 
     // Industria (0-10 pts)
-    // Verticales core de Bambu: Financiero, Retail, Manufactura
+    // Alineado con las 8 verticales del Intel Brief (WF-10A).
+    // Valores en inglés: Lusha devuelve mainIndustry/subIndustry en inglés.
+    // Valores en español: fallback para campos de Pipedrive o enriquecimiento manual.
     industry: {
-      'Financial Services': 10, 'Financiero': 10, 'Insurance': 10, 'Seguros': 10,
-      'Banking': 10, 'Banca': 10, 'Fintech': 10,
-      'Retail': 8, 'CPG': 8, 'Consumo': 8, 'Consumer Goods': 8, 'E-Commerce': 8,
-      'Manufacturing': 7, 'Manufactura': 7, 'Industrial': 7, 'Automotive': 7,
-      'Technology': 5, 'Tech': 5, 'Software': 5, 'Information Technology': 5, 'SaaS': 5,
-      'Government': 4, 'Gobierno': 4, 'Public Sector': 4,
-      'Healthcare': 4, 'Salud': 4, 'Pharma': 4,
-      'Education': 3, 'Educacion': 3,
-      'Logistics': 3, 'Logistica': 3, 'Transportation': 3,
-      'Real Estate': 2, 'Inmobiliaria': 2,
-      'Energy': 3, 'Energia': 3, 'Oil & Gas': 3,
+      // --- FINANCIERO / FINTECH (10 pts) ---
+      'Financial Services': 10, 'Financiero': 10,
+      'Banking': 10, 'Banca': 10,
+      'Insurance': 10, 'Seguros': 10,
+      'Fintech': 10, 'Capital Markets': 10,
+      'Investment Management': 10, 'Wealth Management': 10,
+      'Leasing': 10, 'Arrendamiento': 10,
+
+      // --- MANUFACTURA / NEARSHORING (10 pts) ---
+      'Manufacturing': 10, 'Manufactura': 10,
+      'Industrial Manufacturing': 10, 'Industrial': 10,
+      'Automotive': 10, 'Auto': 10,
+      'Aerospace & Defense': 10, 'Aerospace': 10,
+      'Food & Beverage': 10, 'Food Manufacturing': 10,
+      'Packaging': 10, 'Chemicals': 10,
+      'Nearshoring': 10,
+
+      // --- RETAIL / CPG (10 pts) ---
+      'Retail': 10, 'Consumer Goods': 10, 'CPG': 10,
+      'E-Commerce': 10, 'Ecommerce': 10,
+      'Grocery': 10, 'Supermarkets': 10,
+      'Fashion': 10, 'Apparel': 10,
+      'Consumer Products': 10,
+
+      // --- CIBERSEGURIDAD / CLOUD / IA (10 pts) ---
+      'Cybersecurity': 10, 'Information Security': 10,
+      'Cloud Computing': 10, 'Cloud Services': 10,
+      'Artificial Intelligence': 10, 'Machine Learning': 10,
+      'Technology': 10, 'Tech': 10,
+      'Information Technology': 10, 'IT Services': 10,
+      'Software': 10, 'SaaS': 10, 'Internet': 10,
+      'Telecommunications': 10, 'Telecomunicaciones': 10,
+
+      // --- SALUD & FARMACIAS (10 pts) ---
+      'Healthcare': 10, 'Salud': 10,
+      'Pharmaceuticals': 10, 'Pharmaceutical': 10, 'Pharma': 10,
+      'Medical Devices': 10, 'Biotechnology': 10,
+      'Hospitals & Health Care': 10, 'Hospital': 10,
+      'Health': 10, 'Farmacia': 10,
+
+      // --- GOBIERNO & SEGURIDAD PÚBLICA (10 pts) ---
+      'Government': 10, 'Gobierno': 10,
+      'Public Sector': 10, 'Sector Público': 10,
+      'Defense & Space': 10, 'Law Enforcement': 10,
+      'Security': 10, 'Seguridad': 10,
+      'Public Safety': 10,
+
+      // --- LOGÍSTICA & TRANSPORTE (10 pts) ---
+      'Logistics & Supply Chain': 10, 'Logistics': 10, 'Logistica': 10,
+      'Transportation': 10, 'Transporte': 10,
+      'Freight': 10, 'Shipping': 10,
+      'Supply Chain': 10, 'Last Mile': 10,
+      'Courier': 10, 'Warehousing': 10,
+
+      // --- FUNERARIAS & SERVICIOS ESPECIALIZADOS (10 pts) ---
+      'Funeral Services': 10, 'Funeraria': 10, 'Funeral Home': 10,
+      'Professional Services': 10, 'Servicios Profesionales': 10,
+      'Outsourcing': 10, 'Business Services': 10,
+      'Facilities Services': 10, 'Servicios': 10,
+
+      // --- Otros con potencial menor ---
+      'Education': 3, 'Educacion': 3, 'Higher Education': 3,
+      'Real Estate': 3, 'Inmobiliaria': 3,
+      'Energy': 3, 'Energia': 3, 'Oil & Gas': 3, 'Mining': 3,
+      'Entertainment': 2, 'Media': 2, 'Sports': 2,
       '_default': 2,
     },
 
@@ -728,7 +784,7 @@ ${bant.score > 0 ? `
   <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
     <tr style="border-bottom: 1px solid #dee2e6;">
       <td style="padding: 4px 0; font-weight: bold; color: #2d3436; width: 35%;">Firmográfico /30</td>
-      <td style="padding: 4px 0; color: #636e72;">Industria (10) · Empleados (7) · Revenue (7) · Ubicación (3) · Tech (2) · Seniority (1)</td>
+      <td style="padding: 4px 0; color: #636e72;">Industria (10) · Empleados (7) · Revenue (7) · Ubicación (3) · Tech (2) · Seniority (1)<br><span style="font-size:10px;">Verticales 10 pts: Financiero · Manufactura · Retail/CPG · Cyber/Cloud/IA · Salud · Gobierno · Logística · Funerarias</span></td>
     </tr>
     <tr style="border-bottom: 1px solid #dee2e6;">
       <td style="padding: 4px 0; font-weight: bold; color: #2d3436;">Comportamiento /30</td>
