@@ -104,14 +104,14 @@ const EXCLUDE_RECONTACTAR = true;
 
 // Rotacion L/X/V de alertas no-criticas para reducir fatiga
 // Cuando esta activo:
-//   - Escalaciones, urgentes y mismatches: SIEMPRE se envian (en cada run)
-//   - Suaves e inactividad: se reparten en 3 buckets por `deal.id % 3`
+//   - Urgentes, mismatches y traspasos: SIEMPRE se envian (en cada run)
+//   - Escalaciones, suaves e inactividad: se reparten en 3 buckets por `deal.id % 3`
 //       * Bucket 0 -> Lunes
 //       * Bucket 1 -> Miercoles
 //       * Bucket 2 -> Viernes
 //   - Cada deal no-critico se ve 1 vez por semana en lugar de 3
 // Sin estado externo: determinista por ID de deal.
-// Si un deal sube de prioridad (suave -> urgente), se envia inmediatamente en el siguiente run.
+// Si un deal sube de prioridad (escalacion -> urgente), se envia inmediatamente en el siguiente run.
 const ROTATION_MODE = true;
 
 
@@ -454,10 +454,10 @@ if (ROTATION_MODE) {
   const dayLabel = dayOfWeek === 1 ? 'Lunes' : dayOfWeek === 3 ? 'Miercoles' : dayOfWeek === 5 ? 'Viernes' : 'Dia fuera de L/X/V (fallback: bucket 0)';
 
   const criticalAlerts = alerts.filter(a =>
-    a.alert_type === 'escalacion' || a.alert_type === 'urgente' || a.mismatch_flag || a.traspaso_flag
+    a.alert_type === 'urgente' || a.mismatch_flag || a.traspaso_flag
   );
   const rotatableAlerts = alerts.filter(a =>
-    (a.alert_type === 'suave' || a.alert_type === 'inactividad') && !a.mismatch_flag
+    (a.alert_type === 'suave' || a.alert_type === 'inactividad' || a.alert_type === 'escalacion') && !a.mismatch_flag && !a.traspaso_flag
   );
   const rotatedSubset = rotatableAlerts.filter(a => (Number(a.deal_id) % 3) === dayBucket);
 
