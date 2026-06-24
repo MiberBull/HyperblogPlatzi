@@ -19,6 +19,7 @@
     --yellow: #f59e0b;
     --blue: #3b82f6;
     --purple: #a855f7;
+    --red: #ef4444;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -59,6 +60,9 @@
     color: var(--gold-light); font-size: 12px; font-weight: 500;
     padding: .3rem .8rem; border-radius: 99px;
   }
+  .badge-green {
+    background: #052e16; border: 1px solid #14532d; color: #4ade80;
+  }
   /* LAYOUT */
   .container { max-width: 1100px; margin: 0 auto; padding: 2.5rem 2rem; }
   /* SECTIONS */
@@ -70,6 +74,11 @@
   }
   .section-num {
     background: var(--gold); color: #000;
+    font-size: 11px; font-weight: 700;
+    padding: .2rem .55rem; border-radius: 4px;
+  }
+  .section-num-highlight {
+    background: linear-gradient(135deg, #f5c842, #f97316); color: #000;
     font-size: 11px; font-weight: 700;
     padding: .2rem .55rem; border-radius: 4px;
   }
@@ -129,11 +138,25 @@
     border-radius: 10px;
     overflow: hidden;
   }
+  .wf-card-highlight {
+    background: var(--bg-card);
+    border: 1px solid #3d2e00;
+    border-top: 3px solid var(--gold);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 0 30px rgba(245,200,66,.06);
+  }
   .wf-card-header {
     background: #1f1f1f;
     padding: 1rem 1.5rem;
     display: flex; align-items: center; gap: .75rem;
     border-bottom: 1px solid var(--border);
+  }
+  .wf-card-header-gold {
+    background: linear-gradient(135deg, #1f1600 0%, #1f1f1f 100%);
+    padding: 1rem 1.5rem;
+    display: flex; align-items: center; gap: .75rem;
+    border-bottom: 1px solid #3d2e00;
   }
   .wf-icon { font-size: 1.5rem; }
   .wf-title-block .wf-name { font-size: 1.05rem; font-weight: 600; color: var(--text); }
@@ -228,6 +251,192 @@
     color: var(--text-muted);
     font-variant-numeric: tabular-nums;
   }
+  /* STATS ROW */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .stat-box {
+    background: #141414;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    text-align: center;
+  }
+  .stat-box.stat-gold { border-color: #3d2e00; background: #130e00; }
+  .stat-box.stat-green { border-color: #14532d; background: #030f06; }
+  .stat-number {
+    font-size: 2.25rem; font-weight: 700;
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: .25rem;
+  }
+  .stat-number.green { color: #4ade80; }
+  .stat-number.blue  { color: #60a5fa; }
+  .stat-number.white { color: #fff; }
+  .stat-label { font-size: 12px; color: var(--text-muted); line-height: 1.4; }
+  .stat-sub   { font-size: 11px; color: #555; margin-top: .2rem; }
+  /* CALLOUT BOX */
+  .callout {
+    border-radius: 8px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .callout-gold {
+    background: #130e00;
+    border: 1px solid #3d2e00;
+    border-left: 3px solid var(--gold);
+    color: var(--gold-light);
+  }
+  .callout-green {
+    background: #030f06;
+    border: 1px solid #14532d;
+    border-left: 3px solid #4ade80;
+    color: #86efac;
+  }
+  .callout-blue {
+    background: #060d1f;
+    border: 1px solid #1e3a5f;
+    border-left: 3px solid #3b82f6;
+    color: #93c5fd;
+  }
+  /* FLOW STEPS */
+  .flow-steps {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+  }
+  .flow-step {
+    background: #1a1a1a;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: .75rem 1rem;
+    font-size: 13px;
+    text-align: center;
+    flex: 1; min-width: 120px;
+  }
+  .flow-step .fs-icon { font-size: 1.3rem; display: block; margin-bottom: .25rem; }
+  .flow-step .fs-label { color: var(--text); font-weight: 600; }
+  .flow-step .fs-sub { color: var(--text-muted); font-size: 11px; }
+  .flow-arrow { color: #444; font-size: 1.25rem; flex-shrink: 0; }
+  /* CASE STUDY CARD */
+  .case-study-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+  @media (max-width: 700px) { .case-study-grid { grid-template-columns: 1fr; } }
+  .case-card {
+    background: #111;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .case-card-header {
+    background: #1a1a1a;
+    border-bottom: 1px solid var(--border);
+    padding: .8rem 1.25rem;
+    display: flex; align-items: center; gap: .6rem;
+  }
+  .case-card-header .cc-title { font-size: .95rem; font-weight: 600; color: var(--text); }
+  .case-card-header .cc-sub   { font-size: 11px; color: var(--text-muted); }
+  .case-card-body { padding: 1rem 1.25rem; }
+  .case-card-body .cc-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    padding: .35rem 0;
+    border-bottom: 1px solid #1e1e1e;
+    font-size: 13px;
+  }
+  .case-card-body .cc-row:last-child { border-bottom: none; }
+  .case-card-body .cc-key   { color: var(--text-muted); }
+  .case-card-body .cc-val   { color: var(--text); font-weight: 500; text-align: right; max-width: 60%; }
+  .case-card-body .cc-val.gold   { color: var(--gold); }
+  .case-card-body .cc-val.green  { color: #4ade80; }
+  /* EMAIL PREVIEW */
+  .email-preview {
+    background: #0d0d0d;
+    border: 1px solid #333;
+    border-radius: 8px;
+    overflow: hidden;
+    font-size: 13px;
+  }
+  .ep-header {
+    background: #161616;
+    border-bottom: 1px solid #2a2a2a;
+    padding: .75rem 1rem;
+  }
+  .ep-header .ep-field {
+    display: flex; gap: .5rem;
+    font-size: 12px;
+    color: var(--text-muted);
+    padding: .15rem 0;
+  }
+  .ep-header .ep-field strong { color: #888; min-width: 60px; }
+  .ep-header .ep-field span { color: #ccc; }
+  .ep-body {
+    padding: 1rem;
+    color: #bbb;
+    line-height: 1.6;
+  }
+  .ep-body .ep-highlight {
+    background: #1a1600;
+    border: 1px solid #2d2200;
+    border-radius: 6px;
+    padding: .6rem .9rem;
+    margin: .5rem 0;
+    font-size: 12px;
+    color: var(--gold-light);
+  }
+  .ep-cta {
+    display: inline-block;
+    background: var(--gold);
+    color: #000;
+    font-weight: 700;
+    font-size: 12px;
+    padding: .4rem 1rem;
+    border-radius: 4px;
+    margin-top: .5rem;
+  }
+  /* SCORE BREAKDOWN */
+  .score-bar-wrap { margin: .75rem 0; }
+  .score-bar-row {
+    display: flex; align-items: center; gap: .75rem;
+    font-size: 13px; margin-bottom: .4rem;
+  }
+  .score-bar-label { min-width: 120px; color: var(--text-muted); }
+  .score-bar-track {
+    flex: 1; height: 8px; background: #222;
+    border-radius: 4px; overflow: hidden;
+  }
+  .score-bar-fill {
+    height: 100%; border-radius: 4px;
+    background: linear-gradient(90deg, #f5c842, #f97316);
+    transition: width .3s;
+  }
+  .score-bar-pts { min-width: 55px; text-align: right; color: var(--gold); font-weight: 600; font-size: 12px; }
+  /* BENEFIT LIST */
+  .benefit-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .benefit-item {
+    background: #111;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+  }
+  .benefit-item .bi-icon { font-size: 1.5rem; margin-bottom: .4rem; display: block; }
+  .benefit-item .bi-title { font-size: .95rem; font-weight: 600; color: var(--text); margin-bottom: .3rem; }
+  .benefit-item .bi-desc  { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
   /* DIVIDER */
   hr { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
   /* FOOTER */
@@ -250,6 +459,7 @@
   <a href="#cadencia">Cadencia</a>
   <a href="#estado">Estado actual</a>
   <a href="#modulos">Módulos activos</a>
+  <a href="#scoring-accion">Lead Scoring en Acción</a>
   <a href="#proximos">Próximas incorporaciones</a>
   <a href="#arquitectura">Arquitectura</a>
 </nav>
@@ -260,8 +470,10 @@
   <h2>Bambu Tech Services — Guía del Equipo Comercial</h2>
   <div class="hero-meta">
     <span class="badge">📅 Junio 2026</span>
-    <span class="badge">⚙️ v1.1</span>
-    <span class="badge">✅ 8 módulos activos</span>
+    <span class="badge">⚙️ v1.2</span>
+    <span class="badge">✅ 9 módulos activos</span>
+    <span class="badge badge-green">🎯 710 leads calificados</span>
+    <span class="badge badge-green">📧 174 emails T6 enviados</span>
     <span class="badge">⏳ 4 en desarrollo</span>
   </div>
 </div>
@@ -271,7 +483,7 @@
   <!-- INTRO -->
   <section id="intro">
     <div class="intro-box">
-      <p>Una red de <strong>11 módulos automatizados</strong> conectados a Pipedrive que trabajan en segundo plano para que el equipo no pierda ningún deal por descuido, reciba leads ya calificados, y tenga visibilidad de su pipeline en tiempo real.</p>
+      <p>Una red de <strong>11 módulos automatizados</strong> conectados a Pipedrive que trabajan en segundo plano para que el equipo no pierda ningún deal por descuido, reciba leads ya calificados, y tenga visibilidad de su pipeline en tiempo real. En junio 2026 completamos la primera campaña outbound masiva basada en scoring — <strong>710 leads MQL calificados, 174 emails enviados con personalización por empresa e industria.</strong></p>
       <div class="stack">
         <span>Stack:</span>
         <span class="stack-item">Pipedrive</span>
@@ -280,6 +492,7 @@
         <span class="stack-item">Gmail SMTP</span>
         <span class="stack-item">Google Sheets</span>
         <span class="stack-item">Tavily</span>
+        <span class="stack-item">Lusha</span>
       </div>
     </div>
   </section>
@@ -325,7 +538,7 @@ flowchart LR
     HOT_S --> WIN & LOST
 
     WF03(["⚠️ WF-03 Deal Alerts\nL · X · V 8am\nDetecta estancamiento"])
-    WF10B_C(["📧 WF-10B Campañas\nReactiva contactos\ndormidos desde CRM"])
+    WF10B_C(["📧 WF-10B Newsletter\nNewsletter dark-theme en Brevo\nthought leadership + CTA agenda"])
     WF11(["🔄 WF-11 Re-engagement\nLunes 8am\nReactiva deals dormidos"])
 
     WF03 -.-> PS & TR & BDR_SUB
@@ -377,9 +590,9 @@ flowchart LR
       </div>
 
       <div class="sched-row">
-        <div class="sched-label mar">📅 Martes</div>
+        <div class="sched-label" style="background:#1a1a1a;">⚡ Al aprobar</div>
         <div class="sched-events">
-          <div class="sched-event"><span class="sched-time">9:00 am</span><span>📧</span><span><strong>WF-10B Campaña</strong> — envío masivo al segmento aprobado (tras aprobar Intel Brief)</span></div>
+          <div class="sched-event"><span class="sched-time">&lt;5 min</span><span>📧</span><span><strong>WF-10B Newsletter</strong> — CGO aprueba brief en Sheet → campaña dark-theme generada y subida a Brevo automáticamente</span></div>
         </div>
       </div>
 
@@ -417,10 +630,10 @@ flowchart LR
           <tr><td>03</td><td>Deal Alerts</td><td>WF-03 Stall Detection</td><td><span class="status-prod">✅ Producción</span></td><td>L/X/V 8am</td><td>Rep propietario + CGO (escalaciones)</td></tr>
           <tr><td>08</td><td>Coaching Digest</td><td>WF-08 Pipeline Pulse</td><td><span class="status-prod">✅ Producción</span></td><td>Viernes 5pm</td><td>Cada rep (individual) + CGO</td></tr>
           <tr><td>10A</td><td>Intel Brief</td><td>WF-10A News Engine</td><td><span class="status-active">🟢 Activo</span></td><td>L-V 6:30am</td><td>CGO + 18 destinatarios equipo</td></tr>
-          <tr><td>10B</td><td>Campañas</td><td>WF-10B Campaign Creator</td><td><span class="status-warn">🟡 En activación</span></td><td>Al aprobar brief</td><td>Segmento CRM + BDR (hot signals)</td></tr>
+          <tr><td>10B</td><td>Campañas</td><td>WF-10B Campaign Creator</td><td><span class="status-prod">✅ Producción</span></td><td>Al aprobar brief (&lt;5 min)</td><td>Newsletter Brevo → 188 contactos · CGO notif</td></tr>
           <tr><td>10B</td><td>Engagement Handler</td><td>WF-10B Hot Signal</td><td><span class="status-active">🟢 Activo</span></td><td>Tiempo real</td><td>BDR cuando su contacto abre email</td></tr>
           <tr><td>10C</td><td>Inbound Lead</td><td>WF-10C Lead Ingestion</td><td><span class="status-active">🟢 Activo</span></td><td>Tiempo real</td><td>Pre Sales asignado + CGO</td></tr>
-          <tr><td>11</td><td>Re-engagement</td><td>WF-11 Re-engagement Queue</td><td><span class="status-warn">🟡 Activando</span></td><td>Lunes 8am (F1) · Tiempo real (F2)</td><td>CGO (resumen aprobación) + Contacto (email)</td></tr>
+          <tr><td>11</td><td>Re-engagement</td><td>WF-11 Re-engagement Queue</td><td><span class="status-warn">🟡 Fase 1 probada · Activando F2</span></td><td>Lunes 8am (F1) · Tiempo real (F2)</td><td>CGO (resumen aprobación) + Contacto (email)</td></tr>
           <tr><td>02</td><td>Enrichment</td><td>WF-02 Apollo/Clay</td><td><span class="status-dev">⏳ En desarrollo</span></td><td>—</td><td>—</td></tr>
           <tr><td>04</td><td>Proposal Gen</td><td>WF-04 PandaDoc Auto</td><td><span class="status-dev">⏳ En desarrollo</span></td><td>—</td><td>—</td></tr>
           <tr><td>06</td><td>WhatsApp Router</td><td>WF-06 WA Business</td><td><span class="status-dev">⏳ En desarrollo</span></td><td>—</td><td>—</td></tr>
@@ -438,45 +651,80 @@ flowchart LR
     </div>
     <div class="cards-grid">
 
-      <!-- WF-01 -->
-      <div class="wf-card">
-        <div class="wf-card-header">
+      <!-- WF-01 — DESTACADO -->
+      <div class="wf-card-highlight">
+        <div class="wf-card-header-gold">
           <span class="wf-icon">🎯</span>
           <div class="wf-title-block">
             <div class="wf-name">WF-01 — Lead Scoring</div>
-            <div class="wf-tagline">"¿A qué lead llamo primero?"</div>
+            <div class="wf-tagline">"¿A qué lead llamo primero? El score te lo dice en segundos."</div>
           </div>
           <span class="wf-card-badge badge-prod">✅ Producción</span>
         </div>
         <div class="wf-card-body">
-          <p>Cada vez que entra o se actualiza un deal en Pipedrive, el sistema lo analiza en segundos y le asigna un <strong>puntaje del 0 al 100</strong>. Incluye decay diario a las 7am que reduce el score si el deal lleva días sin movimiento.</p>
+
+          <div class="callout callout-gold">
+            <strong>¿Por qué importa el Lead Scoring?</strong><br>
+            Sin scoring, un rep con 80 deals en pipeline tiene que decidir a quién llama primero por intuición. Con scoring, el sistema analiza automáticamente cada deal — tamaño de empresa, nivel de actividad, presencia de BANT — y asigna un número del 0 al 100. <strong>El rep siempre sabe cuál es su mejor oportunidad del día, sin adivinar.</strong>
+          </div>
+
           <h4>Cómo califica</h4>
           <div class="table-wrap">
             <table>
               <thead><tr><th>Componente</th><th>Peso</th><th>Qué mide</th></tr></thead>
               <tbody>
-                <tr><td>Firmográfico</td><td>30 pts</td><td>Tamaño empresa, industria, cargo del contacto</td></tr>
-                <tr><td>Comportamiento</td><td>30 pts</td><td>Velocidad de respuesta, número de interacciones</td></tr>
-                <tr><td>BANT</td><td>40 pts</td><td>Budget, Autoridad, Necesidad, Timeline detectados</td></tr>
+                <tr><td>Firmográfico</td><td>30 pts</td><td>Tamaño empresa, industria, cargo del contacto (Lusha enriquece automáticamente)</td></tr>
+                <tr><td>Comportamiento</td><td>30 pts</td><td>Velocidad de respuesta, número de interacciones, días desde último movimiento</td></tr>
+                <tr><td>BANT</td><td>40 pts</td><td>Budget, Autoridad, Necesidad y Timeline detectados en el deal</td></tr>
               </tbody>
             </table>
           </div>
-          <h4>Clasificaciones y SLA</h4>
+
+          <h4>Clasificaciones y SLA de contacto</h4>
           <div class="table-wrap">
             <table>
-              <thead><tr><th>Score</th><th>Clasificación</th><th>SLA de contacto</th></tr></thead>
+              <thead><tr><th>Score</th><th>Clasificación</th><th>SLA de contacto</th><th>Acción automática</th></tr></thead>
               <tbody>
-                <tr><td>71–100</td><td>🔥 Hot</td><td>&lt; 1 hora</td></tr>
-                <tr><td>51–70</td><td>🟠 Caliente</td><td>&lt; 4 horas</td></tr>
-                <tr><td>26–50</td><td>🟡 Tibio</td><td>&lt; 24 horas</td></tr>
-                <tr><td>0–25</td><td>🔵 Frío</td><td>Nurturing automático</td></tr>
+                <tr><td>71–100</td><td>🔥 Hot</td><td>&lt; 1 hora</td><td>Alerta inmediata al rep + CGO</td></tr>
+                <tr><td>51–70</td><td>🟠 Caliente</td><td>&lt; 4 horas</td><td>Alerta al rep + CGO</td></tr>
+                <tr><td>26–50</td><td>🟡 Tibio</td><td>&lt; 24 horas</td><td>Alerta suave al rep</td></tr>
+                <tr><td>0–25</td><td>🔵 Frío</td><td>Nurturing automático</td><td>Campañas outbound / Re-engagement</td></tr>
               </tbody>
             </table>
           </div>
+
+          <h4>Score Decay — el score también cae si no hay movimiento</h4>
+          <p>Cada mañana a las 7am, el Decay Engine revisa todos los deals activos. Si un deal lleva días sin actividad, el score baja automáticamente. Esto evita que un lead "caliente" del mes pasado ocupe el tope de la lista hoy cuando ya no lo es.</p>
+
+          <h4>Beneficios concretos para el equipo</h4>
+          <div class="benefit-list">
+            <div class="benefit-item">
+              <span class="bi-icon">⏱️</span>
+              <div class="bi-title">Menos tiempo decidiendo</div>
+              <div class="bi-desc">El rep ve el score en Pipedrive y sabe de inmediato cuál deal requiere atención urgente hoy.</div>
+            </div>
+            <div class="benefit-item">
+              <span class="bi-icon">🎯</span>
+              <div class="bi-title">Esfuerzo donde hay ROI</div>
+              <div class="bi-desc">Los leads Frío van a nurturing automático. Los Hot y Caliente reciben contacto humano inmediato.</div>
+            </div>
+            <div class="benefit-item">
+              <span class="bi-icon">📊</span>
+              <div class="bi-title">Pipeline siempre actualizado</div>
+              <div class="bi-desc">Cualquier cambio en Pipedrive recalcula el score en segundos. El CGO tiene visibilidad real del estado de cada deal.</div>
+            </div>
+            <div class="benefit-item">
+              <span class="bi-icon">📧</span>
+              <div class="bi-title">Outbound inteligente</div>
+              <div class="bi-desc">Los leads Frío no se abandonan — reciben campañas personalizadas según su industria y score, como la campaña T6 de junio 2026.</div>
+            </div>
+          </div>
+
         </div>
         <div class="wf-card-footer">
-          <span>⏰ Tiempo real + Diario 7am</span>
+          <span>⏰ Tiempo real (webhook) + Decay diario 7am</span>
           <span>📧 Rep asignado + CGO (si Hot/Caliente)</span>
+          <span>🎯 710 deals MQL calificados en batch (jun 2026)</span>
         </div>
       </div>
 
@@ -595,25 +843,27 @@ flowchart LR
           <span class="wf-icon">📧</span>
           <div class="wf-title-block">
             <div class="wf-name">WF-10B — Campaign Engine</div>
-            <div class="wf-tagline">"Campaña lista para enviar."</div>
+            <div class="wf-tagline">"Newsletter de thought leadership en Brevo, listo para enviar."</div>
           </div>
-          <span class="wf-card-badge badge-warn">🟡 En activación</span>
+          <span class="wf-card-badge badge-prod">✅ Producción</span>
         </div>
         <div class="wf-card-body">
-          <p>Cuando el CGO aprueba un Intel Brief en Google Sheets, el sistema genera automáticamente la campaña completa lista para enviar.</p>
+          <p>Cuando el CGO aprueba un Intel Brief en Google Sheets, el sistema genera en menos de 5 minutos un newsletter completo y lo sube directamente a Brevo listo para enviar.</p>
           <h4>Qué genera</h4>
           <ul>
-            <li><strong>Email de campaña HTML</strong> listo para enviar al segmento de Pipedrive (~150–600 contactos)</li>
-            <li><strong>Mensaje de WhatsApp</strong> pre-redactado para envío manual desde WA Business</li>
+            <li><strong>Newsletter dark-theme HTML</strong> con identidad Bambu (fondo negro, verde #00FF00, logo / &gt;) — ~188 contactos segmentados del CRM</li>
+            <li><strong>Copy de thought leadership</strong> por Claude: noticias del sector + impacto en el negocio + perspectiva experta Bambu — sin pitch de ventas</li>
+            <li><strong>CTA suave</strong> con link al calendario de Roberto para agendar 20 minutos</li>
+            <li><strong>Campaña lista en Brevo</strong> — el CGO la revisa en app.brevo.com y la envía con un clic</li>
             <li><strong>Alerta Hot Signal</strong> al BDR cuando su contacto abre el correo: <em>"X de [empresa] abrió tu email. Score: 78. Buen momento para llamar."</em></li>
           </ul>
-          <h4>Activación pendiente</h4>
-          <p>Se activa automáticamente cuando el primer brief pase a estado <strong>aprobado</strong> en el Sheet.</p>
+          <h4>Flujo de aprobación</h4>
+          <p>WF-10A genera el brief → queda en estado <strong>generado</strong> en el Sheet. El CGO lo revisa y cambia a <strong>aprobado</strong> → WF-10B lo detecta en &lt;5 min y crea la campaña en Brevo.</p>
         </div>
         <div class="wf-card-footer">
-          <span>📅 Martes 9am (tras aprobación)</span>
-          <span>📧 Segmento CRM + BDR (hot signals)</span>
-          <span>📊 Sheet: Campañas</span>
+          <span>📅 Polling cada 5 min (activo 24/7)</span>
+          <span>📧 Brevo → 188 contactos CRM segmentados</span>
+          <span>📊 Sheet: Intel Briefs</span>
         </div>
       </div>
 
@@ -663,7 +913,7 @@ flowchart LR
             <div class="wf-name">WF-11 — Re-engagement</div>
             <div class="wf-tagline">"Este cliente dormido merece una segunda oportunidad."</div>
           </div>
-          <span class="wf-card-badge badge-warn">🟡 Activando</span>
+          <span class="wf-card-badge badge-warn">🟡 Fase 1 probada · Activando F2</span>
         </div>
         <div class="wf-card-body">
           <p>Cada <strong>lunes a las 8am</strong>, detecta deals con 30+ días de inactividad que aún tienen potencial. Claude redacta un email de re-engagement personalizado por deal y envía al CGO un resumen con tabla de aprobación. Al aprobar en Google Sheets, el email sale automáticamente.</p>
@@ -682,7 +932,7 @@ flowchart LR
             <li>Envía email personalizado al contacto del deal</li>
             <li>Registra la fecha de último re-engagement en Pipedrive</li>
             <li>Actualiza el estado en el Sheet (<em>enviado</em>)</li>
-            <li>Dispara WF-01 para recalcular score si hay respuesta</li>
+            <li>Crea activity en Pipedrive para trazabilidad</li>
           </ul>
         </div>
         <div class="wf-card-footer">
@@ -695,10 +945,218 @@ flowchart LR
     </div><!-- /cards-grid -->
   </section>
 
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <!-- SECCIÓN LEAD SCORING EN ACCIÓN -->
+  <!-- ════════════════════════════════════════════════════════════════ -->
+  <section id="scoring-accion">
+    <div class="section-header">
+      <span class="section-num-highlight">★</span>
+      <h2>Lead Scoring en Acción — Campaña Outbound MQL (Junio 2026)</h2>
+    </div>
+
+    <div class="callout callout-gold" style="font-size:15px; line-height:1.8;">
+      <strong>El resultado más tangible del sistema hasta hoy:</strong> 710 deals MQL dormidos en Pipedrive, muchos sin ningún contacto desde 2024. En lugar de ignorarlos o llamarlos en orden aleatorio, el Score Engine los calificó a todos en batch — y en menos de 15 minutos identificó los 174 leads con mayor fit para recibir una campaña outbound personalizada. Los 174 emails salieron el mismo día, 0 fallidos, con servicio personalizado por industria y CC al rep asignado de cada deal.
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat-box stat-gold">
+        <div class="stat-number">710</div>
+        <div class="stat-label">Deals MQL<br>calificados en batch</div>
+        <div class="stat-sub">incluyendo 528 sin score previo</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-number blue">174</div>
+        <div class="stat-label">Leads elegibles<br>identificados (score &gt; 12)</div>
+        <div class="stat-sub">24.5% del pipeline MQL</div>
+      </div>
+      <div class="stat-box stat-green">
+        <div class="stat-number green">174</div>
+        <div class="stat-label">Emails T6 enviados<br>con personalización</div>
+        <div class="stat-sub">100% entregados · 0 fallidos</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-number white">&lt;15</div>
+        <div class="stat-label">Minutos de principio<br>a fin (score + envío)</div>
+        <div class="stat-sub">vs días de trabajo manual</div>
+      </div>
+    </div>
+
+    <!-- FLUJO PASO A PASO -->
+    <h3 style="color:var(--gold); font-size:1rem; margin-bottom:1rem; font-weight:600; text-transform:uppercase; letter-spacing:.05em;">¿Cómo funciona el flujo completo?</h3>
+    <div class="flow-steps">
+      <div class="flow-step">
+        <span class="fs-icon">🗂️</span>
+        <div class="fs-label">1. Escanear</div>
+        <div class="fs-sub">710 deals MQL en Pipedrive extraídos vía API</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <span class="fs-icon">🎯</span>
+        <div class="fs-label">2. Score Engine</div>
+        <div class="fs-sub">Firmográfico + Comportamiento + BANT = 0-100</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <span class="fs-icon">🔽</span>
+        <div class="fs-label">3. Filtrar</div>
+        <div class="fs-sub">Score &gt; 12 = elegible para outbound</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <span class="fs-icon">✍️</span>
+        <div class="fs-label">4. Personalizar</div>
+        <div class="fs-sub">Nombre, empresa, servicio por industria, rep asignado</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <span class="fs-icon">📤</span>
+        <div class="fs-label">5. Enviar</div>
+        <div class="fs-sub">T6 Gayosso vía Gmail SMTP · CC al rep</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <span class="fs-icon">🔔</span>
+        <div class="fs-label">6. Hot Signal</div>
+        <div class="fs-sub">WF-10B alerta al rep si el contacto abre el email</div>
+      </div>
+    </div>
+
+    <!-- POR QUÉ EL SCORING CAMBIA TODO -->
+    <h3 style="color:var(--gold); font-size:1rem; margin-bottom:1rem; font-weight:600; text-transform:uppercase; letter-spacing:.05em;">Por qué el scoring cambia el outbound</h3>
+    <div class="case-study-grid" style="grid-template-columns: 1fr 1fr; margin-bottom:1.5rem;">
+      <div class="callout callout-blue" style="margin-bottom:0;">
+        <strong>❌ Sin Lead Scoring (antes)</strong><br><br>
+        710 leads en MQL. ¿A cuál llamo? ¿Cuál tiene email válido? ¿Cuál vio mi contenido antes? ¿A cuál le mando la campaña de Gayosso vs de manufactura?<br><br>
+        <em>Resultado: se contactan los más recientes o los que recuerda el rep. 80% del pipeline dormido se pierde sin intentarlo.</em>
+      </div>
+      <div class="callout callout-green" style="margin-bottom:0;">
+        <strong>✅ Con Lead Scoring (ahora)</strong><br><br>
+        Cada lead tiene un número. El sistema filtra automáticamente quién merece outbound hoy, infiere el servicio de interés por industria, y personaliza cada email. El rep recibe una alerta si alguno responde.<br><br>
+        <em>Resultado: 174 emails personalizados en 15 min. Pipeline dormido activado en una mañana.</em>
+      </div>
+    </div>
+
+    <!-- PERSONALIZACIÓN POR INDUSTRIA -->
+    <h3 style="color:var(--gold); font-size:1rem; margin-bottom:1rem; font-weight:600; text-transform:uppercase; letter-spacing:.05em;">Personalización automática del mensaje por industria</h3>
+    <p class="section-intro">El sistema infiere el servicio de interés relevante para cada empresa basándose en su nombre y sector. Cada email llega con un mensaje que resuena con la realidad del prospecto.</p>
+    <div class="table-wrap" style="margin-bottom:2rem;">
+      <table>
+        <thead><tr><th>Sector detectado</th><th>Servicio inferido (en el email)</th><th>Ejemplos de empresas</th></tr></thead>
+        <tbody>
+          <tr><td>🏦 Financiero / Bancario</td><td>modernización de plataformas financieras e integración de sistemas</td><td>MetLife, AFIRME, Banco BASE, MONEX, AXA</td></tr>
+          <tr><td>🛒 Retail / eCommerce</td><td>integración de eCommerce, POS y sistemas de omnicanal</td><td>OfficeMax, Palacio, JUGUETRON, CONTPAQi</td></tr>
+          <tr><td>🏭 Manufactura / Industrial</td><td>automatización de procesos de manufactura e integración ERP</td><td>Vitro, SuKarne, Grupo Gondi, Valeo</td></tr>
+          <tr><td>🏥 Salud / Hospitales</td><td>digitalización de procesos de salud e integración de sistemas</td><td>H. Star Médica, Médica Sur, H. de la Luz</td></tr>
+          <tr><td>🚚 Logística / Transporte</td><td>integración de sistemas y automatización de procesos logísticos</td><td>Paquete Express, VivaAerobus, Aeromexico</td></tr>
+          <tr><td>🍽️ Alimentos / Consumo</td><td>modernización de cadena de suministro e integración de sistemas</td><td>Genommalab, Grupo Gonher, JAFRA</td></tr>
+          <tr><td>🏨 Hospitalidad / Hoteles</td><td>integración de sistemas de hospitalidad y experiencia digital</td><td>The Fives Hotels, RCD Hotels, ExtendedSuites</td></tr>
+          <tr><td>🔵 General (default)</td><td>integración de sistemas y automatización de procesos</td><td>Resto de empresas sin sector específico</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- CASO DE USO: CAMPAÑA T6 GAYOSSO -->
+    <h3 style="color:var(--gold); font-size:1rem; margin-bottom:1rem; font-weight:600; text-transform:uppercase; letter-spacing:.05em;">El Template: Campaña T6 Gayosso — Outbound basado en caso de éxito</h3>
+
+    <div class="callout callout-gold" style="margin-bottom:1.5rem;">
+      <strong>¿Por qué "Gayosso"?</strong> El email usa el caso real de Gayosso — una de las empresas más reconocidas de México — que transformó su plataforma tecnológica con Bambu. Es social proof poderoso: si una empresa de ese tamaño confió en Bambu para su transformación digital, el prospecto se pregunta "¿por qué nosotros no?".<br><br>
+      El asunto se personaliza dinámicamente: <em>"Cómo Gayosso transformó su tecnología — ¿y <strong>[Empresa]</strong>?"</em>
+    </div>
+
+    <div class="case-study-grid">
+      <!-- EMAIL PREVIEW -->
+      <div>
+        <p style="font-size:13px; color:var(--text-muted); margin-bottom:.75rem;">Estructura del email T6 (simplificado)</p>
+        <div class="email-preview">
+          <div class="ep-header">
+            <div class="ep-field"><strong>Para:</strong>  <span>contacto@empresa.com.mx</span></div>
+            <div class="ep-field"><strong>De:</strong>    <span>Roberto Esparza | Bambu &lt;roberto.esparza@bambu-techservices.com&gt;</span></div>
+            <div class="ep-field"><strong>CC:</strong>    <span>Rep asignado al deal (automático)</span></div>
+            <div class="ep-field"><strong>Asunto:</strong><span>Cómo Gayosso transformó su tecnología — ¿y [Empresa]?</span></div>
+          </div>
+          <div class="ep-body">
+            <p style="margin-bottom:.5rem;">Hola <strong style="color:#fde68a">[Nombre]</strong>,</p>
+            <p style="margin-bottom:.5rem; font-size:12px;">Hace unos meses, Gayosso enfrentaba el mismo reto que muchas empresas líderes en México: sistemas legacy que no se comunicaban entre sí, procesos manuales que consumían tiempo valioso y datos dispersos que dificultaban la toma de decisiones.</p>
+            <div class="ep-highlight">
+              💡 <strong>Caso Gayosso:</strong> Integramos sus sistemas de operación, automatizamos procesos clave y conectamos sus datos en una sola plataforma. Resultado: equipos más ágiles, menos errores y decisiones más rápidas.
+            </div>
+            <p style="margin-bottom:.5rem; font-size:12px;">En <strong style="color:#fde68a">[Empresa]</strong>, veo una oportunidad similar en <strong style="color:#fde68a">[servicio_interes]</strong>. ¿Tienen 30 minutos esta semana para explorar si tiene sentido para ustedes?</p>
+            <span class="ep-cta">📅 Agendar 30 minutos</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- EJEMPLO REAL: RAGASA -->
+      <div>
+        <p style="font-size:13px; color:var(--text-muted); margin-bottom:.75rem;">Ejemplo real enviado — Deal Ragasa (Deal ID: 4145)</p>
+        <div class="case-card">
+          <div class="case-card-header">
+            <div>
+              <div class="cc-title">Ragasa — Grupo Lala</div>
+              <div class="cc-sub">Deal validado para test de Lusha + campaña T6</div>
+            </div>
+          </div>
+          <div class="case-card-body">
+            <div class="cc-row"><span class="cc-key">Contacto</span><span class="cc-val">Mayra Medina</span></div>
+            <div class="cc-row"><span class="cc-key">Email</span><span class="cc-val">mmedina@ragasa.com.mx</span></div>
+            <div class="cc-row"><span class="cc-key">Score asignado</span><span class="cc-val gold">22 / 100 🔵 Frío</span></div>
+            <div class="cc-row"><span class="cc-key">Servicio inferido</span><span class="cc-val">integración de sistemas y automatización de procesos</span></div>
+            <div class="cc-row"><span class="cc-key">Template usado</span><span class="cc-val">T6 Gayosso Campaign</span></div>
+            <div class="cc-row"><span class="cc-key">Rep en CC</span><span class="cc-val">Samantha Rivas (Pre Sales)</span></div>
+            <div class="cc-row"><span class="cc-key">Estado</span><span class="cc-val green">✅ Enviado</span></div>
+          </div>
+        </div>
+
+        <div class="callout callout-blue" style="margin-top:1rem; font-size:13px;">
+          <strong>¿Qué pasa si Mayra responde?</strong><br>
+          WF-10B Engagement Handler detecta la actividad en Pipedrive y envía alerta a Samantha: <em>"Mayra de Ragasa abrió tu email. Score: 22. Buen momento para llamar."</em> El deal sube de etapa automáticamente a Lead In-BANT.
+        </div>
+      </div>
+    </div>
+
+    <!-- SCOREBOARD MQL -->
+    <h3 style="color:var(--gold); font-size:1rem; margin-bottom:1rem; margin-top:2rem; font-weight:600; text-transform:uppercase; letter-spacing:.05em;">Distribución de scores — 710 deals MQL (Junio 2026)</h3>
+    <p class="section-intro">Los MQL Frío tienen scores bajos por diseño: no tienen Lusha, poca actividad registrada y sin datos BANT. El scoring sirve para diferenciar los que tienen <em>algo</em> de fit del universo sin datos. Cuando WF-02 Enrichment esté activo, muchos de estos subirán a Tibio y Caliente automáticamente.</p>
+    <div class="score-bar-wrap">
+      <div class="score-bar-row">
+        <span class="score-bar-label">🔥 Hot (71–100)</span>
+        <div class="score-bar-track"><div class="score-bar-fill" style="width:0%;"></div></div>
+        <span class="score-bar-pts">0 deals</span>
+      </div>
+      <div class="score-bar-row">
+        <span class="score-bar-label">🟠 Caliente (51–70)</span>
+        <div class="score-bar-track"><div class="score-bar-fill" style="width:0%;"></div></div>
+        <span class="score-bar-pts">0 deals</span>
+      </div>
+      <div class="score-bar-row">
+        <span class="score-bar-label">🟡 Tibio (26–50)</span>
+        <div class="score-bar-track"><div class="score-bar-fill" style="width:0.5%;"></div></div>
+        <span class="score-bar-pts">~3 deals</span>
+      </div>
+      <div class="score-bar-row">
+        <span class="score-bar-label">🔵 Elegibles &gt;12</span>
+        <div class="score-bar-track"><div class="score-bar-fill" style="width:24.5%;"></div></div>
+        <span class="score-bar-pts">174 deals</span>
+      </div>
+      <div class="score-bar-row">
+        <span class="score-bar-label">🔵 Frío ≤ 12</span>
+        <div class="score-bar-track"><div class="score-bar-fill" style="width:75%; background:linear-gradient(90deg,#374151,#4b5563);"></div></div>
+        <span class="score-bar-pts">536 deals</span>
+      </div>
+    </div>
+
+    <div class="callout callout-gold" style="margin-top:1.5rem;">
+      <strong>Próxima aceleración:</strong> Cuando WF-02 Enrichment (Apollo/Clay) entre en producción, los 710 deals MQL recibirán datos firmográficos reales — facturación, empleados, stack tecnológico — lo que subirá el score promedio de 10 a 30–40 puntos. Los elegibles para outbound pasarán de 174 a potencialmente 400+, todos con mensajes aún más personalizados.
+    </div>
+
+  </section>
+  <!-- /scoring-accion -->
+
   <!-- PRÓXIMAS -->
   <section id="proximos">
     <div class="section-header">
-      <span class="section-num">5</span>
+      <span class="section-num">6</span>
       <h2>Próximas incorporaciones</h2>
     </div>
     <p class="section-intro">Módulos en desarrollo que se integrarán al sistema existente.</p>
@@ -714,7 +1172,7 @@ flowchart LR
         WF09["🔁 WF-09\nAnti-ghosting\n& Referidos"]
     end
 
-    WF02 -.->|"mejora scoring"| WF01_R["🎯 WF-01\nScoring\n✅ activo"]
+    WF02 -.->|"mejora scoring +20-30 pts"| WF01_R["🎯 WF-01\nScoring\n✅ activo"]
     WF04 -.->|"activa propuesta"| PROP["📝 Realizando\nPropuesta\n(etapa CRM)"]
     WF06 -.->|"alimenta CRM"| WF10C_R["📥 WF-10C\nInbound\n✅ activo"]
     WF09 -.->|"reactiva deal"| MQL_R["📋 MQL\nLead Frío\n(etapa CRM)"]
@@ -730,8 +1188,8 @@ flowchart LR
             <div class="pc-sub">Apollo.io + Clay</div>
           </div>
         </div>
-        <p>Cuando entra un deal, consulta Apollo y Clay para añadir automáticamente: facturación estimada, número de empleados, stack tecnológico y cargo exacto del contacto. Mejora la precisión del scoring de WF-01.</p>
-        <div class="pc-connects">Mejora → <span class="connects-to">🎯 WF-01 Scoring</span></div>
+        <p>Cuando entra un deal, consulta Apollo y Clay para añadir automáticamente: facturación estimada, número de empleados, stack tecnológico y cargo exacto del contacto. <strong>Impacto directo en el scoring MQL:</strong> los 536 leads Frío actuales subirán 20–30 puntos al recibir datos reales de empresa.</p>
+        <div class="pc-connects">Mejora → <span class="connects-to">🎯 WF-01 Scoring</span> <span class="connects-to">📧 Campañas más precisas</span></div>
       </div>
       <div class="pending-card">
         <div class="pc-header">
@@ -772,26 +1230,26 @@ flowchart LR
   <!-- ARQUITECTURA -->
   <section id="arquitectura">
     <div class="section-header">
-      <span class="section-num">6</span>
+      <span class="section-num">7</span>
       <h2>Arquitectura del sistema</h2>
     </div>
     <div class="diagram-wrap">
       <div class="mermaid">
 %%{init: {'theme': 'dark', 'themeVariables': {'background': '#111', 'primaryColor': '#1a1a1a', 'primaryTextColor': '#e5e5e5', 'primaryBorderColor': '#3b82f6', 'lineColor': '#555', 'secondaryColor': '#1a1a1a', 'titleColor': '#f5c842', 'fontFamily': 'sans-serif', 'clusterBkg': '#141414', 'edgeLabelBackground': '#1a1a1a'}}}%%
 flowchart TD
-    PIPEDRIVE["🗂️ PIPEDRIVE\nHub central de datos\n1,163 deals · 15 usuarios"]
+    PIPEDRIVE["🗂️ PIPEDRIVE\nHub central de datos\n1,627 deals · 15 usuarios · 710 MQL calificados"]
     N8N["⚙️ n8n Cloud\nOrquestador de workflows\nbambu-techservices.app.n8n.cloud"]
 
     subgraph IA["🤖 IA & Enriquecimiento"]
-        CLAUDE["Claude AI\nAnálisis · Copy · Scoring"]
+        CLAUDE["Claude AI\nAnálisis · Copy · Scoring · Re-engagement"]
         TAVILY["Tavily\nInteligencia de mercado"]
-        LUSHA["Lusha\nEnrichment (pausado)"]
+        LUSHA["Lusha\nEnrichment firmográfico (activo)"]
     end
 
     subgraph SALIDAS["📤 Canales de salida"]
-        GMAIL["Gmail SMTP\nEmails individuales y masivos"]
-        SHEETS["Google Sheets\nLogs · Briefs · Campañas"]
-        PIPEDRIVE2["Pipedrive\nActualización de fields y deals"]
+        GMAIL["Gmail SMTP\nEmails individuales, masivos y campañas"]
+        SHEETS["Google Sheets\nLogs · Briefs · Campañas · Queues"]
+        PIPEDRIVE2["Pipedrive\nScores, activities y actualización de fields"]
     end
 
     PIPEDRIVE <-->|webhooks + API| N8N
@@ -817,7 +1275,7 @@ flowchart TD
 </div><!-- /container -->
 
 <footer>
-  Generado con <strong>Claude AI</strong> &nbsp;·&nbsp; <strong>Bambu Tech Services</strong> &nbsp;·&nbsp; Junio 2026
+  Proyecto diseñado y liderado por <strong>Roberto Esparza</strong> — CGO, Bambu Tech Services &nbsp;·&nbsp; Implementado con <strong>Claude AI</strong> &nbsp;·&nbsp; Junio 2026 &nbsp;·&nbsp; v1.2
 </footer>
 
 <script>

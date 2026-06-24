@@ -1,111 +1,104 @@
-# EP3 — El manager que nunca tiene tiempo de dar retroalimentación. Y cómo lo resolví.
+# EP3 — Coaching automático: cómo garanticé que cada rep recibe retroalimentación semanal sin importar qué tan cargado esté mi viernes.
 
 **Serie:** Automatización Comercial con IA en Bambu Tech Services
 **Episodio:** 3 de 9 — Bloque Ventas
-**Estado:** ✅ Listo para publicar
-**Publicar:** [fecha a definir]
+**Estado:** ✅ Publicado
+**Publicado:** 2026-06-16
+**URL:** https://www.linkedin.com/pulse/ep3-coaching-autom%C3%A1tico-c%C3%B3mo-garantic%C3%A9-que-cada-rep-reciba-esparza-hwkhc/
 
 ---
 
-## El manager que nunca tiene tiempo de dar retroalimentación. Y cómo lo resolví.
+## Coaching automático: cómo garanticé que cada rep recibe retroalimentación semanal sin importar qué tan cargado esté mi viernes.
 
-*Cada viernes a las 5pm, 10 personas en el equipo comercial reciben coaching estructurado sobre su semana. Yo no escribo una sola línea.*
-
----
-
-*Este es el tercer artículo de la serie "Automatización Comercial con IA en Bambu Tech Services". Si llegaste aquí directo, empieza por el EP1 con la arquitectura completa del sistema [aquí](https://www.linkedin.com/pulse/ep-1-constru%C3%AD-un-sistema-de-automatizaci%C3%B3n-comercial-roberto-esparza-nxdfc/).*
+*Cada viernes a las 5pm, 10 personas en mi equipo comercial reciben coaching estructurado sobre su semana. Yo no escribo una sola línea.*
 
 ---
 
-Hay una verdad incómoda en los equipos comerciales que crecen rápido:
-
-El manager nunca tiene tiempo suficiente para dar retroalimentación individual. Y el equipo lo sabe.
-
-No es falta de intención. Es que entre atender las escalaciones de la semana, hacer forecast, avanzar tus propios clientes, y apagar los fuegos del día — el tiempo para sentarte a dar coaching de calidad simplemente desaparece.
-
-Y el coaching que se da en esas condiciones es reactivo y superficial. "¿Cómo vas con tus deals?" "Bien, lo veo bien." "Oye, mueve ese deal de Fulano que ya lleva 40 días." Conversaciones útiles en el momento, pero que no construyen hábito ni cambian comportamiento.
-
-Me hice una pregunta: ¿puede la retroalimentación semanal existir sin depender de que yo encuentre el tiempo?
+*Este es el tercer artículo de la serie "Automatización Comercial con IA en Bambu Tech Services". Si llegaste aquí directo, empieza por el [EP1 — la arquitectura completa del sistema](https://www.linkedin.com/pulse/ep-1-constru%C3%AD-un-sistema-de-automatizaci%C3%B3n-comercial-roberto-esparza-nxdfc/) y el [EP2 — Lead Scoring](https://www.linkedin.com/pulse/ep2-lead-scoring-c%C3%B3mo-dej%C3%A9-de-adivinar-y-empec%C3%A9-saber-roberto-esparza-m6u5c/).*
 
 ---
 
-### El problema de escala que nadie te avisa
+Cuando llegué a Bambu en noviembre de 2024, éramos cuatro personas en el área comercial: el CEO, dos vendedores, y yo.
 
-Cuando el área comercial éramos el CEO, dos vendedores y yo, el coaching era informal pero frecuente. Cuatro personas. Conversaciones cotidianas. Fácil.
+En ese contexto, el coaching era natural. Cuatro personas. Conversaciones cotidianas. Feedback inmediato. Fácil.
 
-Cuando el equipo llegó a 11 personas — 5 Pre Sales, 6 BDRs, y yo cubriendo CGO, Ventas y Marketing simultáneamente — el modelo informal se rompió.
+Cinco meses después, el equipo había crecido a **15 personas** — 5 Pre Sales, 6 BDRs, y yo cubriendo CGO, Ventas y Marketing al mismo tiempo. Y algo que antes funcionaba solo dejó de funcionar: la retroalimentación.
 
-No tenía tiempo para hacer coaching individual de calidad a cada rep cada semana. Y no quería hacer lo que hacen muchos managers en esa situación: priorizar al top performer y al que tiene un problema urgente, y dejar al 80% sin retroalimentación estructurada.
-
-La solución no era contratar un Sales Manager todavía.
-
-Era construir el sistema que lo haría por mí.
+No porque nadie quisiera darla. Sino porque el tiempo para darla bien simplemente ya no existía.
 
 ---
 
-### WF-08: Pipeline Pulse Semanal — qué hace y cómo funciona
+### La trampa en la que caen casi todos los managers comerciales
 
-Cada viernes a las 5pm (`cron: 0 17 * * 5`, timezone: America/Mexico_City), el workflow se activa solo y ejecuta este flujo en minutos:
+Hay un patrón silencioso en los equipos que crecen rápido.
 
-**Nodo 1 — HTTP Request + Consolidate Deals**
-El primer paso es traer todos los deals de Pipedrive — activos, ganados y perdidos — via API con paginación de 500 deals por llamada. Un nodo Code intermedio llamado `Consolidate Deals` convierte ese stream paginado en un solo array:
+Al principio, el manager tiene tiempo para todos. Coaching informal, conversaciones frecuentes, feedback en tiempo real. El equipo lo percibe y funciona.
 
-```js
-return [{ json: { deals: allDeals, count: allDeals.length } }];
-```
+Cuando el equipo escala, el manager optimiza por urgencia: atiende al top performer y al que tiene un problema crítico. El 80% restante recibe atención esporádica — o ninguna.
 
-¿Por qué existe ese nodo? Porque el siguiente paso (leer el Sheet de alertas) necesita ejecutarse exactamente una vez, no una vez por página de resultados. Sin este consolidador, el workflow se ramifica y procesa datos duplicados.
+Lo perverso es que esto se vuelve invisible. Nadie lo dice. El manager asume que si no hay problema urgente, todo va bien. El rep asume que si el manager no dice nada, está haciendo las cosas bien.
 
-**Nodo 2 — Read WF-03 Alerts (Google Sheets)**
-En vez de recalcular las alertas desde cero, WF-08 lee directamente el Sheet `WF-03 Alert Log - Bambu` que WF-03 ya escribe cada lunes, miércoles y viernes. Reutilizar esa data fue una decisión de diseño deliberada: una sola fuente de verdad. Si WF-03 ajusta sus reglas, WF-08 hereda automáticamente los cambios.
+Los dos están equivocados. Y el pipeline lo resiente antes de que alguien lo note.
 
-El Code filtra solo las filas con `timestamp >= lunes de la semana en curso` — no los últimos 7 días, sino la semana ISO. Esto garantiza que el reporte del viernes siempre sea "esta semana", no una ventana móvil que incluye el fin de semana anterior.
+La pregunta que me hice cuando llegamos a 11 personas fue: **¿puede la retroalimentación semanal existir sin depender de que yo encuentre el tiempo?**
 
-**Nodo 3 — Build Coaching Digest (el nodo principal)**
-Aquí ocurre todo. Para cada rep del equipo, el código agrega:
+---
 
-- Deals abiertos y valor total de su pipeline
-- Cuántos deals avanzó de etapa esta semana (`stage_change_time >= lunes`)
-- Cuántos llevan sin actividad toda la semana
-- Breakdown de alertas: escalaciones 🚨, urgentes 🔴, suaves ⚠️, inactividad 💤
-- Top 3 deals en mayor riesgo — ordenados por un score simple: `días_en_etapa × valor_del_deal`
+### La decisión: no contratar un Sales Manager todavía
 
-Con eso, aplica 10 reglas de coaching en orden de prioridad. La primera que aplica define el semáforo y el mensaje:
+La respuesta obvia cuando el equipo crece es contratar una capa de management intermedia.
 
-| Flag | Condición |
+Tiene sentido. A cierta escala, es la respuesta correcta.
+
+Pero en este momento, con un área comercial que acababa de formarse, con métricas de pipeline que apenas estábamos empezando a entender, y con un presupuesto que hay que justificar deal a deal — contratar un Sales Manager para resolver el problema del coaching sería la solución cara a un problema que primero hay que definir bien.
+
+Decidí construirlo antes de contratarlo.
+
+Y lo que construí se llama **WF-08 · Coaching Digest Semanal**.
+
+---
+
+### Cómo funciona el sistema
+
+Cada viernes a las 5pm, sin intervención mía, el workflow hace tres cosas:
+
+**Primero: consolida la semana de cada rep.**
+Toma todos los deals de Pipedrive, cruza esa información con el registro de alertas que ya genera WF-03 durante la semana (lunes, miércoles y viernes), y arma un perfil de la semana para cada persona del equipo: cuántos deals tiene abiertos, cuántos avanzó de etapa, cuántos llevan toda la semana sin actividad, y qué tipo de alertas acumuló.
+
+**Segundo: aplica 10 reglas de coaching en orden de prioridad.**
+El sistema evalúa el perfil de cada rep contra condiciones concretas y asigna un semáforo:
+
+| Condición | Semáforo |
 |---|---|
-| 🔴 | Sin pipeline asignado |
-| 🔴 | ≥ 3 escalaciones en la semana |
-| 🔴 | 0 deals avanzados con ≥ 3 abiertos |
-| 🟠 | ≥ 5 deals urgentes acumulados |
-| 🟠 | ≥ 2 mismatches de rol/etapa |
-| 🟡 | > 50% de deals sin actividad |
-| 🟢 | ≥ 3 avanzados, 0 escalaciones |
-| 🟢 | ≥ 1 deal ganado |
-| 🟡 | Fallback: semana estable |
+| Sin pipeline asignado | 🔴 |
+| ≥ 3 escalaciones en la semana | 🔴 |
+| 0 deals avanzados con ≥ 3 abiertos | 🔴 |
+| ≥ 5 deals urgentes acumulados | 🟠 |
+| ≥ 2 mismatches de rol/etapa | 🟠 |
+| > 50% de deals sin actividad | 🟡 |
+| ≥ 3 avanzados, 0 escalaciones | 🟢 |
+| ≥ 1 deal ganado | 🟢 |
 
-Sin subjetividad. Sin interpretación. El rep abre el email y en 3 segundos sabe en qué zona está.
+Sin subjetividad. Sin interpretación. La primera regla que aplica define el semáforo y el mensaje para ese rep.
 
-**Nodo 4 — Send Email (× 11)**
-El nodo de envío recibe 11 ítems en un solo run: 10 coaching cards individuales (una por rep) + 1 resumen ejecutivo global para el CGO. Cada ítem trae su `recipients`, `subject` y `body` generados dinámicamente. El nodo simplemente los envía en loop.
-
-En paralelo al envío, un nodo `Append CoachingLog` registra cada card en una tab del mismo Sheet — tracking longitudinal que eventualmente permitirá ver tendencias por rep semana a semana.
+**Tercero: envía 11 emails.**
+Diez coaching cards individuales — una por rep, con copia a mí — y un resumen ejecutivo global para el CGO. En cada card: el semáforo de la semana, los números clave, el top 3 de deals en mayor riesgo ordenados por días sin movimiento multiplicado por valor, y una instrucción concreta para el lunes.
 
 ---
 
 ### La decisión de diseño que más me costó
 
-La parte que más me costó definir no fue técnica — fue de criterio de management.
+La parte que más tardé en definir no fue técnica. Fue de criterio de management.
 
 ¿Qué pone el mensaje de coaching?
 
-La tentación obvia era un párrafo generado por Claude con retroalimentación personalizada. Suena poderoso. En la práctica, decidí no hacerlo en v1.
+La opción obvia era un párrafo generado por Claude con análisis personalizado por rep. Suena poderoso. Decidí no hacerlo en la primera versión.
 
-La razón: si el sistema genera retroalimentación genérica — "sigue así" cuando el rep sabe que tuvo una semana terrible — pierde credibilidad más rápido de lo que la gana. Y sin credibilidad, el equipo deja de leer el email.
+La razón: si el sistema genera retroalimentación genérica — "sigue así, buen trabajo" cuando el rep sabe que tuvo una semana terrible — pierde credibilidad más rápido de lo que la gana. Y sin credibilidad, el equipo deja de abrir el email.
 
-Lo que decidí: el mensaje de v1 es corto, directo, y accionable para el lunes. No analiza — instruye.
+Lo que decidí: el mensaje de v1 es corto, directo, y accionable para el lunes. No analiza. Instruye.
 
-Ejemplos reales que genera el sistema:
+Ejemplos reales de lo que genera:
 
 > 🔴 *"Bloquea 2 horas el lunes a primera hora para revisar y mover al menos 2 deals de etapa. Sin movimiento no hay pipeline."*
 
@@ -113,9 +106,9 @@ Ejemplos reales que genera el sistema:
 
 > 🟠 *"Tienes deals en etapas que no corresponden a tu rol. Coordina con CGO para reasignar antes del martes."*
 
-Concreto. Verificable. Accionable. Eso es lo que buscaba.
+Concreto. Verificable. Accionable.
 
-El análisis con Claude llega en v2, cuando tengamos transcripciones de llamadas via Fireflies. Pero v1 ya genera valor desde el primer viernes.
+El análisis profundo con Claude llega en v2, cuando tengamos transcripciones de llamadas via Fireflies. Pero v1 ya genera valor desde el primer viernes — sin esperar a que el stack sea perfecto.
 
 ---
 
@@ -129,51 +122,59 @@ No es control. Es contexto.
 
 Cuando el viernes a las 5pm llegan 10 emails a mi bandeja, en 2 minutos tengo una radiografía de la semana: quién está en rojo, quién avanzó, qué deals están en riesgo. Sin pedir reportes. Sin esperar al lunes.
 
-El email 11 — el resumen ejecutivo — me da el panorama completo del equipo: deals abiertos, pipeline en valor, deals avanzados vs. sin movimiento, ranking por semáforo. 30 segundos y ya sé el estado del equipo antes del fin de semana.
+El email 11 — el resumen ejecutivo — me da el panorama completo: deals abiertos, pipeline en valor, ranking por semáforo. 30 segundos y ya sé el estado del equipo antes del fin de semana.
 
 Si alguien está en 🔴 el viernes, ya sé exactamente qué decirle en el 1:1 del lunes antes de que él abra la boca.
 
 ---
 
-### Lo que cambió en el equipo
+### Lo que no anticipé que pasaría
 
-La primera semana, el sistema marcó más de 400 deals en rojo.
+La primera semana que el sistema se activó en producción, marcó más de 400 deals en rojo.
 
-El equipo se abrumó. De repente tenían en su bandeja notificaciones sobre todos los deals que llevaban semanas — o meses — sin seguimiento. Fue incómodo. Y era exactamente lo que necesitaba pasar.
+El equipo se abrumó. De repente tenían en su bandeja notificaciones sobre todos los deals que llevaban semanas — o meses — sin seguimiento. Fue incómodo.
 
-Paulatinamente el número fue bajando. No porque el sistema se suavizara — sino porque el equipo empezó a mover los deals. La presión de ver tu semáforo en 🔴 el viernes es motivación suficiente para hacer algo el lunes.
+Era exactamente lo que necesitaba pasar.
 
-Hoy el sistema hace énfasis en tres señales que más predicen un deal que se está muriendo en silencio: **deals sin movimiento, escalaciones acumuladas y mismatches de rol/etapa**. Cuando las tres se juntan en el mismo rep la misma semana, la conversación del 1:1 ya está escrita.
+Las semanas siguientes, el número fue bajando. No porque el sistema se suavizara — sino porque el equipo empezó a mover los deals. La presión de ver tu semáforo en 🔴 el viernes es motivación suficiente para hacer algo el lunes.
 
-Antes: la retroalimentación era esporádica, dependía de mi agenda, y solo llegaba a quien la pedía o al que tenía un problema urgente.
+Lo que no anticipé: el sistema no solo generó retroalimentación. **Generó urgencia sin que yo tuviera que crearla.**
 
-Después: cada viernes a las 5pm, los 10 reps reciben retroalimentación estructurada sobre su semana. Sin excepción. Sin importar si yo tuve un viernes cargado o si estuve en reuniones todo el día.
-
-Algunos lo leen el viernes en la tarde. Otros el domingo en la noche. Otros el lunes temprano. Pero lo leen. Y llegan al inicio de la semana con contexto sobre lo que dejaron pendiente.
-
-Eso es exactamente lo que buscaba: no sustituir el coaching humano, sino garantizar que la retroalimentación estructurada existiera independientemente de mi disponibilidad.
+Antes, cuando un deal llevaba 6 semanas sin actividad, nadie lo sabía hasta que el forecast no cuadraba. Ahora el rep lo sabe el viernes anterior. Y tiene un lunes completo para corregirlo antes de que yo llegue al 1:1.
 
 ---
 
-### Dónde encaja en el sistema
+### Lo que cambió en las conversaciones de equipo
 
-Si lo veo en el contexto del sistema completo:
+Antes del sistema, cuando preguntaba sobre el pipeline en una junta, las respuestas eran: "lo veo bien", "el cliente está interesado", "creo que cierra pronto". Opiniones. Difíciles de cuestionar y difíciles de actuar.
+
+Ahora la conversación del lunes empieza diferente: "tuve 3 escalaciones esta semana, el sistema me marcó en rojo, y el deal de Fulano está en el top 3 de riesgo con 40 días sin movimiento".
+
+Eso no es lo que yo le enseñé a decir. Es lo que el sistema le dio el viernes y llegó con ello procesado al lunes.
+
+El coaching no fue reemplazado. Fue ancla con datos antes de que empiece la conversación.
+
+---
+
+### Dónde encaja en el sistema completo
+
+Si lo veo en contexto:
 
 - **WF-01** resuelve la priorización: qué deals trabajar y en qué orden
-- **WF-03** resuelve la detección en tiempo real: cuándo un deal específico está en riesgo (lo cubro en el próximo episodio)
 - **WF-08** resuelve la reflexión semanal: cómo está el rep en su conjunto, no deal por deal
+- **WF-03** resuelve la detección en tiempo real: cuándo un deal específico está en riesgo — que es exactamente lo que cubro en el próximo artículo
 
-Los tres juntos forman un ciclo de retroalimentación completo — sin que yo tenga que operar ninguno manualmente.
+Los tres forman un ciclo de retroalimentación completo. Sin que yo tenga que operar ninguno manualmente.
 
 ---
 
 ### Lo que viene en EP4
 
-El coaching semanal resuelve el problema de visibilidad hacia atrás: qué pasó esta semana.
+El coaching semanal resuelve la visibilidad hacia atrás: qué pasó esta semana, quién avanzó, quién se quedó parado.
 
-Pero hay un problema que este workflow — y ninguno de los anteriores — resuelve directamente: los deals que llevan meses sin contacto y que ya nadie persigue activamente. Los que el CRM sigue mostrando como "activos" pero que en realidad están muertos.
+Pero hay un problema que ninguno de estos workflows resuelve directamente: **saber cuándo un deal específico está muriendo en silencio** — antes de que sea demasiado tarde para rescatarlo.
 
-Eso es lo que construí en WF-11 — el sistema de reactivación de deals dormidos. Y es el tema del próximo artículo.
+Eso es lo que construí en WF-03 — el sistema de alertas de pipeline. Y es el tema del próximo artículo.
 
 ---
 
@@ -181,9 +182,9 @@ Eso es lo que construí en WF-11 — el sistema de reactivación de deals dormid
 
 *La diferencia entre los dos escenarios no es talento. Es sistema.*
 
-*La guía visual del sistema completo: **[bambu-sales-automatization.vercel.app](https://bambu-sales-automatization.vercel.app/)***
+*La guía visual con el mapa completo de los 12 módulos: **[bambu-sales-automatization.vercel.app](https://bambu-sales-automatization.vercel.app/)***
 
-*El siguiente artículo: deals que llevan 6 meses sin contacto. Cómo no dejarlos morir.*
+*El siguiente artículo: cómo saber cuándo un deal específico se está muriendo — y recibir la alerta antes de que sea tarde.*
 
 ---
 
@@ -191,4 +192,5 @@ Eso es lo que construí en WF-11 — el sistema de reactivación de deals dormid
 CGO · Bambu Tech Services
 *Construyendo el área comercial del futuro, desde México.*
 
-*[EP1 — La arquitectura completa del sistema →](https://www.linkedin.com/pulse/ep-1-constru%C3%AD-un-sistema-de-automatizaci%C3%B3n-comercial-roberto-esparza-nxdfc/)*
+*[EP1 — La arquitectura completa →](https://www.linkedin.com/pulse/ep-1-constru%C3%AD-un-sistema-de-automatizaci%C3%B3n-comercial-roberto-esparza-nxdfc/)*
+*[EP2 — Lead Scoring →](https://www.linkedin.com/pulse/ep2-lead-scoring-c%C3%B3mo-dej%C3%A9-de-adivinar-y-empec%C3%A9-saber-roberto-esparza-m6u5c/)*

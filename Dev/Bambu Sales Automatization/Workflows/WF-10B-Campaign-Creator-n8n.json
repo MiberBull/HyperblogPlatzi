@@ -1,1 +1,1295 @@
-{"updatedAt":"2026-06-19T20:57:10.325Z","createdAt":"2026-06-02T23:45:54.592Z","id":"gdbczgw1BIYHIxiT","name":"WF-10B — Campaign Creator (Brief → Pipedrive Campaigns)","description":null,"active":true,"isArchived":false,"nodes":[{"parameters":{"method":"GET","url":"=https://api.pipedrive.com/v1/persons?limit=200&start=0&api_token={{ $vars.PIPEDRIVE_API_TOKEN }}","options":{}},"id":"c0000002-0000-0000-0000-000000000002","name":"PD — Obtener Contactos","type":"n8n-nodes-base.httpRequest","typeVersion":4.2,"position":[460,280]},{"parameters":{"method":"GET","url":"=https://api.pipedrive.com/v1/deals?status=won&limit=200&api_token={{ $vars.PIPEDRIVE_API_TOKEN }}","options":{}},"id":"c0000003-0000-0000-0000-000000000003","name":"PD — Clientes (Deals Ganados)","type":"n8n-nodes-base.httpRequest","typeVersion":4.2,"position":[460,440]},{"parameters":{"mode":"append","numberInputs":3},"id":"c0000004-0000-0000-0000-000000000004","name":"Merge Brief + Contactos","type":"n8n-nodes-base.merge","typeVersion":3,"position":[680,400]},{"parameters":{"jsCode":"// Combina brief, personas y clientes; segmenta y prepara el copy\nconst allItems = $input.all();\nconst briefItem    = $('Filtrar Aprobado').first().json;\nconst personsResp  = allItems[1]?.json || {};\nconst wonDealsResp = allItems[2]?.json || {};\n\nconst persons  = personsResp.data  || [];\nconst wonDeals = wonDealsResp.data || [];\nconst brief_md = briefItem.brief_md || '';\nconst tipo     = briefItem.tipo_campaña || 'T1';\n\n// IDs de clientes (personas con deal ganado)\nconst clientPersonIds = new Set(wonDeals.map(d => d.person_id?.value).filter(Boolean));\n\n// Personas con email, separadas por segmento\nconst KEYWORDS = {\n  'Manufactura / Nearshoring': ['manufactur','industrial','plant','automotri','aerospace','semiconductor','nearshoring'],\n  'Financiero / Fintech':      ['banco','bank','financier','fintech','seguro','credito','pago','afore','inversion'],\n  'Retail / CPG':              ['retail','comercio','tienda','supermercado','walmart','oxxo','fmcg','consumer','aliment'],\n  'Gobierno':                  ['gobierno','municipal','estado','secretaria','imss','issste','pemex','cfe','federal'],\n  'Salud':                     ['hospital','clinica','salud','medic','pharma','laboratori'],\n  'Tecnología / IT':           ['tecnolog','software','digital','tech','system','solution','data','cloud'],\n  'Telecomunicaciones':        ['telecom','telcel','telmex','at&t','movistar','axtel','megacable'],\n  'Transporte / Logística':    ['transport','logistic','carga','cargo','aerolinea'],\n  'Energía':                   ['energia','petroleo','gas','electric','solar','eolica']\n};\n\nfunction getSegment(orgName) {\n  const n = (orgName || '').toLowerCase();\n  for (const [seg, kws] of Object.entries(KEYWORDS)) {\n    if (kws.some(kw => n.includes(kw))) return seg;\n  }\n  return 'Sin clasificar';\n}\n\n// Construir lista segmentada con email\nconst segmented = {};\nconst allEmailList = [];\n\npersons.forEach(p => {\n  const email = p.email?.[0]?.value;\n  if (!email) return;\n  const orgName = p.org_id?.name || '';\n  const seg = getSegment(orgName);\n  const isClient = clientPersonIds.has(p.id);\n  const contact = {\n    id: p.id,\n    name: p.name,\n    email,\n    org: orgName,\n    segmento: seg,\n    tipo_contacto: isClient ? 'Cliente' : 'Prospecto'\n  };\n  if (!segmented[seg]) segmented[seg] = { clientes: [], prospectos: [] };\n  isClient ? segmented[seg].clientes.push(contact) : segmented[seg].prospectos.push(contact);\n  allEmailList.push(contact);\n});\n\n// Resumen de segmentación\nconst segResumen = Object.entries(segmented).map(([seg, data]) => ({\n  segmento: seg,\n  clientes: data.clientes.length,\n  prospectos: data.prospectos.length,\n  total: data.clientes.length + data.prospectos.length\n})).sort((a, b) => b.total - a.total);\n\nreturn [{\n  json: {\n    brief_md,\n    tipo_campaña: tipo,\n    fecha_corta: briefItem.fecha || new Date().toLocaleDateString('es-MX'),\n    segmented,\n    segResumen,\n    total_campañable: allEmailList.length,\n    all_email_list: allEmailList\n  }\n}];"},"id":"c0000005-0000-0000-0000-000000000005","name":"Segmentar Contactos","type":"n8n-nodes-base.code","typeVersion":2,"position":[900,400]},{"parameters":{"method":"POST","url":"https://api.anthropic.com/v1/messages","sendHeaders":true,"headerParameters":{"parameters":[{"name":"x-api-key","value":"={{ $vars.ANTHROPIC_API_KEY }}"},{"name":"anthropic-version","value":"2023-06-01"},{"name":"content-type","value":"application/json"}]},"sendBody":true,"specifyBody":"json","jsonBody":"={{ JSON.stringify({ model: 'claude-opus-4-6', max_tokens: 4096, messages: [{ role: 'user', content: 'Eres copywriter senior B2B de Bambu Tech Services en México.\\n\\nBasándote en este brief de inteligencia comercial:\\n\\n' + $json.brief_md + '\\n\\nSegmentación actual del CRM:\\n' + JSON.stringify($json.segResumen) + '\\n\\nGenera el copy para DOS canales en JSON exacto con esta estructura:\\n{\\n  \"email\": {\\n    \"subject\": \"Asunto (max 50 chars, urgencia sin clickbait)\",\\n    \"preheader\": \"Preheader (max 85 chars)\",\\n    \"hero_headline\": \"Titular hero (max 60 chars)\",\\n    \"hero_subline\": \"Subtítulo (max 100 chars)\",\\n    \"flash_bullets\": [\"bullet1\", \"bullet2\", \"bullet3\"],\\n    \"sections\": [{\"vertical\": \"\", \"emoji\": \"\", \"noticia_titulo\": \"\", \"contexto\": \"2-3 líneas\", \"decisor\": \"\", \"angulo_bambu\": \"\", \"urgencia\": \"ALTA/MEDIA/BAJA\"}],\\n    \"oportunidad_titulo\": \"\",\\n    \"oportunidad_cuerpo\": \"2 líneas\",\\n    \"cta_texto\": \"max 30 chars\",\\n    \"cta_url\": \"https://bambu-techservices.com/contacto\"\\n  },\\n  \"whatsapp\": {\\n    \"mensaje\": \"Texto WA max 1024 chars, sin HTML, saludo + 2 bullets con emojis + pregunta apertura + link\"\\n  }\\n}\\n\\nRespuesta SOLO el JSON, sin markdown ni explicaciones.' }] }) }}","options":{}},"id":"c0000006-0000-0000-0000-000000000006","name":"Claude — Dual Copy","type":"n8n-nodes-base.httpRequest","typeVersion":4.2,"position":[1120,400]},{"parameters":{"jsCode":"// Parsea la respuesta de Claude y prepara los datos para crear la campaña\nconst claudeResp = $input.first().json;\nconst rawText = claudeResp.content?.[0]?.text || '{}';\n\nlet copy;\ntry {\n  // Claude puede responder con ```json ... ``` o directo\n  const clean = rawText.replace(/^```json\\s*/i,'').replace(/```\\s*$/,'').trim();\n  copy = JSON.parse(clean);\n} catch(e) {\n  copy = { email: { subject: 'Intel Comercial Bambu', preheader: '', hero_headline: 'Las señales de mercado de esta semana', hero_subline: '', flash_bullets: [], sections: [], oportunidad_titulo: '', oportunidad_cuerpo: '', cta_texto: 'Conversemos', cta_url: 'https://bambu-techservices.com/contacto' }, whatsapp: { mensaje: '' } };\n}\n\n// Pasar también los datos del paso anterior\nconst prev = $('Segmentar Contactos').first().json;\n\nreturn [{\n  json: {\n    email_copy: copy.email,\n    wa_mensaje: copy.whatsapp?.mensaje || '',\n    brief_md: prev.brief_md,\n    segmented: prev.segmented,\n    segResumen: prev.segResumen,\n    total_campañable: prev.total_campañable,\n    fecha_corta: prev.fecha_corta\n  }\n}];"},"id":"c0000007-0000-0000-0000-000000000007","name":"Parse Copy Claude","type":"n8n-nodes-base.code","typeVersion":2,"position":[1340,400]},{"parameters":{"jsCode":"// Construye el HTML final del email T1 — Newsletter Intel Bambu\n// Combina el template base con el copy generado por Claude\nconst { email_copy: c, fecha_corta } = $input.first().json;\n\nconst flashBullets = (c.flash_bullets || []).map(b =>\n  `<tr><td style=\"padding:8px 20px;font-family:Arial,sans-serif;font-size:15px;color:#333;border-left:3px solid #F0B429;\">&#9889; ${b}</td></tr>`\n).join('');\n\nconst sections = (c.sections || []).map(s => `\n  <tr><td style=\"padding:20px 30px 0;background:#fff;\">\n    <p style=\"margin:0 0 4px;font-family:Arial,sans-serif;font-size:12px;color:#888;text-transform:uppercase;letter-spacing:1px;\">${s.emoji || '📊'} ${s.vertical}</p>\n    <h3 style=\"margin:0 0 8px;font-family:Arial,sans-serif;font-size:17px;color:#111;line-height:1.3;\">${s.noticia_titulo}</h3>\n    <p style=\"margin:0 0 8px;font-family:Arial,sans-serif;font-size:14px;color:#444;line-height:1.6;\">${s.contexto}</p>\n    <p style=\"margin:0 0 4px;font-family:Arial,sans-serif;font-size:13px;color:#666;\">🎯 <strong>Decisor:</strong> ${s.decisor}</p>\n    <p style=\"margin:0 0 12px;font-family:Arial,sans-serif;font-size:13px;color:#1a1a1a;font-style:italic;background:#FFF8E1;padding:10px 14px;border-radius:4px;border-left:3px solid #F0B429;\">💡 ${s.angulo_bambu}</p>\n    <p style=\"margin:0;font-family:Arial,sans-serif;font-size:12px;\"><strong>⚡ Urgencia: <span style=\"color:${s.urgencia==='ALTA'||s.urgencia==='CRÍTICA'?'#c0392b':s.urgencia==='MEDIA'?'#e67e22':'#27ae60'}\">${s.urgencia}</span></strong></p>\n  </td></tr>\n  <tr><td style=\"padding:0 30px;\"><hr style=\"border:none;border-top:1px solid #eee;margin:16px 0;\"></td></tr>`\n).join('');\n\nconst html = `<!DOCTYPE html>\n<html lang=\"es\">\n<head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n<title>${c.subject}</title>\n</head>\n<body style=\"margin:0;padding:0;background:#F4F4F4;\">\n<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#F4F4F4;\">\n<tr><td align=\"center\" style=\"padding:20px 10px;\">\n\n<!-- Wrapper 600px -->\n<table width=\"600\" cellpadding=\"0\" cellspacing=\"0\" style=\"max-width:600px;width:100%;\">\n\n  <!-- HEADER -->\n  <tr><td style=\"background:#000;padding:18px 30px;\">\n    <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n    <tr>\n      <td style=\"font-family:Arial,sans-serif;font-size:20px;font-weight:700;color:#F0B429;letter-spacing:1px;\">BAMBU</td>\n      <td align=\"right\" style=\"font-family:Arial,sans-serif;font-size:11px;color:#888;\">${fecha_corta}</td>\n    </tr></table>\n  </td></tr>\n\n  <!-- HERO -->\n  <tr><td style=\"background:#111;padding:32px 30px 28px;\">\n    <p style=\"margin:0 0 6px;font-family:Arial,sans-serif;font-size:11px;color:#F0B429;text-transform:uppercase;letter-spacing:2px;\">&#128268; INTEL COMERCIAL BAMBU</p>\n    <h1 style=\"margin:0 0 10px;font-family:Arial,sans-serif;font-size:26px;color:#fff;line-height:1.25;\">${c.hero_headline}</h1>\n    <p style=\"margin:0;font-family:Arial,sans-serif;font-size:15px;color:#aaa;line-height:1.5;\">${c.hero_subline}</p>\n  </td></tr>\n\n  <!-- FLASH DEL DÍA -->\n  <tr><td style=\"background:#fff;padding:20px 30px 8px;\">\n    <p style=\"margin:0 0 12px;font-family:Arial,sans-serif;font-size:13px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:1px;\">&#9889; Flash de la semana</p>\n    <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">${flashBullets}</table>\n  </td></tr>\n\n  <!-- DIVISOR -->\n  <tr><td style=\"background:#fff;padding:0 30px;\"><hr style=\"border:none;border-top:2px solid #F0B429;margin:20px 0 10px;\"></td></tr>\n\n  <!-- NOTICIAS PRINCIPALES -->\n  <tr><td style=\"background:#fff;padding:8px 30px 0;\">\n    <p style=\"margin:0 0 4px;font-family:Arial,sans-serif;font-size:13px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:1px;\">&#128202; Noticias principales</p>\n  </td></tr>\n  ${sections}\n\n  <!-- OPORTUNIDAD DE LA SEMANA -->\n  <tr><td style=\"background:#000;padding:28px 30px;\">\n    <p style=\"margin:0 0 6px;font-family:Arial,sans-serif;font-size:11px;color:#F0B429;text-transform:uppercase;letter-spacing:2px;\">&#128640; Oportunidad de la semana</p>\n    <h2 style=\"margin:0 0 10px;font-family:Arial,sans-serif;font-size:20px;color:#fff;line-height:1.3;\">${c.oportunidad_titulo}</h2>\n    <p style=\"margin:0 0 20px;font-family:Arial,sans-serif;font-size:14px;color:#ccc;line-height:1.6;\">${c.oportunidad_cuerpo}</p>\n    <table cellpadding=\"0\" cellspacing=\"0\">\n    <tr><td style=\"background:#F0B429;border-radius:4px;\">\n      <a href=\"${c.cta_url}\" style=\"display:inline-block;padding:13px 28px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#000;text-decoration:none;\">${c.cta_texto} &rarr;</a>\n    </td></tr></table>\n  </td></tr>\n\n  <!-- FOOTER -->\n  <tr><td style=\"background:#222;padding:20px 30px;\">\n    <p style=\"margin:0 0 4px;font-family:Arial,sans-serif;font-size:13px;color:#ccc;\"><strong style=\"color:#fff;\">Bambu Tech Services</strong></p>\n    <p style=\"margin:0 0 4px;font-family:Arial,sans-serif;font-size:12px;color:#888;\">roberto.esparza@bambu-techservices.com</p>\n    <p style=\"margin:0 0 12px;font-family:Arial,sans-serif;font-size:12px;color:#888;\">bambu-techservices.com</p>\n    <p style=\"margin:0;font-family:Arial,sans-serif;font-size:11px;color:#555;\">\n      Estás recibiendo este correo porque formas parte de nuestra red de contactos profesionales.\n      <a href=\"{{unsubscribe}}\" style=\"color:#888;\">Cancelar suscripción</a>\n    </p>\n  </td></tr>\n\n</table>\n<!-- fin wrapper -->\n</td></tr></table>\n</body></html>`;\n\nreturn [{\n  json: {\n    html_email: html,\n    subject: c.subject,\n    preheader: c.preheader,\n    wa_mensaje: $input.first().json.wa_mensaje,\n    segResumen: $input.first().json.segResumen,\n    total_campañable: $input.first().json.total_campañable,\n    fecha_corta: $input.first().json.fecha_corta\n  }\n}];"},"id":"c0000008-0000-0000-0000-000000000008","name":"Build HTML Email","type":"n8n-nodes-base.code","typeVersion":2,"position":[1560,400]},{"parameters":{"method":"POST","url":"https://api.brevo.com/v3/emailCampaigns","sendHeaders":true,"headerParameters":{"parameters":[{"name":"api-key","value":"={{ $vars.BREVO_API_KEY }}"},{"name":"content-type","value":"application/json"}]},"sendBody":true,"specifyBody":"json","jsonBody":"={{ JSON.stringify({ name: 'Intel Bambu — ' + $('Build HTML Email').first().json.fecha_corta, subject: $('Build HTML Email').first().json.subject, sender: { name: 'Bambu Tech Services', email: 'roberto.esparza@bambu-techservices.com' }, replyTo: 'roberto.esparza@bambu-techservices.com', htmlContent: $('Build HTML Email').first().json.html_email, recipients: { listIds: [Number($vars.BREVO_LIST_ID)] } }) }}","options":{}},"id":"c0000009-0000-0000-0000-000000000009","name":"Brevo — Crear Campaña","type":"n8n-nodes-base.httpRequest","typeVersion":4.2,"position":[1780,280],"continueOnFail":true},{"parameters":{"fromEmail":"roberto.esparza@bambu-techservices.com","toEmail":"roberto.esparza@bambu-techservices.com","subject":"=📧 Campaña Intel lista para enviar — {{ $json.fecha_corta }}","options":{},"html":"=<p>Hola Roberto,</p><p>La campaña de inteligencia comercial del <strong>{{ $json.fecha_corta }}</strong> está lista.</p><h3 style=\"margin:16px 0 8px;\">Segmentación</h3><table style=\"border-collapse:collapse;font-size:14px;\">{{ $json.segResumen.map(s => '<tr><td style=\"padding:4px 16px 4px 0;color:#555;\">' + s.segmento + '</td><td style=\"padding:4px 8px;text-align:right;\"><strong>' + s.total + '</strong></td><td style=\"padding:4px 0 4px 8px;color:#888;\">(' + s.clientes + ' clientes · ' + s.prospectos + ' prospectos)</td></tr>').join('') }}</table><p style=\"margin-top:12px;\"><strong>Total campañable:</strong> {{ $json.total_campañable }} contactos con email</p><hr style=\"border:none;border-top:1px solid #eee;margin:16px 0;\"><p>Entra a <strong>Pipedrive → Campañas → 'Intel Bambu — {{ $json.fecha_corta }}'</strong> para revisar y enviar.</p><p style=\"color:#888;font-size:12px;\">⚙️ WF-10B · Bambu Sales Automatization</p>"},"id":"c0000010-0000-0000-0000-000000000010","name":"Email Campaña Lista → CGO","type":"n8n-nodes-base.emailSend","typeVersion":2.1,"position":[1780,520],"credentials":{"smtp":{"id":"lexMB39WZNDmctV5","name":"│ Bambu Gmail SMTP"}},"webhookId":"cf16774d-b06d-46eb-b032-1fff3eb2c554"},{"parameters":{"operation":"append","documentId":{"__rl":true,"value":"1j6W7-gNrOmMrPNLG1UVPIcnaV3Z90qDRSocXMC8rGko","mode":"id"},"sheetName":{"__rl":true,"value":"Campañas","mode":"name"},"columns":{"mappingMode":"autoMapInputData","value":{},"matchingColumns":[],"schema":[]},"options":{}},"id":"c0000011-0000-0000-0000-000000000011","name":"Sheets — Log Campaña","type":"n8n-nodes-base.googleSheets","typeVersion":4.5,"position":[1780,660],"credentials":{"googleSheetsOAuth2Api":{"id":"yF3npq62Z1nKRMvP","name":"Bambu Google Sheets"}},"continueOnFail":true},{"parameters":{"rule":{"interval":[{"field":"minutes","minutesInterval":5}]}},"id":"c0000012-0000-0000-0000-000000000012","name":"Schedule: Cada 5 min","type":"n8n-nodes-base.scheduleTrigger","typeVersion":1.1,"position":[240,400]},{"parameters":{"method":"GET","url":"https://sheets.googleapis.com/v4/spreadsheets/1j6W7-gNrOmMrPNLG1UVPIcnaV3Z90qDRSocXMC8rGko/values/Intel%20Briefs!A%3AZ","authentication":"predefinedCredentialType","nodeCredentialType":"googleSheetsOAuth2Api","options":{}},"id":"c0000013-0000-0000-0000-000000000013","name":"HTTP — Leer Intel Briefs","type":"n8n-nodes-base.httpRequest","typeVersion":4.2,"position":[460,400],"credentials":{"googleSheetsOAuth2Api":{"id":"yF3npq62Z1nKRMvP","name":"Bambu Google Sheets"}}},{"parameters":{"jsCode":"const data = $input.first().json;\nconst rows = data.values || [];\nif (rows.length < 2) return [{ json: { found: false } }];\n\nconst headers = rows[0];\nconst estIdx = headers.indexOf('estado');\nconst fechaIdx = headers.indexOf('fecha');\n\nlet found = null;\nlet foundRowNum = -1;\nfor (let i = rows.length - 1; i >= 1; i--) {\n  if (rows[i][estIdx] === 'aprobado') {\n    found = rows[i];\n    foundRowNum = i + 1; // 1-based (header=row1, first data=row2)\n    break;\n  }\n}\n\nif (!found) return [{ json: { found: false } }];\n\nconst obj = {};\nheaders.forEach((h, idx) => { obj[h] = found[idx] || ''; });\nreturn [{ json: { ...obj, found: true, _rowNum: foundRowNum } }];"},"id":"c0000014-0000-0000-0000-000000000014","name":"Filtrar Aprobado","type":"n8n-nodes-base.code","typeVersion":2,"position":[680,400]},{"parameters":{"conditions":{"options":{"caseSensitive":true,"leftValue":"","typeValidation":"strict"},"conditions":[{"id":"chk","leftValue":"={{ $json.found }}","rightValue":true,"operator":{"type":"boolean","operation":"true"}}],"combinator":"and"},"options":{}},"id":"c0000015-0000-0000-0000-000000000015","name":"IF — Brief Pendiente","type":"n8n-nodes-base.if","typeVersion":2,"position":[900,400]},{"parameters":{"jsCode":"let rowNum = -1;\ntry { rowNum = $('Filtrar Aprobado').first().json._rowNum || -1; } catch(e) {}\nreturn [{ json: { _rowNum: rowNum } }];"},"id":"c0000016-0000-0000-0000-000000000016","name":"Prep Marcar Procesado","type":"n8n-nodes-base.code","typeVersion":2,"position":[2200,620]},{"parameters":{"method":"PUT","url":"=https://sheets.googleapis.com/v4/spreadsheets/1j6W7-gNrOmMrPNLG1UVPIcnaV3Z90qDRSocXMC8rGko/values/Intel%20Briefs!C{{ $json._rowNum }}?valueInputOption=RAW","authentication":"predefinedCredentialType","nodeCredentialType":"googleSheetsOAuth2Api","sendBody":true,"specifyBody":"json","jsonBody":"{\"values\": [[\"procesado\"]]}","options":{"response":{"response":{"neverError":true}}}},"id":"c0000017-0000-0000-0000-000000000017","name":"HTTP — Marcar Procesado","type":"n8n-nodes-base.httpRequest","typeVersion":4.2,"position":[2420,620],"credentials":{"googleSheetsOAuth2Api":{"id":"yF3npq62Z1nKRMvP","name":"Bambu Google Sheets"}}},{"id":"c0000018","name":"Prep Log Campaña","type":"n8n-nodes-base.code","typeVersion":2,"position":[1980,380],"parameters":{"jsCode":"// Prepara los datos para registrar en el Sheet \"Campañas\"\n// Corre después de PD Campaigns (continueOnFail=true)\nconst pdResult = $input.first().json;\nconst html = $('Build HTML Email').first().json;\n\n// campaign_id: si Pipedrive devolvió data.id úsalo, si falló queda 'pendiente'\nconst campaignId = String(\n  pdResult?.data?.id || pdResult?.id || 'pendiente'\n);\n\nreturn [{\n  json: {\n    fecha_creacion: html.fecha_corta || '',\n    campaign_id: campaignId,\n    nombre: 'Intel Bambu — ' + (html.fecha_corta || ''),\n    template: 'T1',\n    total_campañable: String(html.total_campañable || 0),\n    segmentos_json: JSON.stringify(html.segResumen || {}),\n    estado: 'creada_borrador',\n    opens: '0',\n    clicks: '0',\n    hot_signals: '0'\n  }\n}];"}},{"id":"lock-prep-001","name":"Prep Marcar Procesando","type":"n8n-nodes-base.code","typeVersion":2,"position":[1200,500],"parameters":{"jsCode":"const brief = $input.first().json;\nreturn [{ json: { _rowNum: brief._rowNum } }];"}},{"id":"lock-http-001","name":"HTTP — Marcar Procesando","type":"n8n-nodes-base.httpRequest","typeVersion":4.2,"position":[1400,500],"parameters":{"method":"PUT","url":"=https://sheets.googleapis.com/v4/spreadsheets/1j6W7-gNrOmMrPNLG1UVPIcnaV3Z90qDRSocXMC8rGko/values/Intel%20Briefs!C{{ $json._rowNum }}?valueInputOption=RAW","authentication":"predefinedCredentialType","nodeCredentialType":"googleSheetsOAuth2Api","sendBody":true,"specifyBody":"json","jsonBody":"{\"values\": [[\"procesando\"]]}","options":{"response":{"response":{"neverError":true}}}}}],"connections":{"Schedule: Cada 5 min":{"main":[[{"node":"HTTP — Leer Intel Briefs","type":"main","index":0}]]},"HTTP — Leer Intel Briefs":{"main":[[{"node":"Filtrar Aprobado","type":"main","index":0}]]},"Filtrar Aprobado":{"main":[[{"node":"IF — Brief Pendiente","type":"main","index":0}]]},"IF — Brief Pendiente":{"main":[[{"node":"PD — Obtener Contactos","type":"main","index":0},{"node":"PD — Clientes (Deals Ganados)","type":"main","index":0},{"node":"Prep Marcar Procesando","type":"main","index":0}],[]]},"PD — Obtener Contactos":{"main":[[{"node":"Merge Brief + Contactos","type":"main","index":1}]]},"PD — Clientes (Deals Ganados)":{"main":[[{"node":"Merge Brief + Contactos","type":"main","index":2}]]},"Merge Brief + Contactos":{"main":[[{"node":"Segmentar Contactos","type":"main","index":0}]]},"Segmentar Contactos":{"main":[[{"node":"Claude — Dual Copy","type":"main","index":0}]]},"Claude — Dual Copy":{"main":[[{"node":"Parse Copy Claude","type":"main","index":0}]]},"Parse Copy Claude":{"main":[[{"node":"Build HTML Email","type":"main","index":0}]]},"Build HTML Email":{"main":[[{"node":"Brevo — Crear Campaña","type":"main","index":0},{"node":"Email Campaña Lista → CGO","type":"main","index":0}]]},"Sheets — Log Campaña":{"main":[[{"node":"Prep Marcar Procesado","type":"main","index":0}]]},"Prep Marcar Procesado":{"main":[[{"node":"HTTP — Marcar Procesado","type":"main","index":0}]]},"Prep Log Campaña":{"main":[[{"node":"Sheets — Log Campaña","type":"main","index":0}]]},"Prep Marcar Procesando":{"main":[[{"node":"HTTP — Marcar Procesando","type":"main","index":0}]]},"HTTP — Marcar Procesando":{"main":[[{"node":"Merge Brief + Contactos","type":"main","index":0}]]},"Brevo — Crear Campaña":{"main":[[{"node":"Prep Log Campaña","type":"main","index":0}]]}},"settings":{"executionOrder":"v1","availableInMCP":true,"callerPolicy":"workflowsFromSameOwner"},"staticData":{"node:Schedule: Cada 5 min":{"recurrenceRules":[]}},"meta":null,"nodeGroups":[],"pinData":null,"versionId":"ef860279-83dd-4866-82ed-e092988cc51f","activeVersionId":"ef860279-83dd-4866-82ed-e092988cc51f","versionCounter":11,"triggerCount":1,"sourceWorkflowId":null,"shared":[{"updatedAt":"2026-06-02T23:45:54.594Z","createdAt":"2026-06-02T23:45:54.594Z","role":"workflow:owner","workflowId":"gdbczgw1BIYHIxiT","projectId":"JU2bKPpYIxzn9Xw3","project":{"updatedAt":"2026-04-10T04:49:03.292Z","createdAt":"2026-04-10T04:48:56.287Z","id":"JU2bKPpYIxzn9Xw3","name":"Roberto Esparza <roberto.esparza@bambu-techservices.com>","type":"personal","icon":null,"description":null,"customTelemetryTags":[],"creatorId":"f8d11da0-bc74-4bfc-8202-03bd8b18027b"}}],"tags":[],"activeVersion":{"updatedAt":"2026-06-19T20:57:10.326Z","createdAt":"2026-06-19T20:57:10.326Z","versionId":"ef860279-83dd-4866-82ed-e092988cc51f","workflowId":"gdbczgw1BIYHIxiT","nodes":[{"parameters":{"method":"GET","url":"=https://api.pipedrive.com/v1/persons?limit=200&start=0&api_token={{ $vars.PIPEDRIVE_API_TOKEN }}","options":{}},"id":"c0000002-0000-0000-0000-000000000002","name":"PD — Obtener Contactos","type":"n8n-nodes-base.httpRequest","typeVersion":4.2,"position":[460,280]},{"parameters":{"method":"GET","url":"=https://api.pipedrive.com/v1/deals?status=won&limit=200&api_token={{ $vars.PIPEDRIVE_API_TOKEN }}","options":{}},"id":"c0000003-0000-0000-0000-000000000003","name":"PD — Clientes (Deals Ganados)","type":"n8n-nodes-base.httpRequest","typeVersion":4.2,"position":[460,440]},{"parameters":{"mode":"append","numberInputs":3},"id":"c0000004-0000-0000-0000-000000000004","name":"Merge Brief + Contactos","type":"n8n-nodes-base.merge","typeVersion":3,"position":[680,400]},{"parameters":{"jsCode":"// Combina brief, personas y clientes; segmenta y prepara el copy\nconst allItems = $input.all();\nconst briefItem    = $('Filtrar Aprobado').first().json;\nconst personsResp  = allItems[1]?.json || {};\nconst wonDealsResp = allItems[2]?.json || {};\n\nconst persons  = personsResp.data  || [];\nconst wonDeals = wonDealsResp.data || [];\nconst brief_md = briefItem.brief_md || '';\nconst tipo     = briefItem.tipo_campaña || 'T1';\n\n// IDs de clientes (personas con deal ganado)\nconst clientPersonIds = new Set(wonDeals.map(d => d.person_id?.value).filter(Boolean));\n\n// Personas con email, separadas por segmento\nconst KEYWORDS = {\n  'Manufactura / Nearshoring': ['manufactur','industrial','plant','automotri','aerospace','semiconductor','nearshoring'],\n  'Financiero / Fintech':      ['banco','bank','financier','fintech','seguro','credito','pago','afore','inversion'],\n  'Retail / CPG':              ['retail','comercio','tienda','supermercado','walmart','oxxo','fmcg','consumer','aliment'],\n  'Gobierno':                  ['gobierno','municipal','estado','secretaria','imss','issste','pemex','cfe','federal'],\n  'Salud':                     ['hospital','clinica','salud','medic','pharma','laboratori'],\n  'Tecnología / IT':           ['tecnolog','software','digital','tech','system','solution','data','cloud'],\n  'Telecomunicaciones':        ['telecom','telcel','telmex','at&t','movistar','axtel','megacable'],\n  'Transporte / Logística':    ['transport','logistic','carga','cargo','aerolinea'],\n  'Energía':                   ['energia','petroleo','gas','electric','solar','eolica']\n};\n\nfunction getSegment(orgName) {\n  const n = (orgName || '').toLowerCase();\n  for (const [seg, kws] of Object.entries(KEYWORDS)) {\n    if (kws.some(kw => n.includes(kw))) return seg;\n  }\n  return 'Sin clasificar';\n}\n\n// Construir lista segmentada con email\nconst segmented = {};\nconst allEmailList = [];\n\npersons.forEach(p => {\n  const email = p.email?.[0]?.value;\n  if (!email) return;\n  const orgName = p.org_id?.name || '';\n  const seg = getSegment(orgName);\n  const isClient = clientPersonIds.has(p.id);\n  const contact = {\n    id: p.id,\n    name: p.name,\n    email,\n    org: orgName,\n    segmento: seg,\n    tipo_contacto: isClient ? 'Cliente' : 'Prospecto'\n  };\n  if (!segmented[seg]) segmented[seg] = { clientes: [], prospectos: [] };\n  isClient ? segmented[seg].clientes.push(contact) : segmented[seg].prospectos.push(contact);\n  allEmailList.push(contact);\n});\n\n// Resumen de segmentación\nconst segResumen = Object.entries(segmented).map(([seg, data]) => ({\n  segmento: seg,\n  clientes: data.clientes.length,\n  prospectos: data.prospectos.length,\n  total: data.clientes.length + data.prospectos.length\n})).sort((a, b) => b.total - a.total);\n\nreturn [{\n  json: {\n    brief_md,\n    tipo_campaña: tipo,\n    fecha_corta: briefItem.fecha || new Date().toLocaleDateString('es-MX'),\n    segmented,\n    segResumen,\n    total_campañable: allEmailList.length,\n    all_email_list: allEmailList\n  }\n}];"},"id":"c0000005-0000-0000-0000-000000000005","name":"Segmentar Contactos","type":"n8n-nodes-base.code","typeVersion":2,"position":[900,400]},{"parameters":{"method":"POST","url":"https://api.anthropic.com/v1/messages","sendHeaders":true,"headerParameters":{"parameters":[{"name":"x-api-key","value":"={{ $vars.ANTHROPIC_API_KEY }}"},{"name":"anthropic-version","value":"2023-06-01"},{"name":"content-type","value":"application/json"}]},"sendBody":true,"specifyBody":"json","jsonBody":"={{ JSON.stringify({ model: 'claude-opus-4-6', max_tokens: 4096, messages: [{ role: 'user', content: 'Eres copywriter senior B2B de Bambu Tech Services en México.\\n\\nBasándote en este brief de inteligencia comercial:\\n\\n' + $json.brief_md + '\\n\\nSegmentación actual del CRM:\\n' + JSON.stringify($json.segResumen) + '\\n\\nGenera el copy para DOS canales en JSON exacto con esta estructura:\\n{\\n  \"email\": {\\n    \"subject\": \"Asunto (max 50 chars, urgencia sin clickbait)\",\\n    \"preheader\": \"Preheader (max 85 chars)\",\\n    \"hero_headline\": \"Titular hero (max 60 chars)\",\\n    \"hero_subline\": \"Subtítulo (max 100 chars)\",\\n    \"flash_bullets\": [\"bullet1\", \"bullet2\", \"bullet3\"],\\n    \"sections\": [{\"vertical\": \"\", \"emoji\": \"\", \"noticia_titulo\": \"\", \"contexto\": \"2-3 líneas\", \"decisor\": \"\", \"angulo_bambu\": \"\", \"urgencia\": \"ALTA/MEDIA/BAJA\"}],\\n    \"oportunidad_titulo\": \"\",\\n    \"oportunidad_cuerpo\": \"2 líneas\",\\n    \"cta_texto\": \"max 30 chars\",\\n    \"cta_url\": \"https://bambu-techservices.com/contacto\"\\n  },\\n  \"whatsapp\": {\\n    \"mensaje\": \"Texto WA max 1024 chars, sin HTML, saludo + 2 bullets con emojis + pregunta apertura + link\"\\n  }\\n}\\n\\nRespuesta SOLO el JSON, sin markdown ni explicaciones.' }] }) }}","options":{}},"id":"c0000006-0000-0000-0000-000000000006","name":"Claude — Dual Copy","type":"n8n-nodes-base.httpRequest","typeVersion":4.2,"position":[1120,400]},{"parameters":{"jsCode":"// Parsea la respuesta de Claude y prepara los datos para crear la campaña\nconst claudeResp = $input.first().json;\nconst rawText = claudeResp.content?.[0]?.text || '{}';\n\nlet copy;\ntry {\n  // Claude puede responder con ```json ... ``` o directo\n  const clean = rawText.replace(/^```json\\s*/i,'').replace(/```\\s*$/,'').trim();\n  copy = JSON.parse(clean);\n} catch(e) {\n  copy = { email: { subject: 'Intel Comercial Bambu', preheader: '', hero_headline: 'Las señales de mercado de esta semana', hero_subline: '', flash_bullets: [], sections: [], oportunidad_titulo: '', oportunidad_cuerpo: '', cta_texto: 'Conversemos', cta_url: 'https://bambu-techservices.com/contacto' }, whatsapp: { mensaje: '' } };\n}\n\n// Pasar también los datos del paso anterior\nconst prev = $('Segmentar Contactos').first().json;\n\nreturn [{\n  json: {\n    email_copy: copy.email,\n    wa_mensaje: copy.whatsapp?.mensaje || '',\n    brief_md: prev.brief_md,\n    segmented: prev.segmented,\n    segResumen: prev.segResumen,\n    total_campañable: prev.total_campañable,\n    fecha_corta: prev.fecha_corta\n  }\n}];"},"id":"c0000007-0000-0000-0000-000000000007","name":"Parse Copy Claude","type":"n8n-nodes-base.code","typeVersion":2,"position":[1340,400]},{"parameters":{"jsCode":"// Construye el HTML final del email T1 — Newsletter Intel Bambu\n// Combina el template base con el copy generado por Claude\nconst { email_copy: c, fecha_corta } = $input.first().json;\n\nconst flashBullets = (c.flash_bullets || []).map(b =>\n  `<tr><td style=\"padding:8px 20px;font-family:Arial,sans-serif;font-size:15px;color:#333;border-left:3px solid #F0B429;\">&#9889; ${b}</td></tr>`\n).join('');\n\nconst sections = (c.sections || []).map(s => `\n  <tr><td style=\"padding:20px 30px 0;background:#fff;\">\n    <p style=\"margin:0 0 4px;font-family:Arial,sans-serif;font-size:12px;color:#888;text-transform:uppercase;letter-spacing:1px;\">${s.emoji || '📊'} ${s.vertical}</p>\n    <h3 style=\"margin:0 0 8px;font-family:Arial,sans-serif;font-size:17px;color:#111;line-height:1.3;\">${s.noticia_titulo}</h3>\n    <p style=\"margin:0 0 8px;font-family:Arial,sans-serif;font-size:14px;color:#444;line-height:1.6;\">${s.contexto}</p>\n    <p style=\"margin:0 0 4px;font-family:Arial,sans-serif;font-size:13px;color:#666;\">🎯 <strong>Decisor:</strong> ${s.decisor}</p>\n    <p style=\"margin:0 0 12px;font-family:Arial,sans-serif;font-size:13px;color:#1a1a1a;font-style:italic;background:#FFF8E1;padding:10px 14px;border-radius:4px;border-left:3px solid #F0B429;\">💡 ${s.angulo_bambu}</p>\n    <p style=\"margin:0;font-family:Arial,sans-serif;font-size:12px;\"><strong>⚡ Urgencia: <span style=\"color:${s.urgencia==='ALTA'||s.urgencia==='CRÍTICA'?'#c0392b':s.urgencia==='MEDIA'?'#e67e22':'#27ae60'}\">${s.urgencia}</span></strong></p>\n  </td></tr>\n  <tr><td style=\"padding:0 30px;\"><hr style=\"border:none;border-top:1px solid #eee;margin:16px 0;\"></td></tr>`\n).join('');\n\nconst html = `<!DOCTYPE html>\n<html lang=\"es\">\n<head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n<title>${c.subject}</title>\n</head>\n<body style=\"margin:0;padding:0;background:#F4F4F4;\">\n<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#F4F4F4;\">\n<tr><td align=\"center\" style=\"padding:20px 10px;\">\n\n<!-- Wrapper 600px -->\n<table width=\"600\" cellpadding=\"0\" cellspacing=\"0\" style=\"max-width:600px;width:100%;\">\n\n  <!-- HEADER -->\n  <tr><td style=\"background:#000;padding:18px 30px;\">\n    <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n    <tr>\n      <td style=\"font-family:Arial,sans-serif;font-size:20px;font-weight:700;color:#F0B429;letter-spacing:1px;\">BAMBU</td>\n      <td align=\"right\" style=\"font-family:Arial,sans-serif;font-size:11px;color:#888;\">${fecha_corta}</td>\n    </tr></table>\n  </td></tr>\n\n  <!-- HERO -->\n  <tr><td style=\"background:#111;padding:32px 30px 28px;\">\n    <p style=\"margin:0 0 6px;font-family:Arial,sans-serif;font-size:11px;color:#F0B429;text-transform:uppercase;letter-spacing:2px;\">&#128268; INTEL COMERCIAL BAMBU</p>\n    <h1 style=\"margin:0 0 10px;font-family:Arial,sans-serif;font-size:26px;color:#fff;line-height:1.25;\">${c.hero_headline}</h1>\n    <p style=\"margin:0;font-family:Arial,sans-serif;font-size:15px;color:#aaa;line-height:1.5;\">${c.hero_subline}</p>\n  </td></tr>\n\n  <!-- FLASH DEL DÍA -->\n  <tr><td style=\"background:#fff;padding:20px 30px 8px;\">\n    <p style=\"margin:0 0 12px;font-family:Arial,sans-serif;font-size:13px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:1px;\">&#9889; Flash de la semana</p>\n    <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">${flashBullets}</table>\n  </td></tr>\n\n  <!-- DIVISOR -->\n  <tr><td style=\"background:#fff;padding:0 30px;\"><hr style=\"border:none;border-top:2px solid #F0B429;margin:20px 0 10px;\"></td></tr>\n\n  <!-- NOTICIAS PRINCIPALES -->\n  <tr><td style=\"background:#fff;padding:8px 30px 0;\">\n    <p style=\"margin:0 0 4px;font-family:Arial,sans-serif;font-size:13px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:1px;\">&#128202; Noticias principales</p>\n  </td></tr>\n  ${sections}\n\n  <!-- OPORTUNIDAD DE LA SEMANA -->\n  <tr><td style=\"background:#000;padding:28px 30px;\">\n    <p style=\"margin:0 0 6px;font-family:Arial,sans-serif;font-size:11px;color:#F0B429;text-transform:uppercase;letter-spacing:2px;\">&#128640; Oportunidad de la semana</p>\n    <h2 style=\"margin:0 0 10px;font-family:Arial,sans-serif;font-size:20px;color:#fff;line-height:1.3;\">${c.oportunidad_titulo}</h2>\n    <p style=\"margin:0 0 20px;font-family:Arial,sans-serif;font-size:14px;color:#ccc;line-height:1.6;\">${c.oportunidad_cuerpo}</p>\n    <table cellpadding=\"0\" cellspacing=\"0\">\n    <tr><td style=\"background:#F0B429;border-radius:4px;\">\n      <a href=\"${c.cta_url}\" style=\"display:inline-block;padding:13px 28px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#000;text-decoration:none;\">${c.cta_texto} &rarr;</a>\n    </td></tr></table>\n  </td></tr>\n\n  <!-- FOOTER -->\n  <tr><td style=\"background:#222;padding:20px 30px;\">\n    <p style=\"margin:0 0 4px;font-family:Arial,sans-serif;font-size:13px;color:#ccc;\"><strong style=\"color:#fff;\">Bambu Tech Services</strong></p>\n    <p style=\"margin:0 0 4px;font-family:Arial,sans-serif;font-size:12px;color:#888;\">roberto.esparza@bambu-techservices.com</p>\n    <p style=\"margin:0 0 12px;font-family:Arial,sans-serif;font-size:12px;color:#888;\">bambu-techservices.com</p>\n    <p style=\"margin:0;font-family:Arial,sans-serif;font-size:11px;color:#555;\">\n      Estás recibiendo este correo porque formas parte de nuestra red de contactos profesionales.\n      <a href=\"{{unsubscribe}}\" style=\"color:#888;\">Cancelar suscripción</a>\n    </p>\n  </td></tr>\n\n</table>\n<!-- fin wrapper -->\n</td></tr></table>\n</body></html>`;\n\nreturn [{\n  json: {\n    html_email: html,\n    subject: c.subject,\n    preheader: c.preheader,\n    wa_mensaje: $input.first().json.wa_mensaje,\n    segResumen: $input.first().json.segResumen,\n    total_campañable: $input.first().json.total_campañable,\n    fecha_corta: $input.first().json.fecha_corta\n  }\n}];"},"id":"c0000008-0000-0000-0000-000000000008","name":"Build HTML Email","type":"n8n-nodes-base.code","typeVersion":2,"position":[1560,400]},{"parameters":{"method":"POST","url":"https://api.brevo.com/v3/emailCampaigns","sendHeaders":true,"headerParameters":{"parameters":[{"name":"api-key","value":"={{ $vars.BREVO_API_KEY }}"},{"name":"content-type","value":"application/json"}]},"sendBody":true,"specifyBody":"json","jsonBody":"={{ JSON.stringify({ name: 'Intel Bambu — ' + $('Build HTML Email').first().json.fecha_corta, subject: $('Build HTML Email').first().json.subject, sender: { name: 'Bambu Tech Services', email: 'roberto.esparza@bambu-techservices.com' }, replyTo: 'roberto.esparza@bambu-techservices.com', htmlContent: $('Build HTML Email').first().json.html_email, recipients: { listIds: [Number($vars.BREVO_LIST_ID)] } }) }}","options":{}},"id":"c0000009-0000-0000-0000-000000000009","name":"Brevo — Crear Campaña","type":"n8n-nodes-base.httpRequest","typeVersion":4.2,"position":[1780,280],"continueOnFail":true},{"parameters":{"fromEmail":"roberto.esparza@bambu-techservices.com","toEmail":"roberto.esparza@bambu-techservices.com","subject":"=📧 Campaña Intel lista para enviar — {{ $json.fecha_corta }}","options":{},"html":"=<p>Hola Roberto,</p><p>La campaña de inteligencia comercial del <strong>{{ $json.fecha_corta }}</strong> está lista.</p><h3 style=\"margin:16px 0 8px;\">Segmentación</h3><table style=\"border-collapse:collapse;font-size:14px;\">{{ $json.segResumen.map(s => '<tr><td style=\"padding:4px 16px 4px 0;color:#555;\">' + s.segmento + '</td><td style=\"padding:4px 8px;text-align:right;\"><strong>' + s.total + '</strong></td><td style=\"padding:4px 0 4px 8px;color:#888;\">(' + s.clientes + ' clientes · ' + s.prospectos + ' prospectos)</td></tr>').join('') }}</table><p style=\"margin-top:12px;\"><strong>Total campañable:</strong> {{ $json.total_campañable }} contactos con email</p><hr style=\"border:none;border-top:1px solid #eee;margin:16px 0;\"><p>Entra a <strong>Pipedrive → Campañas → 'Intel Bambu — {{ $json.fecha_corta }}'</strong> para revisar y enviar.</p><p style=\"color:#888;font-size:12px;\">⚙️ WF-10B · Bambu Sales Automatization</p>"},"id":"c0000010-0000-0000-0000-000000000010","name":"Email Campaña Lista → CGO","type":"n8n-nodes-base.emailSend","typeVersion":2.1,"position":[1780,520],"credentials":{"smtp":{"id":"lexMB39WZNDmctV5","name":"│ Bambu Gmail SMTP"}},"webhookId":"cf16774d-b06d-46eb-b032-1fff3eb2c554"},{"parameters":{"operation":"append","documentId":{"__rl":true,"value":"1j6W7-gNrOmMrPNLG1UVPIcnaV3Z90qDRSocXMC8rGko","mode":"id"},"sheetName":{"__rl":true,"value":"Campañas","mode":"name"},"columns":{"mappingMode":"autoMapInputData","value":{},"matchingColumns":[],"schema":[]},"options":{}},"id":"c0000011-0000-0000-0000-000000000011","name":"Sheets — Log Campaña","type":"n8n-nodes-base.googleSheets","typeVersion":4.5,"position":[1780,660],"credentials":{"googleSheetsOAuth2Api":{"id":"yF3npq62Z1nKRMvP","name":"Bambu Google Sheets"}},"continueOnFail":true},{"parameters":{"rule":{"interval":[{"field":"minutes","minutesInterval":5}]}},"id":"c0000012-0000-0000-0000-000000000012","name":"Schedule: Cada 5 min","type":"n8n-nodes-base.scheduleTrigger","typeVersion":1.1,"position":[240,400]},{"parameters":{"method":"GET","url":"https://sheets.googleapis.com/v4/spreadsheets/1j6W7-gNrOmMrPNLG1UVPIcnaV3Z90qDRSocXMC8rGko/values/Intel%20Briefs!A%3AZ","authentication":"predefinedCredentialType","nodeCredentialType":"googleSheetsOAuth2Api","options":{}},"id":"c0000013-0000-0000-0000-000000000013","name":"HTTP — Leer Intel Briefs","type":"n8n-nodes-base.httpRequest","typeVersion":4.2,"position":[460,400],"credentials":{"googleSheetsOAuth2Api":{"id":"yF3npq62Z1nKRMvP","name":"Bambu Google Sheets"}}},{"parameters":{"jsCode":"const data = $input.first().json;\nconst rows = data.values || [];\nif (rows.length < 2) return [{ json: { found: false } }];\n\nconst headers = rows[0];\nconst estIdx = headers.indexOf('estado');\nconst fechaIdx = headers.indexOf('fecha');\n\nlet found = null;\nlet foundRowNum = -1;\nfor (let i = rows.length - 1; i >= 1; i--) {\n  if (rows[i][estIdx] === 'aprobado') {\n    found = rows[i];\n    foundRowNum = i + 1; // 1-based (header=row1, first data=row2)\n    break;\n  }\n}\n\nif (!found) return [{ json: { found: false } }];\n\nconst obj = {};\nheaders.forEach((h, idx) => { obj[h] = found[idx] || ''; });\nreturn [{ json: { ...obj, found: true, _rowNum: foundRowNum } }];"},"id":"c0000014-0000-0000-0000-000000000014","name":"Filtrar Aprobado","type":"n8n-nodes-base.code","typeVersion":2,"position":[680,400]},{"parameters":{"conditions":{"options":{"caseSensitive":true,"leftValue":"","typeValidation":"strict"},"conditions":[{"id":"chk","leftValue":"={{ $json.found }}","rightValue":true,"operator":{"type":"boolean","operation":"true"}}],"combinator":"and"},"options":{}},"id":"c0000015-0000-0000-0000-000000000015","name":"IF — Brief Pendiente","type":"n8n-nodes-base.if","typeVersion":2,"position":[900,400]},{"parameters":{"jsCode":"let rowNum = -1;\ntry { rowNum = $('Filtrar Aprobado').first().json._rowNum || -1; } catch(e) {}\nreturn [{ json: { _rowNum: rowNum } }];"},"id":"c0000016-0000-0000-0000-000000000016","name":"Prep Marcar Procesado","type":"n8n-nodes-base.code","typeVersion":2,"position":[2200,620]},{"parameters":{"method":"PUT","url":"=https://sheets.googleapis.com/v4/spreadsheets/1j6W7-gNrOmMrPNLG1UVPIcnaV3Z90qDRSocXMC8rGko/values/Intel%20Briefs!C{{ $json._rowNum }}?valueInputOption=RAW","authentication":"predefinedCredentialType","nodeCredentialType":"googleSheetsOAuth2Api","sendBody":true,"specifyBody":"json","jsonBody":"{\"values\": [[\"procesado\"]]}","options":{"response":{"response":{"neverError":true}}}},"id":"c0000017-0000-0000-0000-000000000017","name":"HTTP — Marcar Procesado","type":"n8n-nodes-base.httpRequest","typeVersion":4.2,"position":[2420,620],"credentials":{"googleSheetsOAuth2Api":{"id":"yF3npq62Z1nKRMvP","name":"Bambu Google Sheets"}}},{"id":"c0000018","name":"Prep Log Campaña","type":"n8n-nodes-base.code","typeVersion":2,"position":[1980,380],"parameters":{"jsCode":"// Prepara los datos para registrar en el Sheet \"Campañas\"\n// Corre después de PD Campaigns (continueOnFail=true)\nconst pdResult = $input.first().json;\nconst html = $('Build HTML Email').first().json;\n\n// campaign_id: si Pipedrive devolvió data.id úsalo, si falló queda 'pendiente'\nconst campaignId = String(\n  pdResult?.data?.id || pdResult?.id || 'pendiente'\n);\n\nreturn [{\n  json: {\n    fecha_creacion: html.fecha_corta || '',\n    campaign_id: campaignId,\n    nombre: 'Intel Bambu — ' + (html.fecha_corta || ''),\n    template: 'T1',\n    total_campañable: String(html.total_campañable || 0),\n    segmentos_json: JSON.stringify(html.segResumen || {}),\n    estado: 'creada_borrador',\n    opens: '0',\n    clicks: '0',\n    hot_signals: '0'\n  }\n}];"}},{"id":"lock-prep-001","name":"Prep Marcar Procesando","type":"n8n-nodes-base.code","typeVersion":2,"position":[1200,500],"parameters":{"jsCode":"const brief = $input.first().json;\nreturn [{ json: { _rowNum: brief._rowNum } }];"}},{"id":"lock-http-001","name":"HTTP — Marcar Procesando","type":"n8n-nodes-base.httpRequest","typeVersion":4.2,"position":[1400,500],"parameters":{"method":"PUT","url":"=https://sheets.googleapis.com/v4/spreadsheets/1j6W7-gNrOmMrPNLG1UVPIcnaV3Z90qDRSocXMC8rGko/values/Intel%20Briefs!C{{ $json._rowNum }}?valueInputOption=RAW","authentication":"predefinedCredentialType","nodeCredentialType":"googleSheetsOAuth2Api","sendBody":true,"specifyBody":"json","jsonBody":"{\"values\": [[\"procesando\"]]}","options":{"response":{"response":{"neverError":true}}}}}],"connections":{"Schedule: Cada 5 min":{"main":[[{"node":"HTTP — Leer Intel Briefs","type":"main","index":0}]]},"HTTP — Leer Intel Briefs":{"main":[[{"node":"Filtrar Aprobado","type":"main","index":0}]]},"Filtrar Aprobado":{"main":[[{"node":"IF — Brief Pendiente","type":"main","index":0}]]},"IF — Brief Pendiente":{"main":[[{"node":"PD — Obtener Contactos","type":"main","index":0},{"node":"PD — Clientes (Deals Ganados)","type":"main","index":0},{"node":"Prep Marcar Procesando","type":"main","index":0}],[]]},"PD — Obtener Contactos":{"main":[[{"node":"Merge Brief + Contactos","type":"main","index":1}]]},"PD — Clientes (Deals Ganados)":{"main":[[{"node":"Merge Brief + Contactos","type":"main","index":2}]]},"Merge Brief + Contactos":{"main":[[{"node":"Segmentar Contactos","type":"main","index":0}]]},"Segmentar Contactos":{"main":[[{"node":"Claude — Dual Copy","type":"main","index":0}]]},"Claude — Dual Copy":{"main":[[{"node":"Parse Copy Claude","type":"main","index":0}]]},"Parse Copy Claude":{"main":[[{"node":"Build HTML Email","type":"main","index":0}]]},"Build HTML Email":{"main":[[{"node":"Brevo — Crear Campaña","type":"main","index":0},{"node":"Email Campaña Lista → CGO","type":"main","index":0}]]},"Sheets — Log Campaña":{"main":[[{"node":"Prep Marcar Procesado","type":"main","index":0}]]},"Prep Marcar Procesado":{"main":[[{"node":"HTTP — Marcar Procesado","type":"main","index":0}]]},"Prep Log Campaña":{"main":[[{"node":"Sheets — Log Campaña","type":"main","index":0}]]},"Prep Marcar Procesando":{"main":[[{"node":"HTTP — Marcar Procesando","type":"main","index":0}]]},"HTTP — Marcar Procesando":{"main":[[{"node":"Merge Brief + Contactos","type":"main","index":0}]]},"Brevo — Crear Campaña":{"main":[[{"node":"Prep Log Campaña","type":"main","index":0}]]}},"nodeGroups":[],"authors":"Roberto Esparza","name":null,"description":null,"autosaved":false,"workflowPublishHistory":[{"createdAt":"2026-06-19T20:57:10.513Z","id":148,"workflowId":"gdbczgw1BIYHIxiT","versionId":"ef860279-83dd-4866-82ed-e092988cc51f","event":"activated","userId":"f8d11da0-bc74-4bfc-8202-03bd8b18027b"},{"createdAt":"2026-06-19T20:57:10.469Z","id":147,"workflowId":"gdbczgw1BIYHIxiT","versionId":"ef860279-83dd-4866-82ed-e092988cc51f","event":"deactivated","userId":"f8d11da0-bc74-4bfc-8202-03bd8b18027b"}]}}
+{
+  "updatedAt": "2026-06-19T21:44:01.037Z",
+  "createdAt": "2026-06-02T23:45:54.592Z",
+  "id": "gdbczgw1BIYHIxiT",
+  "name": "WF-10B — Campaign Creator (Brief → Pipedrive Campaigns)",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://api.pipedrive.com/v1/persons?limit=200&start=0&api_token={{ $vars.PIPEDRIVE_API_TOKEN }}",
+        "options": {}
+      },
+      "id": "c0000002-0000-0000-0000-000000000002",
+      "name": "PD — Obtener Contactos",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        460,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://api.pipedrive.com/v1/deals?status=won&limit=200&api_token={{ $vars.PIPEDRIVE_API_TOKEN }}",
+        "options": {}
+      },
+      "id": "c0000003-0000-0000-0000-000000000003",
+      "name": "PD — Clientes (Deals Ganados)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        460,
+        440
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "append",
+        "numberInputs": 3
+      },
+      "id": "c0000004-0000-0000-0000-000000000004",
+      "name": "Merge Brief + Contactos",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        680,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Combina brief, personas y clientes; segmenta y prepara el copy\nconst allItems = $input.all();\nconst briefItem    = $('Filtrar Aprobado').first().json;\nconst personsResp  = allItems[1]?.json || {};\nconst wonDealsResp = allItems[2]?.json || {};\n\nconst persons  = personsResp.data  || [];\nconst wonDeals = wonDealsResp.data || [];\nconst brief_md = briefItem.brief_md || '';\nconst tipo     = briefItem.tipo_campaña || 'T1';\n\n// IDs de clientes (personas con deal ganado)\nconst clientPersonIds = new Set(wonDeals.map(d => d.person_id?.value).filter(Boolean));\n\n// Personas con email, separadas por segmento\nconst KEYWORDS = {\n  'Manufactura / Nearshoring': ['manufactur','industrial','plant','automotri','aerospace','semiconductor','nearshoring'],\n  'Financiero / Fintech':      ['banco','bank','financier','fintech','seguro','credito','pago','afore','inversion'],\n  'Retail / CPG':              ['retail','comercio','tienda','supermercado','walmart','oxxo','fmcg','consumer','aliment'],\n  'Gobierno':                  ['gobierno','municipal','estado','secretaria','imss','issste','pemex','cfe','federal'],\n  'Salud':                     ['hospital','clinica','salud','medic','pharma','laboratori'],\n  'Tecnología / IT':           ['tecnolog','software','digital','tech','system','solution','data','cloud'],\n  'Telecomunicaciones':        ['telecom','telcel','telmex','at&t','movistar','axtel','megacable'],\n  'Transporte / Logística':    ['transport','logistic','carga','cargo','aerolinea'],\n  'Energía':                   ['energia','petroleo','gas','electric','solar','eolica']\n};\n\nfunction getSegment(orgName) {\n  const n = (orgName || '').toLowerCase();\n  for (const [seg, kws] of Object.entries(KEYWORDS)) {\n    if (kws.some(kw => n.includes(kw))) return seg;\n  }\n  return 'Sin clasificar';\n}\n\n// Construir lista segmentada con email\nconst segmented = {};\nconst allEmailList = [];\n\npersons.forEach(p => {\n  const email = p.email?.[0]?.value;\n  if (!email) return;\n  const orgName = p.org_id?.name || '';\n  const seg = getSegment(orgName);\n  const isClient = clientPersonIds.has(p.id);\n  const contact = {\n    id: p.id,\n    name: p.name,\n    email,\n    org: orgName,\n    segmento: seg,\n    tipo_contacto: isClient ? 'Cliente' : 'Prospecto'\n  };\n  if (!segmented[seg]) segmented[seg] = { clientes: [], prospectos: [] };\n  isClient ? segmented[seg].clientes.push(contact) : segmented[seg].prospectos.push(contact);\n  allEmailList.push(contact);\n});\n\n// Resumen de segmentación\nconst segResumen = Object.entries(segmented).map(([seg, data]) => ({\n  segmento: seg,\n  clientes: data.clientes.length,\n  prospectos: data.prospectos.length,\n  total: data.clientes.length + data.prospectos.length\n})).sort((a, b) => b.total - a.total);\n\nreturn [{\n  json: {\n    brief_md,\n    tipo_campaña: tipo,\n    fecha_corta: briefItem.fecha || new Date().toLocaleDateString('es-MX'),\n    segmented,\n    segResumen,\n    total_campañable: allEmailList.length,\n    all_email_list: allEmailList\n  }\n}];"
+      },
+      "id": "c0000005-0000-0000-0000-000000000005",
+      "name": "Segmentar Contactos",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        900,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "={{ $vars.ANTHROPIC_API_KEY }}"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: 'claude-opus-4-6', max_tokens: 4096, messages: [{ role: 'user', content: 'Eres editor senior de un newsletter B2B de tecnología.\\n\\nRepresentas a Bambu Tech Services, integradora de TI líder en México con 15+ años.\\n\\nTu misión: transformar el brief de inteligencia de mercado en un newsletter de thought leadership que aporte valor real al lector — directivos y gerentes de TI en empresas mexicanas.\\n\\nBrief de inteligencia:\\n\\n' + $json.brief_md + '\\n\\nSegmentación del CRM (contexto interno, no lo menciones en el newsletter):\\n' + JSON.stringify($json.segResumen) + '\\n\\nReglas:\\n- Habla al lector como consultor experto, no como vendedor\\n- El lector aprende algo útil aunque nunca nos contacte\\n- Sin pitch de ventas ni urgencia artificial\\n- perspectiva_bambu = ángulo de experto con experiencia en proyectos reales, sin mencionar explícitamente a Bambu\\n- CTA suave: invita a conversar, no a comprar\\n- Tono: directo, inteligente, sin corporativismo\\n\\nIncluye entre 3 y 6 secciones según la riqueza del brief.\\n\\nGenera el newsletter en JSON exacto (sin markdown, sin explicaciones):\\n{\\n  \"email\": {\\n    \"subject\": \"Asunto max 50 chars - insight ejecutivo, no clickbait\",\\n    \"preheader\": \"Ampliación del subject max 85 chars\",\\n    \"hero_headline\": \"Titular de la semana max 60 chars\",\\n    \"hero_subline\": \"Una línea de contexto del panorama tech mexicano, max 100 chars\",\\n    \"flash_bullets\": [\"titular ejecutivo conciso 1\", \"titular ejecutivo conciso 2\", \"titular ejecutivo conciso 3\"],\\n    \"sections\": [\\n      {\\n        \"vertical\": \"Nombre del sector (ej: Manufactura, Financiero, Retail)\",\\n        \"emoji\": \"emoji relevante al sector\",\\n        \"noticia_titulo\": \"Titular periodístico de la noticia\",\\n        \"contexto\": \"2-3 líneas: qué está pasando en este sector y por qué importa ahora\",\\n        \"impacto_negocio\": \"Qué significa esta tendencia para empresas en esta industria - operativo, financiero o competitivo\",\\n        \"perspectiva_bambu\": \"Ángulo de consultor experto: qué deberían considerar o hacer las empresas\"\\n      }\\n    ],\\n    \"insight_titulo\": \"Reflexión o recomendación práctica de la semana max 60 chars\",\\n    \"insight_cuerpo\": \"2 líneas con perspectiva práctica accionable para el lector\",\\n    \"cta_texto\": \"Texto del botón max 30 chars (ej: Agenda 20 min)\",\\n    \"cta_url\": \"' + ($vars.CALENDAR_URL || 'https://bambu-techservices.com/contacto') + '\"\\n  }\\n}' }] }) }}",
+        "options": {}
+      },
+      "id": "c0000006-0000-0000-0000-000000000006",
+      "name": "Claude — Dual Copy",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1120,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parsea la respuesta de Claude y prepara los datos para crear la campaña\nconst claudeResp = $input.first().json;\nconst rawText = claudeResp.content?.[0]?.text || '{}';\n\nlet copy;\ntry {\n  const clean = rawText.replace(/^```json\\s*/i,'').replace(/```\\s*$/,'').trim();\n  copy = JSON.parse(clean);\n} catch(e) {\n  copy = { email: {\n    subject: 'Intel Comercial Bambu',\n    preheader: '',\n    hero_headline: 'Las señales de mercado de esta semana',\n    hero_subline: '',\n    flash_bullets: [],\n    sections: [],\n    insight_titulo: '',\n    insight_cuerpo: '',\n    cta_texto: 'Conversemos',\n    cta_url: 'https://bambu-techservices.com/contacto'\n  } };\n}\n\nconst prev = $('Segmentar Contactos').first().json;\n\nreturn [{\n  json: {\n    email_copy: copy.email,\n    brief_md: prev.brief_md,\n    segmented: prev.segmented,\n    segResumen: prev.segResumen,\n    total_campañable: prev.total_campañable,\n    fecha_corta: prev.fecha_corta\n  }\n}];"
+      },
+      "id": "c0000007-0000-0000-0000-000000000007",
+      "name": "Parse Copy Claude",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1340,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Newsletter Intel Bambu — Dark Theme v2\n// Identidad: fondo #0A0A0A, acentos #00FF00, logo '/ >'\nconst { email_copy: c, fecha_corta } = $input.first().json;\n\nconst flashBullets = (c.flash_bullets || []).map(b =>\n  `<tr><td style=\"padding:8px 0 8px 14px;font-family:Arial,sans-serif;font-size:14px;color:#CCCCCC;line-height:1.5;border-left:3px solid #00FF00;\">&#9889; ${b}</td></tr>`\n).join('<tr><td style=\"height:6px;\"></td></tr>');\n\nconst sections = (c.sections || []).map((s, i) => {\n  const bg = i % 2 === 0 ? '#111111' : '#0D0D0D';\n  return `\n  <tr><td style=\"background:${bg};padding:24px 30px;\">\n    <p style=\"margin:0 0 8px;font-family:Arial,sans-serif;font-size:11px;color:#00FF00;text-transform:uppercase;letter-spacing:2px;font-weight:700;\">${s.emoji || '📊'} ${s.vertical}</p>\n    <h3 style=\"margin:0 0 10px;font-family:Arial,sans-serif;font-size:17px;color:#FFFFFF;line-height:1.3;font-weight:700;\">${s.noticia_titulo}</h3>\n    <p style=\"margin:0 0 14px;font-family:Arial,sans-serif;font-size:14px;color:#AAAAAA;line-height:1.65;\">${s.contexto}</p>\n    <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n      <tr><td style=\"padding:12px 14px;background:#000000;border-left:3px solid #1A1A1A;\">\n        <p style=\"margin:0 0 4px;font-family:Arial,sans-serif;font-size:10px;color:#555555;text-transform:uppercase;letter-spacing:2px;font-weight:700;\">Impacto en el negocio</p>\n        <p style=\"margin:0;font-family:Arial,sans-serif;font-size:13px;color:#CCCCCC;line-height:1.6;\">${s.impacto_negocio}</p>\n      </td></tr>\n      <tr><td style=\"height:8px;\"></td></tr>\n      <tr><td style=\"padding:12px 14px;background:#000000;border-left:3px solid #00FF00;\">\n        <p style=\"margin:0 0 4px;font-family:Arial,sans-serif;font-size:10px;color:#00FF00;text-transform:uppercase;letter-spacing:2px;font-weight:700;\">Perspectiva Bambu</p>\n        <p style=\"margin:0;font-family:Arial,sans-serif;font-size:13px;color:#CCCCCC;line-height:1.6;font-style:italic;\">${s.perspectiva_bambu}</p>\n      </td></tr>\n    </table>\n  </td></tr>`;\n}).join('');\n\nconst html = `<!DOCTYPE html>\n<html lang=\"es\">\n<head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n<title>${c.subject}</title>\n</head>\n<body style=\"margin:0;padding:0;background:#0A0A0A;\">\n<div style=\"display:none;max-height:0;overflow:hidden;mso-hide:all;font-size:1px;color:#0A0A0A;\">${c.preheader}&zwnj;&nbsp;&zwnj;&nbsp;</div>\n<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"background:#0A0A0A;\">\n<tr><td align=\"center\" style=\"padding:20px 10px;\">\n<table width=\"600\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"max-width:600px;width:100%;background:#0A0A0A;\">\n\n  <tr><td style=\"background:#000000;padding:18px 30px;border-bottom:1px solid #00FF00;\">\n    <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\"><tr>\n      <td style=\"vertical-align:middle;\">\n        <table cellpadding=\"0\" cellspacing=\"0\"><tr>\n          <td style=\"vertical-align:middle;padding-right:10px;\"><span style=\"font-family:Arial,Helvetica,sans-serif;font-size:22px;font-weight:900;color:#00FF00;\">/ &gt;</span></td>\n          <td style=\"vertical-align:middle;\">\n            <span style=\"font-family:Arial,Helvetica,sans-serif;font-size:18px;font-weight:900;color:#FFFFFF;letter-spacing:1px;text-transform:lowercase;\">bamb<span style=\"color:#00FF00;\">&#250;</span></span>\n            <span style=\"display:block;font-family:Arial,Helvetica,sans-serif;font-size:9px;color:#888888;letter-spacing:4px;text-transform:uppercase;margin-top:2px;\">tech services</span>\n          </td>\n        </tr></table>\n      </td>\n      <td align=\"right\" style=\"font-family:Arial,Helvetica,sans-serif;font-size:11px;color:#444444;vertical-align:middle;\">${fecha_corta}</td>\n    </tr></table>\n  </td></tr>\n\n  <tr><td style=\"background:linear-gradient(135deg,#000000 0%,#001100 60%,#002200 100%);padding:40px 30px 36px;\">\n    <p style=\"margin:0 0 16px;font-family:Arial,Helvetica,sans-serif;font-size:10px;font-weight:700;color:#00FF00;text-transform:uppercase;letter-spacing:4px;\">&#9650; Intel Comercial Bambu</p>\n    <h1 style=\"margin:0 0 16px;font-family:Arial,Helvetica,sans-serif;font-size:28px;font-weight:900;color:#FFFFFF;line-height:1.2;\">${c.hero_headline}</h1>\n    <p style=\"margin:0;font-family:Arial,Helvetica,sans-serif;font-size:15px;color:#AAAAAA;line-height:1.7;\">${c.hero_subline}</p>\n  </td></tr>\n\n  <tr><td style=\"background:#111111;padding:20px 30px;\">\n    <p style=\"margin:0 0 14px;font-family:Arial,Helvetica,sans-serif;font-size:10px;font-weight:700;color:#00FF00;text-transform:uppercase;letter-spacing:3px;\">&#9889; En portada esta semana</p>\n    <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">${flashBullets}</table>\n  </td></tr>\n\n  ${sections}\n\n  <tr><td style=\"background:#000000;padding:28px 30px;\">\n    <p style=\"margin:0 0 10px;font-family:Arial,Helvetica,sans-serif;font-size:10px;font-weight:700;color:#00FF00;text-transform:uppercase;letter-spacing:3px;\">&#128161; Perspectiva de la semana</p>\n    <h2 style=\"margin:0 0 12px;font-family:Arial,Helvetica,sans-serif;font-size:18px;font-weight:900;color:#FFFFFF;line-height:1.3;\">${c.insight_titulo}</h2>\n    <p style=\"margin:0;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#CCCCCC;line-height:1.75;\">${c.insight_cuerpo}</p>\n  </td></tr>\n\n  <tr><td style=\"background:#0A0A0A;padding:36px 30px;text-align:center;\">\n    <p style=\"margin:0 0 6px;font-family:Arial,Helvetica,sans-serif;font-size:10px;font-weight:700;color:#00FF00;text-transform:uppercase;letter-spacing:4px;\">&#128172; &#191;Esto impacta a tu empresa?</p>\n    <p style=\"margin:0 0 28px;font-family:Arial,Helvetica,sans-serif;font-size:14px;color:#888888;line-height:1.6;\">Conversemos 20 minutos &#8212; sin compromisos.<br>Solo para ver si hay algo concreto en lo que podamos aportarte.</p>\n    <table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" align=\"center\"><tr>\n      <td style=\"background:#00FF00;border-radius:3px;\">\n        <a href=\"${c.cta_url}\" style=\"display:inline-block;padding:16px 36px;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:900;color:#000000;text-decoration:none;letter-spacing:1px;text-transform:uppercase;\">${c.cta_texto} &#8594;</a>\n      </td>\n    </tr></table>\n  </td></tr>\n\n  <tr><td style=\"background:#0A0A0A;padding:24px 30px;\">\n    <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\"><tr>\n      <td width=\"33%\" align=\"center\" style=\"padding:12px;border-right:1px solid #1A1A1A;\">\n        <p style=\"margin:0 0 4px;font-family:Arial,Helvetica,sans-serif;font-size:26px;font-weight:900;color:#00FF00;\">$113M</p>\n        <p style=\"margin:0;font-family:Arial,Helvetica,sans-serif;font-size:10px;color:#444444;text-transform:uppercase;letter-spacing:1px;\">Revenue MXN</p>\n      </td>\n      <td width=\"33%\" align=\"center\" style=\"padding:12px;border-right:1px solid #1A1A1A;\">\n        <p style=\"margin:0 0 4px;font-family:Arial,Helvetica,sans-serif;font-size:26px;font-weight:900;color:#00FF00;\">15+</p>\n        <p style=\"margin:0;font-family:Arial,Helvetica,sans-serif;font-size:10px;color:#444444;text-transform:uppercase;letter-spacing:1px;\">A&#241;os en el mercado</p>\n      </td>\n      <td width=\"33%\" align=\"center\" style=\"padding:12px;\">\n        <p style=\"margin:0 0 4px;font-family:Arial,Helvetica,sans-serif;font-size:26px;font-weight:900;color:#00FF00;\">500+</p>\n        <p style=\"margin:0;font-family:Arial,Helvetica,sans-serif;font-size:10px;color:#444444;text-transform:uppercase;letter-spacing:1px;\">Proyectos entregados</p>\n      </td>\n    </tr></table>\n  </td></tr>\n\n  <tr><td style=\"background:#000000;padding:24px 30px;border-top:1px solid #001100;\">\n    <p style=\"margin:0 0 2px;font-family:Arial,Helvetica,sans-serif;font-size:13px;font-weight:900;color:#FFFFFF;\"><span style=\"color:#00FF00;\">/ &gt;</span>&nbsp; bamb<span style=\"color:#00FF00;\">&#250;</span> tech services</p>\n    <p style=\"margin:0 0 2px;font-family:Arial,Helvetica,sans-serif;font-size:11px;color:#333333;\">Roberto Esparza &#183; CGO</p>\n    <p style=\"margin:0 0 2px;font-family:Arial,Helvetica,sans-serif;font-size:11px;color:#333333;\">roberto.esparza@bambu-techservices.com</p>\n    <p style=\"margin:0 0 16px;font-family:Arial,Helvetica,sans-serif;font-size:11px;color:#333333;\">bambu-techservices.com</p>\n    <p style=\"margin:0;font-family:Arial,Helvetica,sans-serif;font-size:10px;color:#222222;line-height:1.6;\">Recibes este correo porque tienes contacto con Bambu Tech Services.<br><a href=\"{{unsubscribe_url}}\" style=\"color:#333333;text-decoration:underline;\">Cancelar suscripci&#243;n</a></p>\n  </td></tr>\n\n</table></td></tr></table>\n</body></html>`;\n\nreturn [{ json: { ...$input.first().json, email_html: html } }];"
+      },
+      "id": "c0000008-0000-0000-0000-000000000008",
+      "name": "Build HTML Email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1560,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.brevo.com/v3/emailCampaigns",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "={{ $vars.BREVO_API_KEY }}"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ name: 'Intel Bambu — ' + $('Build HTML Email').first().json.fecha_corta, subject: $('Build HTML Email').first().json.subject, sender: { name: 'Bambu Tech Services', email: 'roberto.esparza@bambu-techservices.com' }, replyTo: 'roberto.esparza@bambu-techservices.com', htmlContent: $('Build HTML Email').first().json.html_email, recipients: { listIds: [Number($vars.BREVO_LIST_ID)] } }) }}",
+        "options": {}
+      },
+      "id": "c0000009-0000-0000-0000-000000000009",
+      "name": "Brevo — Crear Campaña",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1780,
+        280
+      ],
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "fromEmail": "roberto.esparza@bambu-techservices.com",
+        "toEmail": "roberto.esparza@bambu-techservices.com",
+        "subject": "=📧 Campaña Intel lista para enviar — {{ $json.fecha_corta }}",
+        "options": {},
+        "html": "=<p>Hola Roberto,</p><p>La campaña de inteligencia comercial del <strong>{{ $json.fecha_corta }}</strong> está lista en Brevo.</p><h3 style=\"margin:16px 0 8px;\">Segmentación</h3><table style=\"border-collapse:collapse;font-size:14px;\">{{ $json.segResumen.map(s => '<tr><td style=\"padding:4px 16px 4px 0;color:#555;\">' + s.segmento + '</td><td style=\"padding:4px 8px;text-align:right;\"><strong>' + s.total + '</strong></td><td style=\"padding:4px 0 4px 8px;color:#888;\">(' + s.clientes + ' clientes · ' + s.prospectos + ' prospectos)</td></tr>').join('') }}</table><p style=\"margin-top:12px;\"><strong>Total campañable:</strong> {{ $json.total_campañable }} contactos con email</p><hr style=\"border:none;border-top:1px solid #eee;margin:16px 0;\"><p>Entra a <a href=\"https://app.brevo.com/campaigns\" style=\"color:#0A0A0A;\"><strong>Brevo → Campañas</strong></a> para revisar y enviar la campaña <em>Intel Bambu — {{ $json.fecha_corta }}</em>.</p><p style=\"color:#888;font-size:12px;\">⚙️ WF-10B · Bambu Sales Automatization</p>"
+      },
+      "id": "c0000010-0000-0000-0000-000000000010",
+      "name": "Email Campaña Lista → CGO",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        1780,
+        520
+      ],
+      "credentials": {
+        "smtp": {
+          "id": "lexMB39WZNDmctV5",
+          "name": "│ Bambu Gmail SMTP"
+        }
+      },
+      "webhookId": "cf16774d-b06d-46eb-b032-1fff3eb2c554"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1j6W7-gNrOmMrPNLG1UVPIcnaV3Z90qDRSocXMC8rGko",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Campañas",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "c0000011-0000-0000-0000-000000000011",
+      "name": "Sheets — Log Campaña",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1780,
+        660
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "yF3npq62Z1nKRMvP",
+          "name": "Bambu Google Sheets"
+        }
+      },
+      "continueOnFail": true
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 5
+            }
+          ]
+        }
+      },
+      "id": "c0000012-0000-0000-0000-000000000012",
+      "name": "Schedule: Cada 5 min",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        240,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://sheets.googleapis.com/v4/spreadsheets/1j6W7-gNrOmMrPNLG1UVPIcnaV3Z90qDRSocXMC8rGko/values/Intel%20Briefs!A%3AZ",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api",
+        "options": {}
+      },
+      "id": "c0000013-0000-0000-0000-000000000013",
+      "name": "HTTP — Leer Intel Briefs",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        460,
+        400
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "yF3npq62Z1nKRMvP",
+          "name": "Bambu Google Sheets"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\nconst rows = data.values || [];\nif (rows.length < 2) return [{ json: { found: false } }];\n\nconst headers = rows[0];\nconst estIdx = headers.indexOf('estado');\nconst fechaIdx = headers.indexOf('fecha');\n\nlet found = null;\nlet foundRowNum = -1;\nfor (let i = rows.length - 1; i >= 1; i--) {\n  if (rows[i][estIdx] === 'aprobado') {\n    found = rows[i];\n    foundRowNum = i + 1; // 1-based (header=row1, first data=row2)\n    break;\n  }\n}\n\nif (!found) return [{ json: { found: false } }];\n\nconst obj = {};\nheaders.forEach((h, idx) => { obj[h] = found[idx] || ''; });\nreturn [{ json: { ...obj, found: true, _rowNum: foundRowNum } }];"
+      },
+      "id": "c0000014-0000-0000-0000-000000000014",
+      "name": "Filtrar Aprobado",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        680,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "chk",
+              "leftValue": "={{ $json.found }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "c0000015-0000-0000-0000-000000000015",
+      "name": "IF — Brief Pendiente",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        900,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "let rowNum = -1;\ntry { rowNum = $('Filtrar Aprobado').first().json._rowNum || -1; } catch(e) {}\nreturn [{ json: { _rowNum: rowNum } }];"
+      },
+      "id": "c0000016-0000-0000-0000-000000000016",
+      "name": "Prep Marcar Procesado",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2200,
+        620
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://sheets.googleapis.com/v4/spreadsheets/1j6W7-gNrOmMrPNLG1UVPIcnaV3Z90qDRSocXMC8rGko/values/Intel%20Briefs!C{{ $json._rowNum }}?valueInputOption=RAW",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\"values\": [[\"procesado\"]]}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "c0000017-0000-0000-0000-000000000017",
+      "name": "HTTP — Marcar Procesado",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2420,
+        620
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "yF3npq62Z1nKRMvP",
+          "name": "Bambu Google Sheets"
+        }
+      }
+    },
+    {
+      "id": "c0000018",
+      "name": "Prep Log Campaña",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1980,
+        380
+      ],
+      "parameters": {
+        "jsCode": "// Prepara los datos para registrar en el Sheet \"Campañas\"\n// Corre después de PD Campaigns (continueOnFail=true)\nconst pdResult = $input.first().json;\nconst html = $('Build HTML Email').first().json;\n\n// campaign_id: si Pipedrive devolvió data.id úsalo, si falló queda 'pendiente'\nconst campaignId = String(\n  pdResult?.data?.id || pdResult?.id || 'pendiente'\n);\n\nreturn [{\n  json: {\n    fecha_creacion: html.fecha_corta || '',\n    campaign_id: campaignId,\n    nombre: 'Intel Bambu — ' + (html.fecha_corta || ''),\n    template: 'T1',\n    total_campañable: String(html.total_campañable || 0),\n    segmentos_json: JSON.stringify(html.segResumen || {}),\n    estado: 'creada_borrador',\n    opens: '0',\n    clicks: '0',\n    hot_signals: '0'\n  }\n}];"
+      }
+    },
+    {
+      "id": "lock-prep-001",
+      "name": "Prep Marcar Procesando",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        500
+      ],
+      "parameters": {
+        "jsCode": "const brief = $input.first().json;\nreturn [{ json: { _rowNum: brief._rowNum } }];"
+      }
+    },
+    {
+      "id": "lock-http-001",
+      "name": "HTTP — Marcar Procesando",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1400,
+        500
+      ],
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://sheets.googleapis.com/v4/spreadsheets/1j6W7-gNrOmMrPNLG1UVPIcnaV3Z90qDRSocXMC8rGko/values/Intel%20Briefs!C{{ $json._rowNum }}?valueInputOption=RAW",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\"values\": [[\"procesando\"]]}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "yF3npq62Z1nKRMvP",
+          "name": "Bambu Google Sheets"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Schedule: Cada 5 min": {
+      "main": [
+        [
+          {
+            "node": "HTTP — Leer Intel Briefs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP — Leer Intel Briefs": {
+      "main": [
+        [
+          {
+            "node": "Filtrar Aprobado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtrar Aprobado": {
+      "main": [
+        [
+          {
+            "node": "IF — Brief Pendiente",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF — Brief Pendiente": {
+      "main": [
+        [
+          {
+            "node": "PD — Obtener Contactos",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "PD — Clientes (Deals Ganados)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Prep Marcar Procesando",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "PD — Obtener Contactos": {
+      "main": [
+        [
+          {
+            "node": "Merge Brief + Contactos",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "PD — Clientes (Deals Ganados)": {
+      "main": [
+        [
+          {
+            "node": "Merge Brief + Contactos",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Merge Brief + Contactos": {
+      "main": [
+        [
+          {
+            "node": "Segmentar Contactos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Segmentar Contactos": {
+      "main": [
+        [
+          {
+            "node": "Claude — Dual Copy",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude — Dual Copy": {
+      "main": [
+        [
+          {
+            "node": "Parse Copy Claude",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Copy Claude": {
+      "main": [
+        [
+          {
+            "node": "Build HTML Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build HTML Email": {
+      "main": [
+        [
+          {
+            "node": "Brevo — Crear Campaña",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Email Campaña Lista → CGO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sheets — Log Campaña": {
+      "main": [
+        [
+          {
+            "node": "Prep Marcar Procesado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prep Marcar Procesado": {
+      "main": [
+        [
+          {
+            "node": "HTTP — Marcar Procesado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prep Log Campaña": {
+      "main": [
+        [
+          {
+            "node": "Sheets — Log Campaña",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prep Marcar Procesando": {
+      "main": [
+        [
+          {
+            "node": "HTTP — Marcar Procesando",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP — Marcar Procesando": {
+      "main": [
+        [
+          {
+            "node": "Merge Brief + Contactos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Brevo — Crear Campaña": {
+      "main": [
+        [
+          {
+            "node": "Prep Log Campaña",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "staticData": {
+    "node:Schedule: Cada 5 min": {
+      "recurrenceRules": []
+    }
+  },
+  "meta": null,
+  "nodeGroups": [],
+  "pinData": null,
+  "versionId": "0d67392a-2b10-4b1c-b46a-22a2a3d91720",
+  "activeVersionId": "0d67392a-2b10-4b1c-b46a-22a2a3d91720",
+  "versionCounter": 12,
+  "triggerCount": 1,
+  "sourceWorkflowId": null,
+  "shared": [
+    {
+      "updatedAt": "2026-06-02T23:45:54.594Z",
+      "createdAt": "2026-06-02T23:45:54.594Z",
+      "role": "workflow:owner",
+      "workflowId": "gdbczgw1BIYHIxiT",
+      "projectId": "JU2bKPpYIxzn9Xw3",
+      "project": {
+        "updatedAt": "2026-04-10T04:49:03.292Z",
+        "createdAt": "2026-04-10T04:48:56.287Z",
+        "id": "JU2bKPpYIxzn9Xw3",
+        "name": "Roberto Esparza <roberto.esparza@bambu-techservices.com>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "customTelemetryTags": [],
+        "creatorId": "f8d11da0-bc74-4bfc-8202-03bd8b18027b"
+      }
+    }
+  ],
+  "tags": [],
+  "activeVersion": {
+    "updatedAt": "2026-06-19T21:44:01.039Z",
+    "createdAt": "2026-06-19T21:44:01.039Z",
+    "versionId": "0d67392a-2b10-4b1c-b46a-22a2a3d91720",
+    "workflowId": "gdbczgw1BIYHIxiT",
+    "nodes": [
+      {
+        "parameters": {
+          "method": "GET",
+          "url": "=https://api.pipedrive.com/v1/persons?limit=200&start=0&api_token={{ $vars.PIPEDRIVE_API_TOKEN }}",
+          "options": {}
+        },
+        "id": "c0000002-0000-0000-0000-000000000002",
+        "name": "PD — Obtener Contactos",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          460,
+          280
+        ]
+      },
+      {
+        "parameters": {
+          "method": "GET",
+          "url": "=https://api.pipedrive.com/v1/deals?status=won&limit=200&api_token={{ $vars.PIPEDRIVE_API_TOKEN }}",
+          "options": {}
+        },
+        "id": "c0000003-0000-0000-0000-000000000003",
+        "name": "PD — Clientes (Deals Ganados)",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          460,
+          440
+        ]
+      },
+      {
+        "parameters": {
+          "mode": "append",
+          "numberInputs": 3
+        },
+        "id": "c0000004-0000-0000-0000-000000000004",
+        "name": "Merge Brief + Contactos",
+        "type": "n8n-nodes-base.merge",
+        "typeVersion": 3,
+        "position": [
+          680,
+          400
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "// Combina brief, personas y clientes; segmenta y prepara el copy\nconst allItems = $input.all();\nconst briefItem    = $('Filtrar Aprobado').first().json;\nconst personsResp  = allItems[1]?.json || {};\nconst wonDealsResp = allItems[2]?.json || {};\n\nconst persons  = personsResp.data  || [];\nconst wonDeals = wonDealsResp.data || [];\nconst brief_md = briefItem.brief_md || '';\nconst tipo     = briefItem.tipo_campaña || 'T1';\n\n// IDs de clientes (personas con deal ganado)\nconst clientPersonIds = new Set(wonDeals.map(d => d.person_id?.value).filter(Boolean));\n\n// Personas con email, separadas por segmento\nconst KEYWORDS = {\n  'Manufactura / Nearshoring': ['manufactur','industrial','plant','automotri','aerospace','semiconductor','nearshoring'],\n  'Financiero / Fintech':      ['banco','bank','financier','fintech','seguro','credito','pago','afore','inversion'],\n  'Retail / CPG':              ['retail','comercio','tienda','supermercado','walmart','oxxo','fmcg','consumer','aliment'],\n  'Gobierno':                  ['gobierno','municipal','estado','secretaria','imss','issste','pemex','cfe','federal'],\n  'Salud':                     ['hospital','clinica','salud','medic','pharma','laboratori'],\n  'Tecnología / IT':           ['tecnolog','software','digital','tech','system','solution','data','cloud'],\n  'Telecomunicaciones':        ['telecom','telcel','telmex','at&t','movistar','axtel','megacable'],\n  'Transporte / Logística':    ['transport','logistic','carga','cargo','aerolinea'],\n  'Energía':                   ['energia','petroleo','gas','electric','solar','eolica']\n};\n\nfunction getSegment(orgName) {\n  const n = (orgName || '').toLowerCase();\n  for (const [seg, kws] of Object.entries(KEYWORDS)) {\n    if (kws.some(kw => n.includes(kw))) return seg;\n  }\n  return 'Sin clasificar';\n}\n\n// Construir lista segmentada con email\nconst segmented = {};\nconst allEmailList = [];\n\npersons.forEach(p => {\n  const email = p.email?.[0]?.value;\n  if (!email) return;\n  const orgName = p.org_id?.name || '';\n  const seg = getSegment(orgName);\n  const isClient = clientPersonIds.has(p.id);\n  const contact = {\n    id: p.id,\n    name: p.name,\n    email,\n    org: orgName,\n    segmento: seg,\n    tipo_contacto: isClient ? 'Cliente' : 'Prospecto'\n  };\n  if (!segmented[seg]) segmented[seg] = { clientes: [], prospectos: [] };\n  isClient ? segmented[seg].clientes.push(contact) : segmented[seg].prospectos.push(contact);\n  allEmailList.push(contact);\n});\n\n// Resumen de segmentación\nconst segResumen = Object.entries(segmented).map(([seg, data]) => ({\n  segmento: seg,\n  clientes: data.clientes.length,\n  prospectos: data.prospectos.length,\n  total: data.clientes.length + data.prospectos.length\n})).sort((a, b) => b.total - a.total);\n\nreturn [{\n  json: {\n    brief_md,\n    tipo_campaña: tipo,\n    fecha_corta: briefItem.fecha || new Date().toLocaleDateString('es-MX'),\n    segmented,\n    segResumen,\n    total_campañable: allEmailList.length,\n    all_email_list: allEmailList\n  }\n}];"
+        },
+        "id": "c0000005-0000-0000-0000-000000000005",
+        "name": "Segmentar Contactos",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          900,
+          400
+        ]
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.anthropic.com/v1/messages",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "x-api-key",
+                "value": "={{ $vars.ANTHROPIC_API_KEY }}"
+              },
+              {
+                "name": "anthropic-version",
+                "value": "2023-06-01"
+              },
+              {
+                "name": "content-type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={{ JSON.stringify({ model: 'claude-opus-4-6', max_tokens: 4096, messages: [{ role: 'user', content: 'Eres copywriter senior B2B de Bambu Tech Services en México.\\n\\nBasándote en este brief de inteligencia comercial:\\n\\n' + $json.brief_md + '\\n\\nSegmentación actual del CRM:\\n' + JSON.stringify($json.segResumen) + '\\n\\nGenera el copy para DOS canales en JSON exacto con esta estructura:\\n{\\n  \"email\": {\\n    \"subject\": \"Asunto (max 50 chars, urgencia sin clickbait)\",\\n    \"preheader\": \"Preheader (max 85 chars)\",\\n    \"hero_headline\": \"Titular hero (max 60 chars)\",\\n    \"hero_subline\": \"Subtítulo (max 100 chars)\",\\n    \"flash_bullets\": [\"bullet1\", \"bullet2\", \"bullet3\"],\\n    \"sections\": [{\"vertical\": \"\", \"emoji\": \"\", \"noticia_titulo\": \"\", \"contexto\": \"2-3 líneas\", \"decisor\": \"\", \"angulo_bambu\": \"\", \"urgencia\": \"ALTA/MEDIA/BAJA\"}],\\n    \"oportunidad_titulo\": \"\",\\n    \"oportunidad_cuerpo\": \"2 líneas\",\\n    \"cta_texto\": \"max 30 chars\",\\n    \"cta_url\": \"https://bambu-techservices.com/contacto\"\\n  },\\n  \"whatsapp\": {\\n    \"mensaje\": \"Texto WA max 1024 chars, sin HTML, saludo + 2 bullets con emojis + pregunta apertura + link\"\\n  }\\n}\\n\\nRespuesta SOLO el JSON, sin markdown ni explicaciones.' }] }) }}",
+          "options": {}
+        },
+        "id": "c0000006-0000-0000-0000-000000000006",
+        "name": "Claude — Dual Copy",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1120,
+          400
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "// Parsea la respuesta de Claude y prepara los datos para crear la campaña\nconst claudeResp = $input.first().json;\nconst rawText = claudeResp.content?.[0]?.text || '{}';\n\nlet copy;\ntry {\n  // Claude puede responder con ```json ... ``` o directo\n  const clean = rawText.replace(/^```json\\s*/i,'').replace(/```\\s*$/,'').trim();\n  copy = JSON.parse(clean);\n} catch(e) {\n  copy = { email: { subject: 'Intel Comercial Bambu', preheader: '', hero_headline: 'Las señales de mercado de esta semana', hero_subline: '', flash_bullets: [], sections: [], oportunidad_titulo: '', oportunidad_cuerpo: '', cta_texto: 'Conversemos', cta_url: 'https://bambu-techservices.com/contacto' }, whatsapp: { mensaje: '' } };\n}\n\n// Pasar también los datos del paso anterior\nconst prev = $('Segmentar Contactos').first().json;\n\nreturn [{\n  json: {\n    email_copy: copy.email,\n    wa_mensaje: copy.whatsapp?.mensaje || '',\n    brief_md: prev.brief_md,\n    segmented: prev.segmented,\n    segResumen: prev.segResumen,\n    total_campañable: prev.total_campañable,\n    fecha_corta: prev.fecha_corta\n  }\n}];"
+        },
+        "id": "c0000007-0000-0000-0000-000000000007",
+        "name": "Parse Copy Claude",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1340,
+          400
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "// Construye el HTML final del email T1 — Newsletter Intel Bambu\n// Combina el template base con el copy generado por Claude\nconst { email_copy: c, fecha_corta } = $input.first().json;\n\nconst flashBullets = (c.flash_bullets || []).map(b =>\n  `<tr><td style=\"padding:8px 20px;font-family:Arial,sans-serif;font-size:15px;color:#333;border-left:3px solid #F0B429;\">&#9889; ${b}</td></tr>`\n).join('');\n\nconst sections = (c.sections || []).map(s => `\n  <tr><td style=\"padding:20px 30px 0;background:#fff;\">\n    <p style=\"margin:0 0 4px;font-family:Arial,sans-serif;font-size:12px;color:#888;text-transform:uppercase;letter-spacing:1px;\">${s.emoji || '📊'} ${s.vertical}</p>\n    <h3 style=\"margin:0 0 8px;font-family:Arial,sans-serif;font-size:17px;color:#111;line-height:1.3;\">${s.noticia_titulo}</h3>\n    <p style=\"margin:0 0 8px;font-family:Arial,sans-serif;font-size:14px;color:#444;line-height:1.6;\">${s.contexto}</p>\n    <p style=\"margin:0 0 4px;font-family:Arial,sans-serif;font-size:13px;color:#666;\">🎯 <strong>Decisor:</strong> ${s.decisor}</p>\n    <p style=\"margin:0 0 12px;font-family:Arial,sans-serif;font-size:13px;color:#1a1a1a;font-style:italic;background:#FFF8E1;padding:10px 14px;border-radius:4px;border-left:3px solid #F0B429;\">💡 ${s.angulo_bambu}</p>\n    <p style=\"margin:0;font-family:Arial,sans-serif;font-size:12px;\"><strong>⚡ Urgencia: <span style=\"color:${s.urgencia==='ALTA'||s.urgencia==='CRÍTICA'?'#c0392b':s.urgencia==='MEDIA'?'#e67e22':'#27ae60'}\">${s.urgencia}</span></strong></p>\n  </td></tr>\n  <tr><td style=\"padding:0 30px;\"><hr style=\"border:none;border-top:1px solid #eee;margin:16px 0;\"></td></tr>`\n).join('');\n\nconst html = `<!DOCTYPE html>\n<html lang=\"es\">\n<head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">\n<title>${c.subject}</title>\n</head>\n<body style=\"margin:0;padding:0;background:#F4F4F4;\">\n<table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#F4F4F4;\">\n<tr><td align=\"center\" style=\"padding:20px 10px;\">\n\n<!-- Wrapper 600px -->\n<table width=\"600\" cellpadding=\"0\" cellspacing=\"0\" style=\"max-width:600px;width:100%;\">\n\n  <!-- HEADER -->\n  <tr><td style=\"background:#000;padding:18px 30px;\">\n    <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">\n    <tr>\n      <td style=\"font-family:Arial,sans-serif;font-size:20px;font-weight:700;color:#F0B429;letter-spacing:1px;\">BAMBU</td>\n      <td align=\"right\" style=\"font-family:Arial,sans-serif;font-size:11px;color:#888;\">${fecha_corta}</td>\n    </tr></table>\n  </td></tr>\n\n  <!-- HERO -->\n  <tr><td style=\"background:#111;padding:32px 30px 28px;\">\n    <p style=\"margin:0 0 6px;font-family:Arial,sans-serif;font-size:11px;color:#F0B429;text-transform:uppercase;letter-spacing:2px;\">&#128268; INTEL COMERCIAL BAMBU</p>\n    <h1 style=\"margin:0 0 10px;font-family:Arial,sans-serif;font-size:26px;color:#fff;line-height:1.25;\">${c.hero_headline}</h1>\n    <p style=\"margin:0;font-family:Arial,sans-serif;font-size:15px;color:#aaa;line-height:1.5;\">${c.hero_subline}</p>\n  </td></tr>\n\n  <!-- FLASH DEL DÍA -->\n  <tr><td style=\"background:#fff;padding:20px 30px 8px;\">\n    <p style=\"margin:0 0 12px;font-family:Arial,sans-serif;font-size:13px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:1px;\">&#9889; Flash de la semana</p>\n    <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">${flashBullets}</table>\n  </td></tr>\n\n  <!-- DIVISOR -->\n  <tr><td style=\"background:#fff;padding:0 30px;\"><hr style=\"border:none;border-top:2px solid #F0B429;margin:20px 0 10px;\"></td></tr>\n\n  <!-- NOTICIAS PRINCIPALES -->\n  <tr><td style=\"background:#fff;padding:8px 30px 0;\">\n    <p style=\"margin:0 0 4px;font-family:Arial,sans-serif;font-size:13px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:1px;\">&#128202; Noticias principales</p>\n  </td></tr>\n  ${sections}\n\n  <!-- OPORTUNIDAD DE LA SEMANA -->\n  <tr><td style=\"background:#000;padding:28px 30px;\">\n    <p style=\"margin:0 0 6px;font-family:Arial,sans-serif;font-size:11px;color:#F0B429;text-transform:uppercase;letter-spacing:2px;\">&#128640; Oportunidad de la semana</p>\n    <h2 style=\"margin:0 0 10px;font-family:Arial,sans-serif;font-size:20px;color:#fff;line-height:1.3;\">${c.oportunidad_titulo}</h2>\n    <p style=\"margin:0 0 20px;font-family:Arial,sans-serif;font-size:14px;color:#ccc;line-height:1.6;\">${c.oportunidad_cuerpo}</p>\n    <table cellpadding=\"0\" cellspacing=\"0\">\n    <tr><td style=\"background:#F0B429;border-radius:4px;\">\n      <a href=\"${c.cta_url}\" style=\"display:inline-block;padding:13px 28px;font-family:Arial,sans-serif;font-size:14px;font-weight:700;color:#000;text-decoration:none;\">${c.cta_texto} &rarr;</a>\n    </td></tr></table>\n  </td></tr>\n\n  <!-- FOOTER -->\n  <tr><td style=\"background:#222;padding:20px 30px;\">\n    <p style=\"margin:0 0 4px;font-family:Arial,sans-serif;font-size:13px;color:#ccc;\"><strong style=\"color:#fff;\">Bambu Tech Services</strong></p>\n    <p style=\"margin:0 0 4px;font-family:Arial,sans-serif;font-size:12px;color:#888;\">roberto.esparza@bambu-techservices.com</p>\n    <p style=\"margin:0 0 12px;font-family:Arial,sans-serif;font-size:12px;color:#888;\">bambu-techservices.com</p>\n    <p style=\"margin:0;font-family:Arial,sans-serif;font-size:11px;color:#555;\">\n      Estás recibiendo este correo porque formas parte de nuestra red de contactos profesionales.\n      <a href=\"{{unsubscribe}}\" style=\"color:#888;\">Cancelar suscripción</a>\n    </p>\n  </td></tr>\n\n</table>\n<!-- fin wrapper -->\n</td></tr></table>\n</body></html>`;\n\nreturn [{\n  json: {\n    html_email: html,\n    subject: c.subject,\n    preheader: c.preheader,\n    wa_mensaje: $input.first().json.wa_mensaje,\n    segResumen: $input.first().json.segResumen,\n    total_campañable: $input.first().json.total_campañable,\n    fecha_corta: $input.first().json.fecha_corta\n  }\n}];"
+        },
+        "id": "c0000008-0000-0000-0000-000000000008",
+        "name": "Build HTML Email",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1560,
+          400
+        ]
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.brevo.com/v3/emailCampaigns",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "api-key",
+                "value": "={{ $vars.BREVO_API_KEY }}"
+              },
+              {
+                "name": "content-type",
+                "value": "application/json"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={{ JSON.stringify({ name: 'Intel Bambu — ' + $('Build HTML Email').first().json.fecha_corta, subject: $('Build HTML Email').first().json.subject, sender: { name: 'Bambu Tech Services', email: 'roberto.esparza@bambu-techservices.com' }, replyTo: 'roberto.esparza@bambu-techservices.com', htmlContent: $('Build HTML Email').first().json.html_email, recipients: { listIds: [Number($vars.BREVO_LIST_ID)] } }) }}",
+          "options": {}
+        },
+        "id": "c0000009-0000-0000-0000-000000000009",
+        "name": "Brevo — Crear Campaña",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1780,
+          280
+        ],
+        "continueOnFail": true
+      },
+      {
+        "parameters": {
+          "fromEmail": "roberto.esparza@bambu-techservices.com",
+          "toEmail": "roberto.esparza@bambu-techservices.com",
+          "subject": "=📧 Campaña Intel lista para enviar — {{ $json.fecha_corta }}",
+          "options": {},
+          "html": "=<p>Hola Roberto,</p><p>La campaña de inteligencia comercial del <strong>{{ $json.fecha_corta }}</strong> está lista.</p><h3 style=\"margin:16px 0 8px;\">Segmentación</h3><table style=\"border-collapse:collapse;font-size:14px;\">{{ $json.segResumen.map(s => '<tr><td style=\"padding:4px 16px 4px 0;color:#555;\">' + s.segmento + '</td><td style=\"padding:4px 8px;text-align:right;\"><strong>' + s.total + '</strong></td><td style=\"padding:4px 0 4px 8px;color:#888;\">(' + s.clientes + ' clientes · ' + s.prospectos + ' prospectos)</td></tr>').join('') }}</table><p style=\"margin-top:12px;\"><strong>Total campañable:</strong> {{ $json.total_campañable }} contactos con email</p><hr style=\"border:none;border-top:1px solid #eee;margin:16px 0;\"><p>Entra a <strong>Pipedrive → Campañas → 'Intel Bambu — {{ $json.fecha_corta }}'</strong> para revisar y enviar.</p><p style=\"color:#888;font-size:12px;\">⚙️ WF-10B · Bambu Sales Automatization</p>"
+        },
+        "id": "c0000010-0000-0000-0000-000000000010",
+        "name": "Email Campaña Lista → CGO",
+        "type": "n8n-nodes-base.emailSend",
+        "typeVersion": 2.1,
+        "position": [
+          1780,
+          520
+        ],
+        "credentials": {
+          "smtp": {
+            "id": "lexMB39WZNDmctV5",
+            "name": "│ Bambu Gmail SMTP"
+          }
+        },
+        "webhookId": "cf16774d-b06d-46eb-b032-1fff3eb2c554"
+      },
+      {
+        "parameters": {
+          "operation": "append",
+          "documentId": {
+            "__rl": true,
+            "value": "1j6W7-gNrOmMrPNLG1UVPIcnaV3Z90qDRSocXMC8rGko",
+            "mode": "id"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "Campañas",
+            "mode": "name"
+          },
+          "columns": {
+            "mappingMode": "autoMapInputData",
+            "value": {},
+            "matchingColumns": [],
+            "schema": []
+          },
+          "options": {}
+        },
+        "id": "c0000011-0000-0000-0000-000000000011",
+        "name": "Sheets — Log Campaña",
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.5,
+        "position": [
+          1780,
+          660
+        ],
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "yF3npq62Z1nKRMvP",
+            "name": "Bambu Google Sheets"
+          }
+        },
+        "continueOnFail": true
+      },
+      {
+        "parameters": {
+          "rule": {
+            "interval": [
+              {
+                "field": "minutes",
+                "minutesInterval": 5
+              }
+            ]
+          }
+        },
+        "id": "c0000012-0000-0000-0000-000000000012",
+        "name": "Schedule: Cada 5 min",
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1.1,
+        "position": [
+          240,
+          400
+        ]
+      },
+      {
+        "parameters": {
+          "method": "GET",
+          "url": "https://sheets.googleapis.com/v4/spreadsheets/1j6W7-gNrOmMrPNLG1UVPIcnaV3Z90qDRSocXMC8rGko/values/Intel%20Briefs!A%3AZ",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "googleSheetsOAuth2Api",
+          "options": {}
+        },
+        "id": "c0000013-0000-0000-0000-000000000013",
+        "name": "HTTP — Leer Intel Briefs",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          460,
+          400
+        ],
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "yF3npq62Z1nKRMvP",
+            "name": "Bambu Google Sheets"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "jsCode": "const data = $input.first().json;\nconst rows = data.values || [];\nif (rows.length < 2) return [{ json: { found: false } }];\n\nconst headers = rows[0];\nconst estIdx = headers.indexOf('estado');\nconst fechaIdx = headers.indexOf('fecha');\n\nlet found = null;\nlet foundRowNum = -1;\nfor (let i = rows.length - 1; i >= 1; i--) {\n  if (rows[i][estIdx] === 'aprobado') {\n    found = rows[i];\n    foundRowNum = i + 1; // 1-based (header=row1, first data=row2)\n    break;\n  }\n}\n\nif (!found) return [{ json: { found: false } }];\n\nconst obj = {};\nheaders.forEach((h, idx) => { obj[h] = found[idx] || ''; });\nreturn [{ json: { ...obj, found: true, _rowNum: foundRowNum } }];"
+        },
+        "id": "c0000014-0000-0000-0000-000000000014",
+        "name": "Filtrar Aprobado",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          680,
+          400
+        ]
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict"
+            },
+            "conditions": [
+              {
+                "id": "chk",
+                "leftValue": "={{ $json.found }}",
+                "rightValue": true,
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "id": "c0000015-0000-0000-0000-000000000015",
+        "name": "IF — Brief Pendiente",
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2,
+        "position": [
+          900,
+          400
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "let rowNum = -1;\ntry { rowNum = $('Filtrar Aprobado').first().json._rowNum || -1; } catch(e) {}\nreturn [{ json: { _rowNum: rowNum } }];"
+        },
+        "id": "c0000016-0000-0000-0000-000000000016",
+        "name": "Prep Marcar Procesado",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          2200,
+          620
+        ]
+      },
+      {
+        "parameters": {
+          "method": "PUT",
+          "url": "=https://sheets.googleapis.com/v4/spreadsheets/1j6W7-gNrOmMrPNLG1UVPIcnaV3Z90qDRSocXMC8rGko/values/Intel%20Briefs!C{{ $json._rowNum }}?valueInputOption=RAW",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "googleSheetsOAuth2Api",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "{\"values\": [[\"procesado\"]]}",
+          "options": {
+            "response": {
+              "response": {
+                "neverError": true
+              }
+            }
+          }
+        },
+        "id": "c0000017-0000-0000-0000-000000000017",
+        "name": "HTTP — Marcar Procesado",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          2420,
+          620
+        ],
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "yF3npq62Z1nKRMvP",
+            "name": "Bambu Google Sheets"
+          }
+        }
+      },
+      {
+        "id": "c0000018",
+        "name": "Prep Log Campaña",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1980,
+          380
+        ],
+        "parameters": {
+          "jsCode": "// Prepara los datos para registrar en el Sheet \"Campañas\"\n// Corre después de PD Campaigns (continueOnFail=true)\nconst pdResult = $input.first().json;\nconst html = $('Build HTML Email').first().json;\n\n// campaign_id: si Pipedrive devolvió data.id úsalo, si falló queda 'pendiente'\nconst campaignId = String(\n  pdResult?.data?.id || pdResult?.id || 'pendiente'\n);\n\nreturn [{\n  json: {\n    fecha_creacion: html.fecha_corta || '',\n    campaign_id: campaignId,\n    nombre: 'Intel Bambu — ' + (html.fecha_corta || ''),\n    template: 'T1',\n    total_campañable: String(html.total_campañable || 0),\n    segmentos_json: JSON.stringify(html.segResumen || {}),\n    estado: 'creada_borrador',\n    opens: '0',\n    clicks: '0',\n    hot_signals: '0'\n  }\n}];"
+        }
+      },
+      {
+        "id": "lock-prep-001",
+        "name": "Prep Marcar Procesando",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1200,
+          500
+        ],
+        "parameters": {
+          "jsCode": "const brief = $input.first().json;\nreturn [{ json: { _rowNum: brief._rowNum } }];"
+        }
+      },
+      {
+        "id": "lock-http-001",
+        "name": "HTTP — Marcar Procesando",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          1400,
+          500
+        ],
+        "parameters": {
+          "method": "PUT",
+          "url": "=https://sheets.googleapis.com/v4/spreadsheets/1j6W7-gNrOmMrPNLG1UVPIcnaV3Z90qDRSocXMC8rGko/values/Intel%20Briefs!C{{ $json._rowNum }}?valueInputOption=RAW",
+          "authentication": "predefinedCredentialType",
+          "nodeCredentialType": "googleSheetsOAuth2Api",
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "{\"values\": [[\"procesando\"]]}",
+          "options": {
+            "response": {
+              "response": {
+                "neverError": true
+              }
+            }
+          }
+        },
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "yF3npq62Z1nKRMvP",
+            "name": "Bambu Google Sheets"
+          }
+        }
+      }
+    ],
+    "connections": {
+      "Schedule: Cada 5 min": {
+        "main": [
+          [
+            {
+              "node": "HTTP — Leer Intel Briefs",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "HTTP — Leer Intel Briefs": {
+        "main": [
+          [
+            {
+              "node": "Filtrar Aprobado",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Filtrar Aprobado": {
+        "main": [
+          [
+            {
+              "node": "IF — Brief Pendiente",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "IF — Brief Pendiente": {
+        "main": [
+          [
+            {
+              "node": "PD — Obtener Contactos",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "PD — Clientes (Deals Ganados)",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Prep Marcar Procesando",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          []
+        ]
+      },
+      "PD — Obtener Contactos": {
+        "main": [
+          [
+            {
+              "node": "Merge Brief + Contactos",
+              "type": "main",
+              "index": 1
+            }
+          ]
+        ]
+      },
+      "PD — Clientes (Deals Ganados)": {
+        "main": [
+          [
+            {
+              "node": "Merge Brief + Contactos",
+              "type": "main",
+              "index": 2
+            }
+          ]
+        ]
+      },
+      "Merge Brief + Contactos": {
+        "main": [
+          [
+            {
+              "node": "Segmentar Contactos",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Segmentar Contactos": {
+        "main": [
+          [
+            {
+              "node": "Claude — Dual Copy",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Claude — Dual Copy": {
+        "main": [
+          [
+            {
+              "node": "Parse Copy Claude",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Parse Copy Claude": {
+        "main": [
+          [
+            {
+              "node": "Build HTML Email",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Build HTML Email": {
+        "main": [
+          [
+            {
+              "node": "Brevo — Crear Campaña",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Email Campaña Lista → CGO",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Sheets — Log Campaña": {
+        "main": [
+          [
+            {
+              "node": "Prep Marcar Procesado",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Prep Marcar Procesado": {
+        "main": [
+          [
+            {
+              "node": "HTTP — Marcar Procesado",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Prep Log Campaña": {
+        "main": [
+          [
+            {
+              "node": "Sheets — Log Campaña",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Prep Marcar Procesando": {
+        "main": [
+          [
+            {
+              "node": "HTTP — Marcar Procesando",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "HTTP — Marcar Procesando": {
+        "main": [
+          [
+            {
+              "node": "Merge Brief + Contactos",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Brevo — Crear Campaña": {
+        "main": [
+          [
+            {
+              "node": "Prep Log Campaña",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "nodeGroups": [],
+    "authors": "Roberto Esparza",
+    "name": null,
+    "description": null,
+    "autosaved": false,
+    "workflowPublishHistory": [
+      {
+        "createdAt": "2026-06-19T21:44:01.168Z",
+        "id": 150,
+        "workflowId": "gdbczgw1BIYHIxiT",
+        "versionId": "0d67392a-2b10-4b1c-b46a-22a2a3d91720",
+        "event": "activated",
+        "userId": "f8d11da0-bc74-4bfc-8202-03bd8b18027b"
+      },
+      {
+        "createdAt": "2026-06-19T21:44:01.133Z",
+        "id": 149,
+        "workflowId": "gdbczgw1BIYHIxiT",
+        "versionId": "0d67392a-2b10-4b1c-b46a-22a2a3d91720",
+        "event": "deactivated",
+        "userId": "f8d11da0-bc74-4bfc-8202-03bd8b18027b"
+      }
+    ]
+  }
+}

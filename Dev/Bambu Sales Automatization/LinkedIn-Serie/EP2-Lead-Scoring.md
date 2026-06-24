@@ -2,8 +2,9 @@
 
 **Serie:** Automatización Comercial con IA en Bambu Tech Services
 **Episodio:** 2 de 9 — Bloque Ventas
-**Estado:** ✅ Listo para publicar
-**Publicar:** [fecha a definir]
+**Estado:** ✅ Publicado
+**Publicado:** 2026-06-15
+**URL:** https://www.linkedin.com/pulse/ep2-lead-scoring-c%C3%B3mo-dej%C3%A9-de-adivinar-y-empec%C3%A9-saber-roberto-esparza-m6u5c/
 
 ---
 

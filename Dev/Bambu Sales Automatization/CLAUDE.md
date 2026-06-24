@@ -50,7 +50,7 @@ Each workflow lives in `Workflows/` with these files:
 | WF-10B Campaign Creator | `gdbczgw1BIYHIxiT` | 🟡 Pending activation | On Sheet approval |
 | WF-10B Engagement Handler | `RGcc5DjDxqOu2i2O` | ✅ Active | Realtime |
 | WF-10C Inbound Lead | `HlsRw5eE5AgAcmiP` | ✅ Active | Realtime webhook |
-| WF-11 Phase 1 | `schcpIQOT95s9EB7` | ✅ Tested | Mon 8am CDMX (inactive) |
+| WF-11 Phase 1 | `schcpIQOT95s9EB7` | ✅ Tested | Mon 8am CDMX (schedule inactive — pending activation) |
 | WF-11 Phase 2 | `ndXrVQTykWbnErwW` | ⏳ Pending test | Every 5 min polling |
 | WF-02 Outbound | — | ⏳ In development | — |
 
@@ -83,6 +83,53 @@ Each workflow lives in `Workflows/` with these files:
 
 The `Send Email` node v2.1 in this n8n instance uses field `html` for the body, **not** `message`. This affects all 5 WF-10 workflows and WF-11.
 
-## Lusha enrichment flag
+## Lusha enrichment (WF-01)
 
-In WF-01 Score, the node `Prepare Lusha` has `LUSHA_ENABLED = false` (credits depleted). To re-enable: recharge Lusha credits and change the flag to `true` in that node.
+Lusha is **active** as of 2026-06-11. The `Prepare Lusha` node was fixed with 3 bugs:
+
+1. **`LUSHA_ENABLED` flag removed** — was hardcoded `false` since April. Flag no longer exists; enrichment runs automatically.
+2. **Domain extraction** — `org.cc_email` is always `bambumobile@pipedrivemail.com` (Pipedrive's internal BCC address) for every Bambu deal. This blocked the fallback to the contact's email domain. Fix: extract domain from `person.email[0].value` first; only fall back to `org.cc_email` if it's not `pipedrivemail.com`.
+3. **Pipedrive option ID type** — Pipedrive returns Single Option field values as **strings** (`'153'`, `'154'`), never as numbers. Strict equality `=== 154` always failed. Fix: use `String(lushaVal) === '154'`.
+
+**Validation script:** `Workflows/test-lusha-validation.py` — tests 3 levels: direct Lusha API, end-to-end webhook trigger, and Pipedrive field verification. Run with:
+```bash
+python3 Workflows/test-lusha-validation.py --deal-id <ID>   # specific deal
+python3 Workflows/test-lusha-validation.py --only-api        # API connectivity only
+```
+
+**Pipedrive gotcha (general):** All Single Option field values come back as strings from the API. Always use `String(val)` or `== ` (loose) when comparing option IDs.
+
+## Batch outbound scripts (local only, excluded from git)
+
+Two Python scripts exist locally in `Workflows/` but are in `.gitignore` because they contain Gmail App Password credentials:
+
+- **`batch-mql-campaign.py`** — Scores all unscored MQL deals via Pipedrive API, then sends T6 email to eligible leads.
+  - `--score`: pulls all 710 MQL deals, scores unscored ones, writes score to Pipedrive custom fields
+  - `--send --dry-run`: previews which leads would receive email (filter: `lead_score > 12`)
+  - `--send`: sends T6-gayosso-campaign.html from `roberto.esparza@bambu-techservices.com`, CC to assigned rep
+  - Scoring is a behavioral proxy (activities, emails, last_activity_date) + firmographic keyword matching — no extra API calls per deal
+  - **MQL outbound threshold is score > 12** (not the standard Tibio threshold of >26 — MQL cold leads without Lusha enrichment cluster at 8–22)
+  - `infer_servicio()` maps company name keywords to 8 industry-specific service descriptions (Financial, Retail, Manufacturing, Health, Logistics, Food, Hospitality, General)
+
+- **`test-lusha-validation.py`** — Lusha integration validator (see Lusha section above)
+
+## Email templates
+
+Located in `Workflows/Templates/`:
+
+| Template | Purpose |
+|---|---|
+| `T1-newsletter-intel.html` | Weekly intel newsletter |
+| `T5-nurturing-welcome.html` | Welcome nurturing sequence |
+| `T6-gayosso-campaign.html` | Cold outbound — Gayosso case study as social proof. Subject: "Cómo Gayosso transformó su tecnología — ¿y [Empresa]?" |
+| `T6-reactivacion.html` | Re-engagement for dormant deals |
+
+Templates use `{{PLACEHOLDER}}` style variables replaced in Python scripts or n8n Set nodes before sending.
+
+## Vercel deployment (Guía Visual)
+
+`Guia-Visual-Sistema-Automatizacion-v1.0.html` is deployed to Vercel via GitHub integration on the `main` branch. Auto-deploys on every push to `main`.
+
+- **`vercel.json`**: rewrites `/` → the HTML file; adds security headers
+- **`.vercelignore`**: excludes all `.md` files, `Workflows/`, `KickOff/`, `Plan de Comisiones BDRs/` from the public deploy — only the HTML guide is publicly accessible
+- To update the live guide: edit the HTML, merge to `main`, Vercel deploys automatically
