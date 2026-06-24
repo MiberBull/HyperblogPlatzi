@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plan Estratégico de Ventas H2 2026 — Bambu Tech Services</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+  :root{--bg:#09100a;--surface:#0e170f;--card:#121c12;--border:#1a2e1a;--green:#00CC3C;--green-lt:#4ade80;--green-dim:#00CC3C22;--green-glow:#00CC3C0d;--amber:#f59e0b;--red:#ef4444;--blue:#60a5fa;--text:#e0ece0;--muted:#4a6e4a;--label:#7a9e7a;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:14px;min-height:100vh;line-height:1.5;}
+
+  header{display:flex;align-items:center;justify-content:space-between;padding:18px 36px;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:200;}
+  .logo-area{display:flex;align-items:center;gap:14px;}
+  .logo-mark{width:36px;height:36px;background:var(--green);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;color:#09100a;letter-spacing:-0.5px;}
+  .logo-text{font-weight:700;font-size:14px;color:var(--text);}
+  .logo-sub{font-size:10px;color:var(--label);margin-top:1px;}
+  .header-right{display:flex;align-items:center;gap:10px;}
+  .badge{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;padding:4px 10px;border-radius:4px;letter-spacing:0.5px;}
+  .badge-green{color:var(--green);background:var(--green-dim);border:1px solid var(--green-dim);}
+  .badge-muted{color:var(--muted);border:1px solid var(--border);}
+
+  .sticky-nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 36px;display:flex;gap:0;overflow-x:auto;position:sticky;top:73px;z-index:100;scrollbar-width:none;}
+  .sticky-nav::-webkit-scrollbar{display:none;}
+  .nav-item{font-size:11px;font-weight:600;color:var(--muted);padding:10px 14px;white-space:nowrap;text-decoration:none;border-bottom:2px solid transparent;transition:color .2s,border-color .2s;}
+  .nav-item:hover{color:var(--green);border-bottom-color:var(--green);}
+
+  main{padding:28px 36px 80px;max-width:1400px;margin:0 auto;}
+
+  .section-title{font-size:12px;font-weight:700;color:var(--label);letter-spacing:1.2px;text-transform:uppercase;margin:40px 0 16px;display:flex;align-items:center;gap:10px;}
+  .section-title::after{content:'';flex:1;height:1px;background:var(--border);}
+  .section-title .tag{font-size:9px;background:var(--green-dim);color:var(--green);border:1px solid var(--green-dim);padding:2px 7px;border-radius:3px;font-weight:700;}
+
+  .sub{font-size:13px;font-weight:700;color:var(--text);margin:24px 0 12px;}
+
+  /* HERO */
+  .hero-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;gap:10px;}
+  .kpi{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px 20px 16px;position:relative;overflow:hidden;}
+  .kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+  .kpi.g::before{background:var(--green);}
+  .kpi.a::before{background:var(--amber);}
+  .kpi.b::before{background:var(--blue);}
+  .kpi.w::before{background:var(--text);}
+  .kpi-label{font-size:9px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+  .kpi-val{font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:700;line-height:1;margin-bottom:6px;}
+  .kpi-val.green{color:var(--green);}.kpi-val.amber{color:var(--amber);}.kpi-val.blue{color:var(--blue);}.kpi-val.white{color:var(--text);}
+  .kpi-sub{font-size:10px;color:var(--label);}
+  .up{color:var(--green);font-weight:600;}.down{color:var(--red);font-weight:600;}.flat{color:var(--amber);font-weight:600;}
+
+  /* TABLES */
+  .dt{width:100%;border-collapse:collapse;margin:8px 0;}
+  .dt th{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);padding:8px 12px;text-align:left;border-bottom:1px solid var(--border);background:var(--surface);}
+  .dt td{padding:10px 12px;font-size:12px;color:var(--text);border-bottom:1px solid var(--border);vertical-align:top;line-height:1.55;}
+  .dt tr:last-child td{border-bottom:none;}
+  .dt tr:hover td{background:var(--green-glow);}
+  .dt td:first-child{font-weight:600;color:var(--green-lt);min-width:130px;}
+
+  /* CARDS */
+  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px 22px;}
+  .card-title{font-size:11px;font-weight:700;color:var(--green);letter-spacing:.5px;text-transform:uppercase;margin-bottom:12px;}
+  .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+  .g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;}
+
+  /* TIERS */
+  .tier{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px 18px;}
+  .tier-badge{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;padding:3px 8px;border-radius:3px;margin-bottom:10px;}
+  .t1 .tier-badge{background:#ef444420;color:var(--red);border:1px solid #ef444330;}
+  .t2 .tier-badge{background:#f59e0b20;color:var(--amber);border:1px solid #f59e0b30;}
+  .t3 .tier-badge{background:#60a5fa20;color:var(--blue);border:1px solid #60a5fa30;}
+  .t4 .tier-badge{background:var(--green-dim);color:var(--green);border:1px solid var(--green-dim);}
+  .tier h4{font-size:12px;font-weight:700;color:var(--text);margin-bottom:4px;}
+  .tier p{font-size:11px;color:var(--label);line-height:1.6;margin-bottom:6px;}
+  .tier-cos{font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;line-height:1.7;margin-top:8px;}
+  .risk{margin-top:10px;padding:6px 10px;border-radius:4px;font-size:10px;font-weight:600;}
+  .risk-hi{background:#ef444415;color:var(--red);border:1px solid #ef444330;}
+  .risk-md{background:#f59e0b15;color:var(--amber);border:1px solid #f59e0b30;}
+  .risk-lo{background:var(--green-dim);color:var(--green);border:1px solid var(--green-dim);}
+  .risk-no{background:var(--surface);color:var(--muted);border:1px solid var(--border);}
+
+  /* FODA */
+  .foda{display:grid;grid-template-columns:1fr 1fr;gap:2px;border-radius:10px;overflow:hidden;}
+  .fq{padding:20px 22px;}
+  .fq.f{background:#00CC3C0d;border:1px solid #00CC3C20;}
+  .fq.d{background:#f59e0b08;border:1px solid #f59e0b20;}
+  .fq.o{background:#60a5fa08;border:1px solid #60a5fa20;}
+  .fq.a{background:#ef444408;border:1px solid #ef444420;}
+  .fq-label{font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px;}
+  .fq.f .fq-label{color:var(--green);}.fq.d .fq-label{color:var(--amber);}.fq.o .fq-label{color:var(--blue);}.fq.a .fq-label{color:var(--red);}
+  .fi{display:flex;gap:8px;margin-bottom:8px;align-items:flex-start;font-size:11px;color:var(--text);line-height:1.5;}
+  .fd{width:5px;height:5px;border-radius:50%;flex-shrink:0;margin-top:5px;}
+  .fq.f .fd{background:var(--green);}.fq.d .fd{background:var(--amber);}.fq.o .fd{background:var(--blue);}.fq.a .fd{background:var(--red);}
+
+  /* BUILD */
+  .bt{width:100%;border-collapse:collapse;}
+  .bt th{background:var(--surface);font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);padding:10px 14px;text-align:left;border-bottom:1px solid var(--border);}
+  .bt td{padding:12px 14px;font-size:11px;color:var(--text);border-bottom:1px solid var(--border);vertical-align:top;line-height:1.55;}
+  .bt tr.rb td{border-left:3px solid var(--green);}
+  .bt tr.ru td{border-left:3px solid var(--blue);}
+  .bt tr.ri td{border-left:3px solid var(--amber);}
+  .bt tr.rl td{border-left:3px solid var(--muted);}
+  .bt tr.rd td{border-left:3px solid var(--red);}
+  .br{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:800;width:40px;text-align:center;}
+
+  /* ANSOFF */
+  .ansoff{display:grid;grid-template-columns:1fr 1fr;gap:2px;border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+  .ac{padding:20px 22px;}
+  .ac.p1{background:#00CC3C0d;border:1px solid #00CC3C25;}
+  .ac.p2{background:#60a5fa08;border:1px solid #60a5fa20;}
+  .ac.p3{background:#f59e0b06;border:1px solid #f59e0b18;}
+  .ac.p4{background:var(--surface);border:1px solid var(--border);}
+  .ac-head{font-size:11px;font-weight:800;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px;}
+  .ac.p1 .ac-head{color:var(--green);}.ac.p2 .ac-head{color:var(--blue);}.ac.p3 .ac-head{color:var(--amber);}.ac.p4 .ac-head{color:var(--muted);}
+  .ac-prio{font-size:9px;font-weight:700;margin-bottom:12px;}
+  .ac.p1 .ac-prio{color:var(--green-lt);}.ac.p2 .ac-prio{color:var(--blue);}.ac.p3 .ac-prio{color:var(--amber);}.ac.p4 .ac-prio{color:var(--muted);}
+  .ai{font-size:11px;color:var(--text);margin-bottom:5px;display:flex;gap:6px;align-items:flex-start;line-height:1.5;}
+  .ai::before{content:'·';color:var(--label);flex-shrink:0;}
+  .ar{margin-top:12px;font-size:10px;color:var(--muted);border-top:1px solid var(--border);padding-top:10px;font-style:italic;}
+
+  /* GE McKINSEY */
+  .ge-wrap{overflow-x:auto;}
+  .ge{display:grid;grid-template-columns:90px 1fr 1fr 1fr;grid-template-rows:40px 1fr 1fr 1fr;gap:2px;min-width:680px;border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+  .ge-h{background:var(--surface);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);display:flex;align-items:center;justify-content:center;padding:8px;text-align:center;}
+  .ge-rl{background:var(--surface);font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);display:flex;align-items:center;justify-content:center;padding:8px;text-align:center;}
+  .gc{padding:14px 16px;font-size:11px;line-height:1.5;}
+  .gc.inv{background:#00CC3C10;border:1px solid #00CC3C25;}
+  .gc.dev{background:#60a5fa08;border:1px solid #60a5fa20;}
+  .gc.sel{background:#f59e0b06;border:1px solid #f59e0b18;}
+  .gc.har{background:var(--surface);border:1px solid var(--border);}
+  .gc.ext{background:#ef444406;border:1px solid #ef444415;}
+  .ga{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+  .gc.inv .ga{color:var(--green);}.gc.dev .ga{color:var(--blue);}.gc.sel .ga{color:var(--amber);}.gc.har .ga{color:var(--muted);}.gc.ext .ga{color:var(--red);}
+  .gv{font-size:12px;font-weight:600;color:var(--text);margin-bottom:3px;}
+  .gs{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--label);}
+  .gn{font-size:10px;color:var(--label);margin-top:6px;}
+
+  /* INFO BOXES */
+  .info{background:var(--green-dim);border:1px solid #00CC3C30;border-left:3px solid var(--green);border-radius:6px;padding:14px 18px;font-size:12px;color:var(--text);line-height:1.6;margin:12px 0;}
+  .warn{background:#f59e0b10;border:1px solid #f59e0b25;border-left:3px solid var(--amber);border-radius:6px;padding:14px 18px;font-size:12px;color:var(--text);line-height:1.6;margin:12px 0;}
+
+  /* POSITIONING */
+  .pos-stmt{background:var(--green-dim);border:1px solid #00CC3C30;border-left:4px solid var(--green);border-radius:8px;padding:20px 24px;font-size:14px;line-height:1.7;color:var(--text);font-style:italic;margin:16px 0;}
+  .seg-hl{background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--blue);border-radius:8px;padding:18px 22px;font-size:13px;line-height:1.7;color:var(--text);margin:12px 0;}
+
+  /* DECISIONS */
+  .dec{display:flex;align-items:flex-start;gap:16px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px 18px;margin-bottom:8px;}
+  .dec-num{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:800;color:var(--green);min-width:32px;}
+  .dec-content h4{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;}
+  .dec-content p{font-size:11px;color:var(--label);}
+  .dec-meta{margin-left:auto;text-align:right;flex-shrink:0;}
+  .dec-impact{font-size:12px;font-weight:700;color:var(--green-lt);}
+  .dec-urg{font-size:10px;color:var(--muted);margin-top:2px;}
+
+  /* MESSAGE COMPARE */
+  .msg{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:12px 0;}
+  .msg-bad{background:#ef444408;border:1px solid #ef444420;border-radius:8px;padding:16px 18px;}
+  .msg-good{background:var(--green-glow);border:1px solid #00CC3C20;border-radius:8px;padding:16px 18px;}
+  .msg-label{font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px;}
+  .msg-bad .msg-label{color:var(--red);}.msg-good .msg-label{color:var(--green);}
+  .msg-text{font-size:12px;color:var(--text);line-height:1.6;}
+
+  /* TRIANGLE */
+  .tri{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+  .tri-box{border-radius:8px;padding:16px 12px;text-align:center;}
+  .tri-box.s{background:var(--green-dim);border:1px solid #00CC3C30;}
+  .tri-box.d{background:#60a5fa08;border:1px solid #60a5fa20;}
+  .tri-box.f{background:#f59e0b08;border:1px solid #f59e0b20;}
+  .tri-lbl{font-size:10px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px;}
+  .tri-box.s .tri-lbl{color:var(--green);}.tri-box.d .tri-lbl{color:var(--blue);}.tri-box.f .tri-lbl{color:var(--amber);}
+  .tri-q{font-size:10px;color:var(--label);margin-bottom:8px;}
+  .tri-c{font-size:11px;color:var(--text);line-height:1.6;}
+  .tri-result{text-align:center;margin-top:14px;padding:16px;background:var(--green-dim);border:1px solid #00CC3C30;border-radius:8px;}
+  .tri-result-lbl{font-size:9px;font-weight:700;color:var(--label);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
+  .tri-result-txt{font-size:13px;font-weight:700;color:var(--green);}
+
+  /* MAP */
+  .map-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+  .mq{padding:16px;min-height:130px;}
+  .mq.q1{background:#60a5fa08;border:1px solid #60a5fa15;}
+  .mq.q2{background:#f59e0b08;border:1px solid #f59e0b15;}
+  .mq.q3{background:var(--green-glow);border:2px solid #00CC3C40;}
+  .mq.q4{background:#ef444406;border:1px solid #ef444415;}
+  .mq-lbl{font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;margin-bottom:10px;}
+  .mq.q1 .mq-lbl{color:var(--blue);}.mq.q2 .mq-lbl{color:var(--amber);}.mq.q3 .mq-lbl{color:var(--green);}.mq.q4 .mq-lbl{color:var(--label);}
+  .mq-cos{font-size:10px;color:var(--text);line-height:1.8;}
+  .map-axes{display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-bottom:8px;text-align:center;}
+  .map-ax{font-size:9px;font-weight:700;color:var(--label);letter-spacing:.8px;text-transform:uppercase;padding:4px;}
+
+  /* DIFF TABLE */
+  .dft{width:100%;border-collapse:collapse;}
+  .dft th{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);padding:9px 14px;text-align:left;border-bottom:1px solid var(--border);background:var(--surface);}
+  .dft td{padding:10px 14px;font-size:11px;color:var(--text);border-bottom:1px solid var(--border);vertical-align:top;line-height:1.5;}
+  .dft tr:last-child td{border-bottom:none;}
+  .dft td:first-child{font-weight:600;color:var(--text);}
+  .dft td:nth-child(2){color:var(--muted);}
+  .dft td:nth-child(4){color:var(--green-lt);}
+  .dft tr:hover td{background:var(--green-glow);}
+
+  /* FOOTER */
+  .page-footer{border-top:1px solid var(--border);margin-top:60px;padding-top:20px;text-align:center;font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;line-height:1.9;}
+
+  @media(max-width:900px){
+    header,main,.sticky-nav{padding-left:20px;padding-right:20px;}
+    .hero-row{grid-template-columns:1fr 1fr;}
+    .g2,.g4,.foda,.ansoff,.msg,.tri{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-area">
+    <div class="logo-mark">/ &gt;</div>
+    <div>
+      <div class="logo-text">Bambu Tech Services</div>
+      <div class="logo-sub">Plan Estratégico de Ventas — 2do Semestre 2026</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <span class="badge badge-muted">FRAMEWORK IPADE</span>
+    <span class="badge badge-green">H2 · 2026</span>
+  </div>
+</header>
+
+<nav class="sticky-nav">
+  <a href="#resumen" class="nav-item">Resumen</a>
+  <a href="#mercado" class="nav-item">I. Mercado</a>
+  <a href="#5cs" class="nav-item">II. 5 C's</a>
+  <a href="#competencia" class="nav-item">III. Competencia</a>
+  <a href="#4ps" class="nav-item">IV. 4 P's</a>
+  <a href="#foda" class="nav-item">V. FODA</a>
+  <a href="#segmentacion" class="nav-item">VI. Segmentación</a>
+  <a href="#diferenciacion" class="nav-item">VII. Diferenciación</a>
+  <a href="#posicionamiento" class="nav-item">VIII. Posicionamiento</a>
+  <a href="#crecimiento" class="nav-item">IX. Crecimiento</a>
+  <a href="#plan" class="nav-item">X. Plan Comercial</a>
+</nav>
+
+<main>
+
+<!-- ══ RESUMEN ══ -->
+<div id="resumen">
+  <div class="section-title">Resumen Ejecutivo <span class="tag">IPADE · Junio 2026</span></div>
+  <div class="hero-row">
+    <div class="kpi g">
+      <div class="kpi-label">Pipeline activo Bambu</div>
+      <div class="kpi-val green">$431M</div>
+      <div class="kpi-sub">MXN · 1,163 deals · <span class="flat">solo 13% convierte</span></div>
+    </div>
+    <div class="kpi a">
+      <div class="kpi-label">Win Rate actual</div>
+      <div class="kpi-val amber">13%</div>
+      <div class="kpi-sub"><span class="down">−9pp vs benchmark</span> · Meta: 22%</div>
+    </div>
+    <div class="kpi b">
+      <div class="kpi-label">Mercado TI México</div>
+      <div class="kpi-val blue">$15B</div>
+      <div class="kpi-sub">USD · CAGR 8–12% · Bambu &lt;0.1% share</div>
+    </div>
+    <div class="kpi w">
+      <div class="kpi-label">Competidores analizados</div>
+      <div class="kpi-val white">60</div>
+      <div class="kpi-sub">4 tiers · Oligopolio diferenciado</div>
+    </div>
+    <div class="kpi g">
+      <div class="kpi-label">Potencial sin leads nuevos</div>
+      <div class="kpi-val green">+$38M</div>
+      <div class="kpi-sub">MXN · 13% → 22% win rate</div>
+    </div>
+  </div>
+  <table class="dt" style="margin-top:16px;">
+    <thead><tr><th>Dimensión</th><th>Hallazgo Clave</th></tr></thead>
+    <tbody>
+      <tr><td>Tipo de competencia</td><td>Oligopolio diferenciado (Tier 1–2) + atomización (Tier 4) · 60 jugadores identificados</td></tr>
+      <tr><td>Competidores directos</td><td>NEORIS · KIO · Axity (Tier 2) · Novis · Bluepixel (Tier 3) · IDS · Northware · Tutum (Tier 4)</td></tr>
+      <tr><td>Ventaja diferencial</td><td>Portafolio amplio · Trayectoria comprobada · AWS Partner Tier Select · Twilio · MIT · Fiserv · Lenovo · Verticalización real · CGO accesible</td></tr>
+      <tr><td>Brecha crítica</td><td>Win rate 13% vs. 21–25% benchmark · Sin certificación AWS Tier Advanced · Marketing digital ausente</td></tr>
+      <tr><td>Segmento objetivo</td><td>Empresa MX 200–5,000 emp · Manufactura / BFSI / Retail / Salud · Deal $500K–$5M MXN</td></tr>
+      <tr><td>Posicionamiento meta</td><td>"Partner IT con IA nativa para mediana empresa MX — agilidad de boutique, solidez de consolidado"</td></tr>
+      <tr><td>Prioridad Ansoff</td><td>Penetración de mercado: +9pp win rate = +$30–40M MXN sin nuevos leads</td></tr>
+      <tr><td>Prioridad GE–McKinsey</td><td>Invertir en Manufactura y Salud · Desarrollar BFSI y Retail · Evitar Gobierno sin relación</td></tr>
+      <tr><td>Decisión más urgente</td><td>AWS Tier Advanced + 3 casos de éxito publicados = credibilidad que abre deals Tier 2</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══ I. MERCADO ══ -->
+<div id="mercado">
+  <div class="section-title">I. Análisis del Mercado</div>
+  <div class="g2">
+    <div class="card">
+      <div class="card-title">Dimensión del Mercado</div>
+      <table class="dt">
+        <tbody>
+          <tr><td>Mercado TI México 2025</td><td>~$12,000–15,000 MDD</td></tr>
+          <tr><td>Crecimiento anual</td><td>8–12% CAGR</td></tr>
+          <tr><td>Empresas con transformación digital activa</td><td>&lt;30% — brecha enorme</td></tr>
+          <tr><td>Revenue Bambu 2025</td><td>$113M MXN (~$6.5M USD)</td></tr>
+          <tr><td>Participación de mercado Bambu</td><td>&lt;0.1% — mercado vastamente no capturado</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card">
+      <div class="card-title">Factores Externos</div>
+      <table class="dt">
+        <tbody>
+          <tr><td>Económico</td><td>Nearshoring: +manufactura extranjera = +demanda TI · Volatilidad peso favorece proveedores locales</td></tr>
+          <tr><td>Tecnológico</td><td>Explosión IA generativa · Cloud es commodity → diferenciación en IA, datos, automatización</td></tr>
+          <tr><td>Social</td><td>Escasez talento tech → empresas externalizan · Desconfianza al cambio → ciclos 92 días</td></tr>
+          <tr><td>Cultural</td><td>Preferencia relación personal · Referido = canal #1 — la confianza es la moneda del mercado</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══ II. 5 C's ══ -->
+<div id="5cs">
+  <div class="section-title">II. Sistema Comercial — Las 5 C's</div>
+
+  <div class="sub">2.1 Compañía — Bambu Tech Services</div>
+  <table class="dt">
+    <thead><tr><th>Dimensión</th><th>Situación Actual</th><th>Implicación Estratégica</th></tr></thead>
+    <tbody>
+      <tr><td>Revenue</td><td>$113M MXN (2025) · Meta 2026: $117.5M</td><td>Crecimiento conservador (+4%) — hay capacidad para crecer más agresivamente</td></tr>
+      <tr><td>Win rate</td><td>13% (benchmark: 21–25%)</td><td>Pérdida sistemática de 8–12 pp — problema de calificación y proceso</td></tr>
+      <tr><td>Ciclo de venta</td><td>92 días (benchmark: 60–75)</td><td>17–32 días de ineficiencia frente al estándar</td></tr>
+      <tr><td>Pipeline</td><td>1,163 deals · $431M MXN</td><td>Solo 13% convierte → $375M MXN perdidos anualmente</td></tr>
+      <tr><td>Equipo comercial</td><td>15 reps (5 Pre-Sales + 6 BDR + CGO)</td><td>Requiere especialización por vertical</td></tr>
+      <tr><td>Recursos diferenciales</td><td>12 workflows IA · CGO accesible · AWS Partner Tier Select · Relaciones ejecutivas</td><td>Único en Tier 4 con automatización comercial real</td></tr>
+    </tbody>
+  </table>
+
+  <div class="sub">2.2 Consumidores — Proceso de Compra BUILD</div>
+  <div class="info">El cliente B2B de IT nunca decide en solitario. En cada deal intervienen 4–5 personas con agendas distintas. No entender a cada actor es la causa raíz del 13% de win rate.</div>
+  <table class="bt">
+    <thead><tr><th style="width:50px">ROL</th><th>QUIÉN ES</th><th>QUÉ LE IMPORTA</th><th>TÁCTICA BAMBU</th></tr></thead>
+    <tbody>
+      <tr class="rb"><td class="br" style="color:var(--green)">B</td><td><strong>BUYER</strong><br><span style="color:var(--label);font-size:10px">CFO / Director de Administración</span></td><td>ROI, costo total, riesgo financiero, flujo de caja</td><td>Business Case con payback &lt;18 meses. Ancla de precio formal</td></tr>
+      <tr class="ru"><td class="br" style="color:var(--blue)">U</td><td><strong>USER</strong><br><span style="color:var(--label);font-size:10px">Director TI / CTO / Gerente Sistemas</span></td><td>Calidad técnica, integración, soporte post-venta</td><td>Demo técnica. Taller de requerimientos con equipo Bambu + cliente</td></tr>
+      <tr class="ri"><td class="br" style="color:var(--amber)">I</td><td><strong>INFLUENCER</strong><br><span style="color:var(--label);font-size:10px">IT manager / equipo técnico</span></td><td>No quedar mal, que funcione de verdad</td><td>Involucrarlos temprano como coautores del requerimiento</td></tr>
+      <tr class="rl"><td class="br" style="color:var(--muted)">L</td><td><strong>LODGEKEEPER</strong><br><span style="color:var(--label);font-size:10px">Procurement / Legal / Compras</span></td><td>Proceso correcto, cumplimiento de políticas</td><td>Respetar proceso formal. Propuesta en formato requerido</td></tr>
+      <tr class="rd"><td class="br" style="color:var(--red)">D</td><td><strong>DECIDER</strong><br><span style="color:var(--label);font-size:10px">CEO / COO / Director General</span></td><td>Confianza en el proveedor, visión largo plazo</td><td>Comunicación lider-a-lider: CGO contacta ejecutivo prospect</td></tr>
+    </tbody>
+  </table>
+
+  <div class="sub" style="margin-top:20px">2.3 Competencia — 60 Jugadores en 4 Tiers</div>
+  <div class="g4">
+    <div class="tier t1"><span class="tier-badge">TIER 1</span><h4>Gigantes Globales</h4><p>Revenue &gt;$500M USD · Global</p><div class="tier-cos">TCS · Accenture · Globant<br>Softtek · Seidor · Global Hitss</div><div class="risk risk-no">Riesgo: BAJO</div></div>
+    <div class="tier t2"><span class="tier-badge">TIER 2</span><h4>Líderes LATAM</h4><p>Revenue $50M–$500M USD · Multi-país</p><div class="tier-cos">NEORIS · KIO Tech · Axity<br>Minsait · NTT Data · Sngular</div><div class="risk risk-hi">Riesgo: ALTO ⚠️</div></div>
+    <div class="tier t3"><span class="tier-badge">TIER 3</span><h4>Especialistas a Escala</h4><p>Revenue $10M–$50M USD · Nicho</p><div class="tier-cos">Wizeline · Novis · Bluepixel<br>Qaracter · MTP · ArkusNexus</div><div class="risk risk-md">Riesgo: MEDIO</div></div>
+    <div class="tier t4"><span class="tier-badge">TIER 4 / BAMBU</span><h4>Boutiques Locales</h4><p>Revenue &lt;$10M USD · MX-céntrico</p><div class="tier-cos">IDS · Northware · Tutum<br>XalDigital · Datateam · y otros ~25</div><div class="risk risk-lo">▶ Bambu en umbral Tier 3–4</div></div>
+  </div>
+
+  <div class="sub">2.4 Canales</div>
+  <table class="dt">
+    <thead><tr><th>Canal</th><th>Uso Actual en Bambu</th><th>Brecha vs. Competencia</th></tr></thead>
+    <tbody>
+      <tr><td>Fuerza de ventas directa</td><td>Principal — 15 reps, ciclo 92 días</td><td>Proceso debe acortarse a &lt;70 días</td></tr>
+      <tr><td>Referidos</td><td>Canal #1 de cierre · Sin sistematizar</td><td>Bambu pierde 40–60% del potencial vs. programas formales Softtek/Globant</td></tr>
+      <tr><td>Alianzas / Partners</td><td>✅ AWS Partner Tier Select · Twilio · Lenovo · Fiserv · MIT · Ingram · Claude/Anthropic</td><td>Subir a AWS Tier Advanced para competir vs. Axity/KIO/XalDigital</td></tr>
+      <tr><td>Outbound digital</td><td>Campañas Brevo por vertical (WF-10B)</td><td>Bambu tiene el sistema; falta volumen y consistencia</td></tr>
+      <tr><td>LinkedIn / Thought leadership</td><td>Serie CGO (7 eps publicados) · Incipiente</td><td>Escalar con content engine WF-10A</td></tr>
+      <tr><td>Inbound web</td><td>Guía Visual en Vercel · Sin SEO activo</td><td>Motor WF-10A puede alimentar este canal</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══ III. COMPETENCIA ══ -->
+<div id="competencia">
+  <div class="section-title">III. Tipo de Competencia</div>
+  <div class="info"><strong>Oligopolio diferenciado</strong> en Tier 1–2 + <strong>atomización</strong> en Tier 4. La estrategia dominante es la diferenciación — por vertical, tecnología, escala o modelo de entrega. Bambu opera en el espacio en blanco de mayor valor: Mid-Market + IA nativa + verticalización.</div>
+  <div class="g2" style="margin-top:12px">
+    <div class="card" style="border-top:3px solid var(--green)"><div class="card-title">Especialización profunda</div><div style="font-size:11px;color:var(--label);margin-bottom:8px">MTP · Qaracter · EPI-USE · XalDigital · Pyramid CI</div><p style="font-size:11px;color:var(--text)">Ser el mejor en un nicho — cobra premium por profundidad. Imbatibles en su dominio.</p></div>
+    <div class="card" style="border-top:3px solid var(--blue)"><div class="card-title" style="color:var(--blue)">Escala / Marca</div><div style="font-size:11px;color:var(--label);margin-bottom:8px">Accenture · TCS · Globant · Softtek</div><p style="font-size:11px;color:var(--text)">"Nadie fue despedido por contratar a Accenture" — la marca reduce el riesgo percibido del Decider.</p></div>
+    <div class="card" style="border-top:3px solid var(--label)"><div class="card-title" style="color:var(--label)">Cercanía cultural</div><div style="font-size:11px;color:var(--label);margin-bottom:8px">NEORIS · Axity · KIO · Novis</div><p style="font-size:11px;color:var(--text)">"Somos mexicanos, entendemos tu operación" — ventaja relacional y de contexto.</p></div>
+    <div class="card" style="border-top:3px solid var(--green);background:var(--green-glow)"><div class="card-title">⭐ IA Nativa — BAMBU</div><div style="font-size:11px;color:var(--label);margin-bottom:8px">Único en Tier 4 con sistema probado en producción</div><p style="font-size:11px;color:var(--text)">12 workflows de IA operando en el CRM comercial. <strong style="color:var(--green)">La oportunidad estratégica central de Bambu.</strong></p></div>
+  </div>
+</div>
+
+<!-- ══ IV. 4 P's ══ -->
+<div id="4ps">
+  <div class="section-title">IV. Análisis Competitivo — Las 4 P's por Grupo</div>
+  <div class="g2">
+    <div class="card" style="border-top:3px solid var(--red)">
+      <div class="card-title" style="color:var(--red)">Grupo A · Gigantes Globales</div>
+      <div style="font-size:11px;color:var(--label);margin-bottom:12px">TCS · Accenture · Globant · Softtek · Seidor · Global Hitss</div>
+      <table class="dt"><tbody>
+        <tr><td>Producto</td><td>Portafolio C-suite → implementación → operaciones. Studios verticales. La marca es el producto.</td></tr>
+        <tr><td>Precio</td><td>Premium. Day rates $150–$400 USD. Proyectos desde $500K USD. Solo grandes corporativos.</td></tr>
+        <tr><td>Plaza</td><td>Oficinas prime. Relaciones Fortune 500. Gartner Magic Quadrant.</td></tr>
+        <tr><td>Promoción</td><td>Thought leadership global. Patrocinio Davos/MIT. LinkedIn millones de seguidores.</td></tr>
+      </tbody></table>
+      <div class="risk risk-no" style="margin-top:10px">Riesgo para Bambu: BAJO — no compiten en los mismos deals</div>
+    </div>
+    <div class="card" style="border-top:3px solid var(--amber)">
+      <div class="card-title" style="color:var(--amber)">Grupo B · Líderes Regionales LATAM</div>
+      <div style="font-size:11px;color:var(--label);margin-bottom:12px">NEORIS · KIO Tech · Axity · Minsait · NTT Data · Babel Group · Sngular</div>
+      <table class="dt"><tbody>
+        <tr><td>Producto</td><td>Full-stack regional. NEORIS = Digital Accelerator. KIO = #1 infra MX (Gartner). Axity = AWS Premier + Microsoft Gold.</td></tr>
+        <tr><td>Precio</td><td>Medio-alto. Proyectos $200K–$2M MXN. Day rates $80–$150 USD. RFP formal.</td></tr>
+        <tr><td>Plaza</td><td>CDMX + Monterrey + Guadalajara. Licitaciones gobierno. Multi-LATAM.</td></tr>
+        <tr><td>Promoción</td><td>Certificaciones visibles (AWS Premier, MS Gold). Casos de éxito publicados. Eventos Gartner/IDC.</td></tr>
+      </tbody></table>
+      <div class="risk risk-hi" style="margin-top:10px">Riesgo ALTO — capturan los deals que Bambu podría ganar</div>
+    </div>
+    <div class="card" style="border-top:3px solid var(--blue)">
+      <div class="card-title" style="color:var(--blue)">Grupo C · Especialistas a Escala</div>
+      <div style="font-size:11px;color:var(--label);margin-bottom:12px">Wizeline · Novis · Bluepixel · Qaracter · MTP · ArkusNexus · Teravision · EPI-USE</div>
+      <table class="dt"><tbody>
+        <tr><td>Producto</td><td>Especialización profunda. Wizeline = product engineering IA. Bluepixel = software+UX enterprise MX. Qaracter = data & AI puro.</td></tr>
+        <tr><td>Precio</td><td>Competitivo. Day rates $60–$120 USD. Proyectos $100K–$800K MXN. Staff aug.</td></tr>
+        <tr><td>Plaza</td><td>México + nearshore USA. Equipos remotos distribuidos.</td></tr>
+        <tr><td>Promoción</td><td>DevRel. GitHub público. LinkedIn employer brand fuerte. Content técnico.</td></tr>
+      </tbody></table>
+      <div class="risk risk-md" style="margin-top:10px">Riesgo MEDIO — Bluepixel y Novis compiten directamente en MX enterprise</div>
+    </div>
+    <div class="card" style="border-top:3px solid var(--green)">
+      <div class="card-title">Grupo D · Boutiques Locales México</div>
+      <div style="font-size:11px;color:var(--label);margin-bottom:12px">IDS · Northware · Tutum · XalDigital · Datateam · Pyramid CI · Intelisis · y otros ~25</div>
+      <table class="dt"><tbody>
+        <tr><td>Producto</td><td>IT generalista. Nichos: XalDigital = AWS cloud · Tutum = SAP salud · Pyramid CI = FP&amp;A · Intelisis = ERP MX.</td></tr>
+        <tr><td>Precio</td><td>Bajo a medio. Day rates $30–$80 USD. Proyectos $50K–$500K MXN.</td></tr>
+        <tr><td>Plaza</td><td>México-céntrico. Presencia digital variable. Canal = red personal del fundador.</td></tr>
+        <tr><td>Promoción</td><td>Boca a boca. LinkedIn básico. Sin content marketing estructurado.</td></tr>
+      </tbody></table>
+      <div class="risk risk-lo" style="margin-top:10px">Riesgo MEDIO-BAJO — Bambu ya los supera en sofisticación y revenue</div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ V. FODA ══ -->
+<div id="foda">
+  <div class="section-title">V. FODA — Bambu Tech Services</div>
+  <div class="foda">
+    <div class="fq f">
+      <div class="fq-label">● Fortalezas</div>
+      <div class="fi"><div class="fd"></div><div><strong>Capacidad y portafolio amplio</strong> — cloud, ciberseguridad, software, infraestructura, consultoría. Acompaña al cliente en distintas etapas de madurez digital.</div></div>
+      <div class="fi"><div class="fd"></div><div><strong>Trayectoria sólida y experiencia comprobada</strong> — $113M MXN en 2025. Relaciones de largo plazo que generan referencias activas.</div></div>
+      <div class="fi"><div class="fd"></div><div><strong>Alianzas y certificaciones relevantes</strong> — AWS Partner Tier Select, Twilio, Lenovo, Fiserv, MIT, Ingram Micro, Claude/Anthropic.</div></div>
+      <div class="fi"><div class="fd"></div><div><strong>Experiencia en 8 verticales</strong> — Manufactura, Financiero, Retail, Salud, Gobierno, Logística, Cybertech/IA y Servicios.</div></div>
+      <div class="fi"><div class="fd"></div><div><strong>Metodología integral y propia</strong> — Proceso de 9 etapas con criterios BANT + Pre-Sales + BDR + CGO.</div></div>
+      <div class="fi"><div class="fd"></div><div><strong>Alto compromiso y acompañamiento estratégico</strong> — Acceso directo al CGO en deals relevantes. Relación lider-a-lider.</div></div>
+    </div>
+    <div class="fq d">
+      <div class="fq-label">● Debilidades</div>
+      <div class="fi"><div class="fd"></div><div><strong>Alta competencia y necesidad de diferenciación</strong> — Sin diferenciador claro, Bambu se percibe igual que el resto y pierde por precio o marca.</div></div>
+      <div class="fi"><div class="fd"></div><div><strong>Velocidad del cambio tecnológico vs. adopción interna</strong> — Riesgo de quedar rezagado frente a especialistas más actualizados.</div></div>
+      <div class="fi"><div class="fd"></div><div><strong>Capacidad para resolver problemas complejos</strong> — Cuello de botella si falta talento senior disponible en proyectos de alta complejidad.</div></div>
+      <div class="fi"><div class="fd"></div><div><strong>Clientes insatisfechos (NPS por definir)</strong> — Sin sistema de medición post-proyecto, los problemas de retención son invisibles.</div></div>
+      <div class="fi"><div class="fd"></div><div><strong>Tiempos de desarrollo vs. demanda del mercado</strong> — Ciclo 92 días. Adopción de IA en procesos internos aún no sistematizada completamente.</div></div>
+    </div>
+    <div class="fq o">
+      <div class="fq-label">● Oportunidades</div>
+      <div class="fi"><div class="fd"></div><div><strong>Aceleración de la Transformación Digital</strong> — Mercado TI MX crece 8–12% anual. Nearshoring trae +1,000 empresas extranjeras que necesitarán IT partner local.</div></div>
+      <div class="fi"><div class="fd"></div><div><strong>Integración de tecnologías innovadoras</strong> — IA generativa, automatización, cloud nativo: demanda supera oferta de proveedores calificados en mid-market.</div></div>
+      <div class="fi"><div class="fd"></div><div><strong>Ampliar alianzas estratégicas</strong> — AWS Tier Advanced, Azure, GCP, hardware, fintech y ERP abren puertas a nuevos segmentos.</div></div>
+      <div class="fi"><div class="fd"></div><div><strong>Crecer en sectores actuales y nuevos</strong> — Energía, Construcción y Educación: etapa temprana de digitalización con poca competencia especializada.</div></div>
+      <div class="fi"><div class="fd"></div><div><strong>Consolidar proveedores</strong> — Las empresas buscan un "one-stop-shop" IT. Bambu tiene el portafolio para serlo.</div></div>
+      <div class="fi"><div class="fd"></div><div><strong>Reposicionar la marca</strong> — Oportunidad de construir el mensaje de posicionamiento dominante antes que la competencia.</div></div>
+    </div>
+    <div class="fq a">
+      <div class="fq-label">● Amenazas</div>
+      <div class="fi"><div class="fd"></div><div><strong>Competencia en el mercado</strong> — 60+ competidores activos presionan márgenes y dificultan la diferenciación.</div></div>
+      <div class="fi"><div class="fd"></div><div><strong>Rapidez del cambio tecnológico</strong> — Quien no se actualiza pierde relevancia en 12–18 meses.</div></div>
+      <div class="fi"><div class="fd"></div><div><strong>Factores económicos externos</strong> — Volatilidad del tipo de cambio, inflación y contracción del gasto corporativo pueden reducir deal size o alargar ciclos de decisión.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ VI. SEGMENTACIÓN ══ -->
+<div id="segmentacion">
+  <div class="section-title">VI. Segmentación del Mercado</div>
+  <table class="dt">
+    <thead><tr><th>Variable</th><th>Segmentos (negrita = prioritarios)</th></tr></thead>
+    <tbody>
+      <tr><td>Tamaño</td><td>Micro (&lt;50) · SME (50–500) · <strong>Mid-Enterprise (500–5,000)</strong> · Large (5,000+)</td></tr>
+      <tr><td>Vertical</td><td><strong>Manufactura</strong> · <strong>BFSI</strong> · <strong>Retail</strong> · <strong>Salud</strong> · Gobierno · Logística · Servicios</td></tr>
+      <tr><td>Madurez digital</td><td>Rezagado · <strong>En proceso</strong> · Avanzado</td></tr>
+      <tr><td>Necesidad</td><td>Infraestructura · <strong>Seguridad</strong> · <strong>Software a medida</strong> · <strong>Nube</strong> · IA/Datos</td></tr>
+      <tr><td>Geografía</td><td><strong>CDMX</strong> · <strong>Monterrey</strong> · <strong>Guadalajara</strong> · Resto MX</td></tr>
+    </tbody>
+  </table>
+  <div class="seg-hl">
+    <strong>Segmento Objetivo:</strong> Empresas mexicanas de <strong>200–5,000 empleados</strong> en <strong>Manufactura, BFSI, Retail y Salud</strong>, con madurez digital media (tienen ERP/CRM pero sin automatización ni IA), ubicadas en <strong>CDMX, Monterrey y Guadalajara</strong>, con necesidad activa de transformación y deal size de <strong>$500K–$5M MXN</strong>.
+  </div>
+</div>
+
+<!-- ══ VII. DIFERENCIACIÓN ══ -->
+<div id="diferenciacion">
+  <div class="section-title">VII. Diferenciación</div>
+
+  <div class="sub">7.1 Mapa Perceptual — Posición Competitiva</div>
+  <div style="font-size:11px;color:var(--label);margin-bottom:10px">Ejes: Boutique/Precio bajo (izq.) → Enterprise/Premium (der.) · Portafolio generalista (abajo) → Especialización profunda (arriba)</div>
+  <div class="map-grid" style="margin-bottom:12px">
+    <div class="mq q1"><div class="mq-lbl">Especialistas Boutique</div><div class="mq-cos">MTP · Qaracter · XalDigital<br>Pyramid CI · Datateam · EPI-USE</div></div>
+    <div class="mq q2"><div class="mq-lbl">Especialistas Enterprise</div><div class="mq-cos">TCS · Accenture · Globant · Softtek<br>Seidor · NEORIS · KIO · Axity</div></div>
+    <div class="mq q3">
+      <div class="mq-lbl">Generalistas Boutique (más concurrido)</div>
+      <div class="mq-cos">IDS · Vexilo · Ebunti · Northware<br>Tutum · CSTI · Nimbus · Onikom</div>
+      <div style="margin-top:10px;display:inline-block;background:var(--green);color:#09100a;font-size:10px;font-weight:800;padding:3px 8px;border-radius:4px">★ BAMBU HOY</div>
+    </div>
+    <div class="mq q4">
+      <div class="mq-lbl">Generalistas Enterprise</div>
+      <div class="mq-cos">Minsait · NTT Data · Babel Group<br>Sngular · Novis · Bluepixel · Wizeline</div>
+      <div style="margin-top:10px;display:inline-block;background:var(--green-dim);color:var(--green);font-size:10px;font-weight:800;padding:3px 8px;border-radius:4px;border:1px solid #00CC3C30">◎ BAMBU META → aquí</div>
+    </div>
+  </div>
+  <div class="warn">El espacio en blanco de mayor valor: <strong>Mid-Market + IA nativa + verticalización</strong>. Hoy no lo ocupa nadie en Tier 3–4. El movimiento hacia arriba y a la derecha — mayor especialización con credibilidad enterprise — es la palanca de crecimiento.</div>
+
+  <div class="sub">7.2 Comparativo Competitivo</div>
+  <table class="dft">
+    <thead><tr><th>Dimensión</th><th>Tier 4 Promedio</th><th>Bambu HOY</th><th>Bambu META</th></tr></thead>
+    <tbody>
+      <tr><td>Portafolio</td><td>Limitado 1–2 áreas</td><td>✅ Amplio: cloud, cyber, software, infra, consultoría</td><td>✅✅ Prácticas ancla certificadas visibles</td></tr>
+      <tr><td>Trayectoria</td><td>Sin referencias públicas</td><td>✅ $113M MXN · Clientes en 8 verticales</td><td>✅✅ Casos de éxito publicados por vertical</td></tr>
+      <tr><td>Alianzas y certificaciones</td><td>Sin partnerships formales</td><td>✅ AWS Partner Tier Select · Twilio · Lenovo · Fiserv · MIT · Ingram · Claude/Anthropic</td><td>✅✅ AWS Tier Advanced + Azure, GCP</td></tr>
+      <tr><td>Metodología de venta</td><td>Sin proceso estructurado</td><td>⚠️ 9 etapas + BANT · Ciclo 92 días</td><td>✅ Meta &lt;70 días · BANT estricto</td></tr>
+      <tr><td>Acceso ejecutivo</td><td>Raro</td><td>✅ CGO activo en deals relevantes</td><td>✅✅ Táctica comercial estructurada</td></tr>
+      <tr><td>Verticalización</td><td>Genérica</td><td>✅ 8 verticales con presencia real</td><td>✅✅ Propuesta de valor específica por sector</td></tr>
+      <tr><td>Certificaciones cloud</td><td>❌</td><td>✅ AWS Partner Tier Select</td><td>🎯 AWS Tier Advanced + Microsoft Gold</td></tr>
+      <tr><td>Win rate</td><td>10–15%</td><td>⚠️ 13%</td><td>🎯 Meta 18–22%</td></tr>
+      <tr><td>Presencia de marca</td><td>Desconocida</td><td>⚠️ Referidos fuertes · Digital débil</td><td>🎯 Reposicionamiento activo</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══ VIII. POSICIONAMIENTO ══ -->
+<div id="posicionamiento">
+  <div class="section-title">VIII. Posicionamiento</div>
+
+  <div class="sub">8.1 El Triángulo del Posicionamiento — IPADE</div>
+  <div class="card">
+    <div class="tri">
+      <div class="tri-box s"><div class="tri-lbl">▲ Segmentación</div><div class="tri-q">¿A QUIÉN le habla Bambu?</div><div class="tri-c">Empresa MX 200–5K emp · Manufactura, BFSI, Retail, Salud · Madurez digital media · Deal $500K–$5M MXN</div></div>
+      <div class="tri-box d"><div class="tri-lbl">◀ Diferenciación</div><div class="tri-q">¿POR QUÉ Bambu y no otro?</div><div class="tri-c">Único en Tier 4 con IA operando · Agilidad vs Tier 2 · Credibilidad vs Tier 4 genérico · Relación ejecutiva directa CGO</div></div>
+      <div class="tri-box f"><div class="tri-lbl">▶ FODA</div><div class="tri-q">¿Qué puede prometer Bambu?</div><div class="tri-c"><strong style="color:var(--green)">F:</strong> Verticalización, CGO accesible, AWS Partner<br><strong style="color:var(--amber)">D:</strong> Win rate 13%, sin cases publicados<br><strong style="color:var(--blue)">O:</strong> Nearshoring, mid-market desatendido</div></div>
+    </div>
+    <div class="tri-result">
+      <div class="tri-result-lbl">▼ Posicionamiento resultante</div>
+      <div class="tri-result-txt">"El único partner IT en México que combina profundidad vertical con IA nativa — agilidad de boutique con solidez de consolidado"</div>
+    </div>
+  </div>
+
+  <div class="sub">8.2 Enunciado de Posicionamiento</div>
+  <div class="pos-stmt">Para empresas mexicanas de tamaño medio-grande que necesitan transformarse tecnológicamente — sin pagar el overhead de los grandes despachos ni asumir el riesgo de los proveedores pequeños — Bambu Tech Services es el único partner IT que combina profundidad vertical real con inteligencia artificial nativa en su operación. Entregamos la agilidad de una boutique con la solidez de un jugador consolidado.</div>
+
+  <div class="sub">8.3 Paquete de Beneficios</div>
+  <table class="dt">
+    <thead><tr><th>Beneficio</th><th>Lo que lo hace creíble</th><th>A quién le importa (BUILD)</th></tr></thead>
+    <tbody>
+      <tr><td>Velocidad de respuesta</td><td>Alertas IA + asignación inmediata de leads (12 workflows en producción)</td><td>User (Director TI)</td></tr>
+      <tr><td>Conocimiento de tu industria</td><td>Intel briefs semanales por vertical + campañas diferenciadas</td><td>Decider (CEO/COO)</td></tr>
+      <tr><td>Acceso ejecutivo directo</td><td>CGO involucrado en deals relevantes — lider-a-lider</td><td>Decider</td></tr>
+      <tr><td>Tecnología avanzada con simpleza</td><td>IA operando internamente — el cliente recibe el resultado, no la complejidad</td><td>Buyer (CFO)</td></tr>
+      <tr><td>Proceso claro y predecible</td><td>Metodología BANT + 9 etapas + propuestas en &lt;3 días</td><td>Lodgekeeper</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══ IX. CRECIMIENTO ══ -->
+<div id="crecimiento">
+  <div class="section-title">IX. Alternativas de Crecimiento</div>
+
+  <div class="sub">9.1 Matriz Ansoff</div>
+  <div class="ansoff" style="margin-bottom:14px">
+    <div class="ac p1">
+      <div class="ac-head">Penetración de Mercado</div>
+      <div class="ac-prio">★★★ PRIORIDAD 1 — Acción inmediata</div>
+      <div class="ai">Win rate 13% → 22% (+9pp = +$30–40M MXN)</div>
+      <div class="ai">Reactivar $431M MXN pipeline dormido</div>
+      <div class="ai">Sistematizar referidos (5–8 → 15–20 / trimestre)</div>
+      <div class="ai">Reducir ciclo 92 → 70 días</div>
+      <div class="ai">Activar outbound por vertical (WF-10B)</div>
+    </div>
+    <div class="ac p2">
+      <div class="ac-head">Desarrollo de Producto</div>
+      <div class="ac-prio">★★ Prioridad 2 — H2 2026</div>
+      <div class="ai">Práctica Data &amp; Analytics</div>
+      <div class="ai">Oferta IA-as-a-Service</div>
+      <div class="ai">Certificación AWS Partner Tier Advanced</div>
+      <div class="ai">Consultoría de automatización (vender lo que Bambu ya hace)</div>
+      <div class="ai">Managed Security Services lite para mid-market</div>
+      <div class="ar">Riesgo: requiere inversión en talento y certificaciones</div>
+    </div>
+    <div class="ac p3">
+      <div class="ac-head">Desarrollo de Mercado</div>
+      <div class="ac-prio">★ Prioridad 3 — 2027</div>
+      <div class="ai">Expandir a Monterrey y Guadalajara con playbook CDMX</div>
+      <div class="ai">Atacar empresas extranjeras llegando por nearshoring</div>
+      <div class="ai">Nuevas verticales: Energía, Construcción, Educación</div>
+      <div class="ar">Riesgo: duplicar esfuerzo sin cerrar brechas actuales</div>
+    </div>
+    <div class="ac p4">
+      <div class="ac-head">Diversificación</div>
+      <div class="ac-prio">○ Horizonte 3 (2028+)</div>
+      <div class="ai">SaaS propio basado en workflows de IA comercial</div>
+      <div class="ai">Marketplace de integraciones IA para Pipedrive/HubSpot</div>
+      <div class="ai">Academia / training IA para equipos comerciales</div>
+      <div class="ar">Riesgo muy alto — no prioritario hasta consolidar penetración</div>
+    </div>
+  </div>
+  <div class="info"><strong>Conclusión Ansoff:</strong> La mayor palanca está en <strong>Penetración de Mercado</strong>. Si el win rate sube de 13% al 22%, el incremento es ~$38M MXN adicionales <strong>sin agregar un solo lead nuevo</strong>.</div>
+
+  <div class="sub">9.2 Matriz GE–McKinsey por Vertical</div>
+  <div class="ge-wrap">
+    <div class="ge">
+      <div class="ge-h">Fortaleza Bambu ↓ / Atractividad →</div>
+      <div class="ge-h">Alta Atractividad (7–10)</div>
+      <div class="ge-h">Media Atractividad (4–6.9)</div>
+      <div class="ge-h">Baja Atractividad (1–3.9)</div>
+
+      <div class="ge-rl">Fortaleza Alta (7–10)</div>
+      <div class="gc inv">
+        <div class="ga">★★ INVERTIR</div>
+        <div class="gv">Manufactura</div><div class="gs">6.3 fuerza / 7.4 atractividad</div><div class="gn">Reps especializados · Cases · Intel briefs verticales · Eventos sector</div>
+        <div class="gv" style="margin-top:10px">Salud</div><div class="gs">6.8 fuerza / 7.7 atractividad</div><div class="gn">Máxima prioridad · NOM compliance como ancla</div>
+      </div>
+      <div class="gc sel"><div class="ga">SELECTIVO</div><div style="font-size:10px;color:var(--muted)">—</div></div>
+      <div class="gc har"><div class="ga">EVITAR</div><div style="font-size:10px;color:var(--muted)">—</div></div>
+
+      <div class="ge-rl">Fortaleza Media (4–6.9)</div>
+      <div class="gc dev">
+        <div class="ga">★ DESARROLLAR</div>
+        <div class="gv">Retail</div><div class="gs">6.0 fuerza / 7.0 atractividad</div><div class="gn">Certificaciones retail analytics · Propuesta e-commerce específica</div>
+      </div>
+      <div class="gc dev">
+        <div class="ga">★ DESARROLLAR</div>
+        <div class="gv">BFSI</div><div class="gs">5.0 fuerza / 7.0 atractividad</div><div class="gn">Certificar PCI-DSS · Alianza fintech</div>
+        <div class="gv" style="margin-top:10px">Logística</div><div class="gs">5.0 fuerza / 6.9 atractividad</div><div class="gn">Track &amp; trace como caso de entrada</div>
+      </div>
+      <div class="gc har"><div class="ga">COSECHAR / SALIR</div><div style="font-size:10px;color:var(--muted)">SME sin budget · Commodities IT</div></div>
+
+      <div class="ge-rl">Fortaleza Baja (1–3.9)</div>
+      <div class="gc sel"><div class="ga">SELECTIVO</div><div style="font-size:10px;color:var(--muted)">—</div></div>
+      <div class="gc har">
+        <div class="ga">COSECHAR</div>
+        <div class="gv">Gobierno</div><div class="gs">4.0 fuerza / 5.2 atractividad</div><div class="gn">Solo si hay licitación específica con relación preexistente</div>
+      </div>
+      <div class="gc ext"><div class="ga">✗ SALIR</div><div style="font-size:10px;color:var(--muted)">No invertir tiempo donde el único diferenciador es el precio</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ X. PLAN COMERCIAL ══ -->
+<div id="plan">
+  <div class="section-title">X. Implicaciones para el Plan Comercial</div>
+
+  <div class="sub">10.1 Las 4 P's de Bambu — Hoja de Ruta</div>
+  <table class="dt">
+    <thead><tr><th>P</th><th>Estado Actual</th><th>Meta 2026–2027</th><th>Acción Clave</th></tr></thead>
+    <tbody>
+      <tr><td>Producto</td><td>IT services generalista · 8 verticales sin práctica "ancla"</td><td>2–3 prácticas ancla: Ciberseguridad + Software Factory + Data</td><td>Playbook por práctica · Publicar método en LinkedIn</td></tr>
+      <tr><td>Precio</td><td>Medio · Sin estructura formal · Compite por hora</td><td>Pricing por valor (ROI-based) · Ancla formal</td><td>Business case en cada propuesta · TCO vs. alternativas</td></tr>
+      <tr><td>Plaza</td><td>Ventas directas + referidos sin sistematizar</td><td>Referidos formalizados · Inbound digital · Alianzas tecnológicas</td><td>WF-09 Referral System · AWS Partner program</td></tr>
+      <tr><td>Promoción</td><td>Serie LinkedIn CGO (7 eps) · Guía Visual Vercel · Campañas Brevo</td><td>Content engine semanal · 2 casos de éxito/trimestre · 2 eventos/año</td><td>WF-10A → posts automatizados · Documentar wins como casos</td></tr>
+    </tbody>
+  </table>
+
+  <div class="sub">10.2 Decisiones Estratégicas Prioritarias</div>
+  <div class="dec"><div class="dec-num">1</div><div class="dec-content"><h4>Mejorar win rate 13% → 18%</h4><p>Calificación más estricta en MQL · BANT en etapa 1 · Reducir pipeline inflado · Coaching semanal (WF-08)</p></div><div class="dec-meta"><div class="dec-impact">+$20M MXN</div><div class="dec-urg">Sin un solo lead nuevo · Urgencia: INMEDIATA</div></div></div>
+  <div class="dec"><div class="dec-num">2</div><div class="dec-content"><h4>Certificación AWS Partner Tier Advanced</h4><p>Elimina la objeción más frecuente vs. Axity / KIO / XalDigital en deals enterprise</p></div><div class="dec-meta"><div class="dec-impact" style="color:var(--blue)">Credibilidad Tier 2</div><div class="dec-urg">Plazo: 6 meses</div></div></div>
+  <div class="dec"><div class="dec-num">3</div><div class="dec-content"><h4>Documentar 3 casos de éxito por vertical prioritario</h4><p>Manufactura y Salud primero (GE-McKinsey ★★). Dejar de ser invisible.</p></div><div class="dec-meta"><div class="dec-impact" style="color:var(--amber)">Credibilidad visible</div><div class="dec-urg">Plazo: 90 días</div></div></div>
+  <div class="dec"><div class="dec-num">4</div><div class="dec-content"><h4>Sistematizar referidos como canal formal</h4><p>De 5–8 a 15–20 por trimestre — mayor ROI del portafolio. WF-09 Referral System.</p></div><div class="dec-meta"><div class="dec-impact" style="color:var(--green-lt)">Mayor ROI</div><div class="dec-urg">Plazo: 60 días</div></div></div>
+  <div class="dec"><div class="dec-num">5</div><div class="dec-content"><h4>Definir práctica "ancla" visible externamente</h4><p>Sin foco = sin diferenciación = guerra de precios. Elegir entre Ciberseguridad, Software Factory o Data.</p></div><div class="dec-meta"><div class="dec-impact" style="color:var(--amber)">Diferenciación</div><div class="dec-urg">Plazo: 30 días</div></div></div>
+
+  <div class="sub">10.3 El Mensaje Correcto — Orientado al Mercado</div>
+  <div class="msg">
+    <div class="msg-bad"><div class="msg-label">❌ Mensaje actual (centrado en sí mismo)</div><div class="msg-text">"Tenemos experiencia en cloud, ciberseguridad y desarrollo de software"<br><br>Habla de capacidades — no conecta con el dolor del cliente ni diferencia de la competencia.</div></div>
+    <div class="msg-good"><div class="msg-label">✅ Mensaje objetivo (orientado al mercado)</div><div class="msg-text">"Las empresas de manufactura mediana pierden en promedio 3–5% de su EBITDA por brechas de seguridad y procesos manuales. Bambu es el único partner que combina experiencia en tu industria con IA nativa para cerrar esa brecha — sin la burocracia de los grandes ni el riesgo de los pequeños."</div></div>
+  </div>
+</div>
+
+<div class="page-footer">
+  Plan Estratégico de Ventas — Bambu Tech Services · 2do Semestre 2026<br>
+  Basado en análisis de 60 competidores · Framework IPADE · Junio 2026<br>
+  Roberto Esparza, CGO · Bambu Tech Services
+</div>
+
+</main>
+</body>
+</html>

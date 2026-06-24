@@ -1,0 +1,16 @@
+{
+  "rewrites": [
+    { "source": "/", "destination": "/Guia-Visual-Sistema-Automatizacion-v1.0.html" },
+    { "source": "/dashboard-q2", "destination": "/bambu-commercial-dashboard-q2-2026.html" },
+    { "source": "/plan-estrategico", "destination": "/plan-estrategico-h2-2026.html" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "SAMEORIGIN" }
+      ]
+    }
+  ]
+}
