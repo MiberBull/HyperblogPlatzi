@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Commercial Performance Dashboard Q2 2026 — Bambu Tech Services</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  :root {
+    --bg:        #09100a;
+    --surface:   #0e170f;
+    --card:      #121c12;
+    --border:    #1a2e1a;
+    --green:     #00CC3C;
+    --green-lt:  #4ade80;
+    --green-dim: #00CC3C22;
+    --green-glow:#00CC3C0d;
+    --amber:     #f59e0b;
+    --red:       #ef4444;
+    --blue:      #60a5fa;
+    --text:      #e0ece0;
+    --muted:     #4a6e4a;
+    --label:     #7a9e7a;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
+    line-height: 1.5;
+  }
+
+  /* ── HEADER ── */
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 36px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .logo-area { display: flex; align-items: center; gap: 14px; }
+  .logo-mark {
+    width: 36px; height: 36px; background: var(--green);
+    border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 13px; color: #09100a; letter-spacing: -0.5px;
+  }
+  .logo-text { font-weight: 700; font-size: 14px; color: var(--text); }
+  .logo-sub  { font-size: 10px; color: var(--label); margin-top: 1px; letter-spacing: 0.3px; }
+  .header-right { display: flex; align-items: center; gap: 12px; }
+  .period-badge {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600;
+    color: var(--green); background: var(--green-dim);
+    border: 1px solid var(--green-dim); padding: 4px 10px;
+    border-radius: 4px; letter-spacing: 0.5px;
+  }
+  .sync-info { font-size: 10px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+
+  /* ── MAIN ── */
+  main { padding: 28px 36px 60px; max-width: 1380px; margin: 0 auto; }
+
+  .section-title {
+    font-size: 12px; font-weight: 700; color: var(--label);
+    letter-spacing: 1.2px; text-transform: uppercase;
+    margin: 32px 0 14px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* ── TOOLTIPS GLOSARIO ── */
+  .term {
+    border-bottom: 1px dotted var(--label);
+    cursor: help;
+    position: relative;
+    display: inline-block;
+  }
+  .term-tip {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--green);
+    padding: 10px 13px;
+    font-size: 11px;
+    width: 260px;
+    z-index: 9999;
+    color: var(--text);
+    line-height: 1.6;
+    border-radius: 4px;
+    box-shadow: 0 6px 20px #00000060;
+    font-weight: 400;
+    letter-spacing: 0;
+    text-transform: none;
+    pointer-events: none;
+  }
+  .term:hover .term-tip { display: block; }
+
+  /* ── GLOSARIO SECTION ── */
+  .glosario-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 4px;
+  }
+  .glosario-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 18px;
+  }
+  .glosario-term {
+    font-size: 11px; font-weight: 700; color: var(--green);
+    letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 6px;
+  }
+  .glosario-def {
+    font-size: 11px; color: var(--text); line-height: 1.65;
+  }
+  .glosario-formula {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; color: var(--green-lt);
+    background: var(--bg); border-radius: 4px;
+    padding: 5px 8px; margin-top: 8px; line-height: 1.5;
+  }
+
+  /* ── HERO METRICS (top 5) ── */
+  .hero-row {
+    display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+    gap: 10px;
+  }
+  .hero-kpi {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px 20px 16px;
+    position: relative; overflow: hidden;
+  }
+  .hero-kpi::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  }
+  .hero-kpi.g::before { background: var(--green); }
+  .hero-kpi.a::before { background: var(--amber); }
+  .hero-kpi.r::before { background: var(--red); }
+  .hero-kpi.b::before { background: var(--blue); }
+
+  .hero-label {
+    font-size: 9px; font-weight: 700; letter-spacing: 1.2px;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 8px;
+  }
+  .hero-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 28px; font-weight: 700; line-height: 1; margin-bottom: 6px;
+  }
+  .hero-value.green { color: var(--green); }
+  .hero-value.amber { color: var(--amber); }
+  .hero-value.red   { color: var(--red); }
+  .hero-value.blue  { color: var(--blue); }
+  .hero-value.white { color: var(--text); }
+  .hero-sub { font-size: 10px; color: var(--label); display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+  .up   { color: var(--green); font-weight: 600; }
+  .down { color: var(--red);   font-weight: 600; }
+  .flat { color: var(--amber); font-weight: 600; }
+
+  /* ── BOOK-TO-BILL ── */
+  .btb-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 24px 28px;
+    display: flex; align-items: center; gap: 28px;
+  }
+  .btb-main { min-width: 150px; }
+  .btb-eyebrow {
+    font-size: 9px; font-weight: 700; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 6px;
+  }
+  .btb-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 54px; font-weight: 700; color: var(--green); line-height: 1;
+  }
+  .btb-target { font-size: 10px; color: var(--label); margin-top: 6px; }
+  .btb-divider { width: 1px; background: var(--border); align-self: stretch; }
+  .btb-metrics { display: flex; gap: 24px; flex: 1; flex-wrap: wrap; }
+  .btb-metric-label { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 4px; }
+  .btb-metric-val { font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 600; color: var(--text); }
+  .btb-formula {
+    margin-left: auto; flex-shrink: 0;
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 16px;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--label); line-height: 1.9;
+  }
+
+  /* ── BENCHMARK BAR ── */
+  .benchmark-bar {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 20px;
+    display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+    font-size: 11px; color: var(--label); margin-top: 10px;
+  }
+  .benchmark-bar strong { color: var(--text); }
+  .bsep { color: var(--border); }
+
+  /* ── BDR QUOTA GRID ── */
+  .bdr-grid {
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    gap: 10px; margin-bottom: 10px;
+  }
+  .bdr-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 18px 16px;
+  }
+  .bdr-card.leader   { border-color: #00CC3C50; background: #00CC3C06; }
+  .bdr-card.on-track { border-color: #4ade8040; }
+  .bdr-card.warning  { border-color: #f59e0b35; }
+  .bdr-card.critical { border-color: #ef444430; }
+
+  .bdr-avatar {
+    width: 36px; height: 36px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 12px; margin-bottom: 10px;
+  }
+  .bdr-avatar.leader   { background: var(--green); color: #09100a; }
+  .bdr-avatar.on-track { background: #4ade80; color: #09100a; }
+  .bdr-avatar.warning  { background: var(--amber); color: #09100a; }
+  .bdr-avatar.critical { background: var(--red); color: #fff; }
+
+  .bdr-name { font-size: 12px; font-weight: 600; color: var(--text); }
+  .bdr-role { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-top: 1px; }
+
+  .bdr-pipeline {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 22px; font-weight: 700; margin: 12px 0 2px;
+  }
+  .bdr-pipeline.leader   { color: var(--green); }
+  .bdr-pipeline.on-track { color: #4ade80; }
+  .bdr-pipeline.warning  { color: var(--amber); }
+  .bdr-pipeline.critical { color: var(--red); }
+  .bdr-pl-label { font-size: 9px; color: var(--muted); letter-spacing: 0.4px; margin-bottom: 10px; }
+
+  .quota-track {
+    width: 100%; height: 6px; background: var(--border);
+    border-radius: 3px; overflow: hidden; margin: 8px 0 4px;
+  }
+  .quota-fill { height: 100%; border-radius: 3px; }
+  .quota-fill.leader   { background: var(--green); }
+  .quota-fill.on-track { background: #4ade80; }
+  .quota-fill.warning  { background: var(--amber); }
+  .quota-fill.critical { background: var(--red); }
+
+  .quota-row { display: flex; justify-content: space-between; align-items: center; margin-top: 6px; }
+  .quota-meta { font-size: 9px; color: var(--muted); }
+  .quota-pct { font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; }
+  .quota-pct.leader   { color: var(--green); }
+  .quota-pct.on-track { color: #4ade80; }
+  .quota-pct.warning  { color: var(--amber); }
+  .quota-pct.critical { color: var(--red); }
+
+  .bdr-footer {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 8px; font-size: 9px; color: var(--muted);
+  }
+
+  /* ── BDR TOTAL ROW ── */
+  .bdr-total {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 20px;
+    display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+    align-items: center; gap: 12px;
+  }
+  .bdr-total-label { font-size: 11px; font-weight: 700; color: var(--text); }
+  .bdr-total-val {
+    font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600;
+    color: var(--text); text-align: right;
+  }
+  .bdr-total-sub { font-size: 9px; color: var(--muted); text-align: right; margin-top: 2px; }
+
+  /* ── ALERT BOX ── */
+  .alert-box {
+    border-radius: 8px; padding: 12px 16px;
+    display: flex; align-items: flex-start; gap: 10px;
+    font-size: 11px; color: var(--label); margin-top: 10px;
+    line-height: 1.6;
+  }
+  .alert-box.amber { background: #f59e0b08; border: 1px solid #f59e0b25; }
+  .alert-box.red   { background: #ef444408; border: 1px solid #ef444425; }
+  .alert-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+
+  /* ── MONTHLY GRID ── */
+  .monthly-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .monthly-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px;
+  }
+  .monthly-card.active { border-top: 2px solid var(--green); }
+  .monthly-card.past   { border-top: 2px solid var(--muted); }
+
+  .monthly-head {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 14px;
+  }
+  .monthly-period { font-size: 13px; font-weight: 700; color: var(--text); }
+  .monthly-tag { font-size: 9px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; }
+
+  .monthly-bruto {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 30px; font-weight: 700; color: var(--text);
+    margin-bottom: 2px;
+  }
+  .monthly-bruto.active { color: var(--green); }
+  .monthly-sub-label { font-size: 9px; color: var(--muted); margin-bottom: 14px; }
+
+  .m-row {
+    display: flex; justify-content: space-between;
+    font-size: 11px; color: var(--label);
+    padding: 5px 0; border-bottom: 1px solid var(--border);
+  }
+  .m-row:last-child { border-bottom: none; }
+  .m-row span:last-child {
+    font-family: 'JetBrains Mono', monospace; font-weight: 600; color: var(--text);
+  }
+
+  /* ── REP PERFORMANCE TABLE ── */
+  .rep-table {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; overflow: hidden;
+  }
+  .rep-table-head {
+    display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr 90px;
+    padding: 9px 20px; background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+  .rep-table-head span {
+    font-size: 9px; font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .rep-row {
+    display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1fr 90px;
+    padding: 13px 20px; border-bottom: 1px solid var(--border);
+    align-items: center;
+  }
+  .rep-row:last-child { border-bottom: none; }
+  .rep-row:hover { background: var(--surface); }
+  .rep-name { font-size: 12px; font-weight: 600; color: var(--text); }
+  .rep-role-tag { font-size: 9px; color: var(--muted); margin-top: 2px; }
+  .rep-val { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--text); }
+  .status-badge {
+    font-size: 9px; font-weight: 700; padding: 3px 8px;
+    border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px;
+    display: inline-block;
+  }
+  .st-leader   { background: #00CC3C15; color: var(--green); border: 1px solid var(--green-dim); }
+  .st-track    { background: #4ade8015; color: #4ade80; border: 1px solid #4ade8030; }
+  .st-warning  { background: #f59e0b15; color: var(--amber); border: 1px solid #f59e0b30; }
+  .st-critical { background: #ef444415; color: var(--red); border: 1px solid #ef444430; }
+
+  /* ── 2025 BAR CHART ── */
+  .rev-chart {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 22px 24px;
+  }
+  .rev-chart-title { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+  .rev-chart-sub   { font-size: 10px; color: var(--muted); margin-bottom: 20px; }
+
+  .bars-wrap {
+    display: flex; align-items: flex-end; gap: 5px;
+    height: 130px;
+  }
+  .bar-col {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; gap: 3px; height: 100%; justify-content: flex-end;
+  }
+  .bar-val { font-family: 'JetBrains Mono', monospace; font-size: 8px; font-weight: 600; color: var(--text); white-space: nowrap; }
+  .bar {
+    width: 100%; border-radius: 3px 3px 0 0;
+    background: var(--green-dim); border: 1px solid var(--border);
+  }
+  .bar.peak    { background: var(--green); border-color: var(--green); }
+  .bar.q26     { background: #60a5fa18; border-color: #60a5fa35; }
+  .bar.q26.low { background: #ef444418; border-color: #ef444435; }
+  .bar-lbl { font-size: 8px; color: var(--muted); text-align: center; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.2px; }
+  .bars-axis { width: 100%; height: 1px; background: var(--border); margin-top: 4px; }
+
+  /* ── REVENUE BRIDGE ── */
+  .bridge-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 24px 28px;
+  }
+  .bridge-title { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 20px; }
+  .bridge-row {
+    display: flex; align-items: center; gap: 16px;
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+  }
+  .bridge-row:last-child { border-bottom: none; }
+  .bridge-label { flex: 0 0 230px; font-size: 11px; color: var(--label); }
+  .bridge-track { flex: 1; height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+  .bridge-fill { height: 100%; border-radius: 4px; }
+  .bf-actual   { background: var(--green); }
+  .bf-hot      { background: #4ade80; }
+  .bf-negs     { background: var(--blue); }
+  .bf-props    { background: var(--amber); }
+  .bf-new      { background: var(--muted); }
+  .bridge-amt {
+    flex: 0 0 85px; text-align: right;
+    font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 600; color: var(--text);
+  }
+
+  .bridge-total {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border);
+  }
+
+  .scenarios {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 10px; margin-top: 16px;
+  }
+  .scenario {
+    border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px;
+  }
+  .scenario.pess { background: #ef444410; border-color: #ef444430; }
+  .scenario.base { background: #f59e0b08; border-color: #f59e0b30; }
+  .scenario.opti { background: var(--green-glow); border-color: var(--green-dim); }
+  .sc-label { font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 6px; }
+  .sc-val   { font-family: 'JetBrains Mono', monospace; font-size: 20px; font-weight: 700; }
+  .sc-val.red   { color: var(--red); }
+  .sc-val.amber { color: var(--amber); }
+  .sc-val.green { color: var(--green); }
+  .sc-meta  { font-size: 9px; color: var(--muted); margin-top: 4px; line-height: 1.5; }
+
+  /* ── CRITICAL DEALS ── */
+  .deals-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .deal-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px;
+  }
+  .deal-rank {
+    font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 700;
+    color: var(--muted); margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
+  }
+  .deal-name    { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+  .deal-company { font-size: 10px; color: var(--muted); margin-bottom: 16px; }
+  .deal-amount  { font-family: 'JetBrains Mono', monospace; font-size: 32px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+  .deal-weighted{ font-size: 10px; color: var(--label); margin-bottom: 16px; }
+
+  .deal-meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
+  .dm-label { font-size: 8px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--muted); margin-bottom: 2px; }
+  .dm-val   { font-size: 11px; font-weight: 600; color: var(--text); }
+
+  .deal-prob { width: 100%; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; margin-bottom: 14px; }
+  .dp-fill   { height: 100%; border-radius: 2px; }
+
+  .deal-action {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 6px; padding: 9px 12px; font-size: 10px; color: var(--label); line-height: 1.6;
+  }
+  .deal-action strong { color: var(--green); }
+
+  /* ── SIGNALS ── */
+  .signals-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .signal-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 16px 18px;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .signal-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px; flex-shrink: 0;
+  }
+  .si-red   { background: #ef444415; }
+  .si-amber { background: #f59e0b15; }
+  .si-green { background: var(--green-dim); }
+  .signal-title { font-size: 11px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .signal-body  { font-size: 10px; color: var(--label); line-height: 1.6; }
+
+  /* ── AI STACK ── */
+  .ai-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .ai-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 10px; padding: 14px 16px;
+  }
+  .ai-status {
+    font-size: 8px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1px; margin-bottom: 6px;
+  }
+  .ai-status.prod { color: var(--green); }
+  .ai-status.test { color: var(--amber); }
+  .ai-name  { font-size: 11px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+  .ai-desc  { font-size: 9px; color: var(--muted); line-height: 1.5; }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid var(--border); padding: 14px 36px;
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--surface);
+  }
+  .footer-left  { font-size: 10px; color: var(--muted); line-height: 1.7; }
+  .footer-right { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .stack-tag {
+    font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--muted);
+    background: var(--bg); border: 1px solid var(--border);
+    padding: 2px 7px; border-radius: 3px; letter-spacing: 0.3px;
+  }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 1100px) {
+    .hero-row    { grid-template-columns: repeat(3, 1fr); }
+    .bdr-grid    { grid-template-columns: repeat(3, 1fr); }
+    .deals-grid  { grid-template-columns: 1fr; }
+    .signals-grid { grid-template-columns: repeat(2, 1fr); }
+    .ai-grid     { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 768px) {
+    main { padding: 20px 16px 40px; }
+    header { padding: 14px 16px; }
+    .hero-row    { grid-template-columns: repeat(2, 1fr); }
+    .bdr-grid    { grid-template-columns: repeat(2, 1fr); }
+    .monthly-grid { grid-template-columns: 1fr; }
+    .btb-card    { flex-direction: column; }
+    .scenarios   { grid-template-columns: 1fr; }
+  }
+
+  /* ── PRINT / PDF ── */
+  @page {
+    size: A3 landscape;
+    margin: 12mm 14mm;
+  }
+  @media print {
+    *, *::before, *::after {
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    body { background: #09100a !important; }
+    header { position: static !important; }
+    main { padding: 0 !important; max-width: 100% !important; }
+
+    /* section breaks */
+    .hero-row,
+    .section-title,
+    .bdr-grid,
+    .monthly-grid,
+    .nb-monthly-grid,
+    .bridge-wrap,
+    .critical-list,
+    .signals-grid,
+    .ai-grid,
+    .glossary-grid { page-break-inside: avoid; }
+
+    /* force new page before heavy sections */
+    .section-title { page-break-before: auto; }
+
+    /* hide tooltips */
+    .term-tip { display: none !important; }
+
+    /* hero row: 5 cols on wide A3 */
+    .hero-row { grid-template-columns: 2fr 1fr 1fr 1fr 1fr !important; }
+
+    /* rep table fits on one row */
+    .rep-table { font-size: 9px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     HEADER
+═══════════════════════════════════════════════════════════════════════ -->
+<header>
+  <div class="logo-area">
+    <div class="logo-mark">B /&gt;</div>
+    <div>
+      <div class="logo-text">Bambu Tech Services</div>
+      <div class="logo-sub">Commercial Performance Dashboard &nbsp;·&nbsp; Confidencial</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <span class="period-badge">H1 · 25 Jun 2026</span>
+    <span class="sync-info">Pipedrive CRM &nbsp;·&nbsp; WF-03 · WF-08 · WF-10A</span>
+  </div>
+</header>
+
+<main>
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     1. SCORECARD EJECUTIVO — 5 HERO KPIs (Accenture-style top line)
+═══════════════════════════════════════════════════════════════════════ -->
+<div class="section-title">Scorecard Ejecutivo — KPIs Primarios · New Bookings como métrica central · Benchmark: Globant · Infosys · Wipro</div>
+
+<div class="hero-row">
+
+  <div class="hero-kpi a">
+    <div class="hero-label"><span class="term">New Bookings<span class="term-tip">Suma del TCV de todos los deals marcados como Ganados en Pipedrive en un período. No es facturación — es el valor total comprometido por el cliente al momento de ganar el negocio.</span></span> YTD 2026 &nbsp;—&nbsp; Pace vs Meta $117.5M</div>
+
+    <!-- Value + Target row -->
+    <div style="display:flex;align-items:flex-end;gap:20px;margin-bottom:14px;margin-top:2px;">
+      <div>
+        <div style="font-size:8px;letter-spacing:1px;color:var(--muted);margin-bottom:3px;font-weight:700;">GANADO</div>
+        <div class="hero-value amber" style="margin:0;line-height:1;">$34.62M</div>
+      </div>
+      <div style="color:var(--border);font-size:20px;padding-bottom:6px;">→</div>
+      <div>
+        <div style="font-size:8px;letter-spacing:1px;color:var(--muted);margin-bottom:3px;font-weight:700;">META ANUAL</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:26px;font-weight:700;color:var(--muted);line-height:1;">$117.5M</div>
+      </div>
+      <div style="margin-left:auto;text-align:right;padding-bottom:4px;">
+        <div style="font-size:8px;letter-spacing:1px;color:var(--muted);margin-bottom:3px;font-weight:700;">PACE ACTUAL</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:var(--amber);line-height:1;">60.8%</div>
+        <div style="font-size:8px;color:var(--muted);margin-top:2px;">vs esperado 100%</div>
+      </div>
+    </div>
+
+    <!-- Dual progress bar -->
+    <div style="margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;font-size:8px;color:var(--muted);margin-bottom:5px;font-weight:600;letter-spacing:.5px;">
+        <span>$0</span>
+        <span style="color:var(--amber)">▌ Actual $34.62M (29.5%)</span>
+        <span style="color:var(--muted)">Meta $117.5M</span>
+      </div>
+      <div style="background:var(--border);border-radius:6px;height:12px;position:relative;overflow:visible;">
+        <!-- Actual fill -->
+        <div style="position:absolute;top:0;left:0;height:100%;width:29.5%;background:var(--amber);border-radius:6px;"></div>
+        <!-- Expected marker line at 48.5% -->
+        <div style="position:absolute;top:-5px;left:calc(48.5% - 1px);width:2px;height:22px;background:var(--muted);opacity:0.6;border-radius:1px;"></div>
+      </div>
+      <div style="position:relative;font-size:8px;color:var(--muted);margin-top:4px;letter-spacing:.3px;">
+        <span style="position:absolute;left:calc(48.5% - 28px);">↑ Esperado jun 25<br><span style="color:var(--muted);font-weight:700;">$57.0M (48.5%)</span></span>
+      </div>
+    </div>
+
+    <!-- Stats row -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:28px;border-top:1px solid var(--border);padding-top:10px;">
+      <div>
+        <div style="font-size:8px;letter-spacing:.8px;color:var(--muted);margin-bottom:3px;font-weight:700;">ESPERADO YTD</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:var(--text);">$57.0M</div>
+      </div>
+      <div>
+        <div style="font-size:8px;letter-spacing:.8px;color:var(--muted);margin-bottom:3px;font-weight:700;">BRECHA</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:var(--red);">-$22.4M</div>
+      </div>
+      <div>
+        <div style="font-size:8px;letter-spacing:.8px;color:var(--muted);margin-bottom:3px;font-weight:700;">RUN RATE ANUAL</div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:700;color:var(--amber);">$71.4M</div>
+      </div>
+    </div>
+
+    <div style="margin-top:8px;font-size:8px;color:var(--muted);line-height:1.4;border-top:1px solid var(--border);padding-top:6px;"><span class="term" style="font-size:8px">TCV<span class="term-tip">Total Contract Value — Valor total del contrato al momento de firma, sin importar si se factura en mensualidades o en un solo pago. Es el número que Pipedrive registra como valor del deal.</span></span> del deal en Pipedrive al momento de ser ganado · datos al 25 jun 2026</div>
+  </div>
+
+  <div class="hero-kpi a">
+    <div class="hero-label">Pipeline Activo Total (<span class="term">Ponderado<span class="term-tip">Valor bruto del deal × probabilidad de cierre asignada en Pipedrive. Ej: deal de $10M al 60% = $6M ponderado. Refleja el valor esperado ajustado por riesgo.</span></span>)</div>
+    <div class="hero-value green">$217.4M</div>
+    <div class="hero-sub">1,423 deals activos &nbsp;·&nbsp; Bruto: $453.2M &nbsp;<span class="up">▲ Pipeline sólido</span></div>
+  </div>
+
+  <div class="hero-kpi g">
+    <div class="hero-label"><span class="term">Win Rate<span class="term-tip">Deals ganados ÷ (Deals ganados + Deals perdidos) en el mismo período. No incluye deals abiertos. Fórmula: Won / (Won + Lost) × 100.</span></span> (Ajustado)</div>
+    <div class="hero-value green">38%</div>
+    <div class="hero-sub">2025 real: 26.3% &nbsp;·&nbsp; Infosys ~30% · Wipro ~27%&nbsp;<span class="up">✓ En rango</span></div>
+  </div>
+
+  <div class="hero-kpi g">
+    <div class="hero-label"><span class="term">Pipeline Coverage<span class="term-tip">Pipeline Ponderado total ÷ Meta restante 2026. Indica si el pipeline existente es suficiente para cubrir el objetivo de cierre. Saludable: ≥ 2.0x para ciclos de venta &gt; 60 días.</span></span> H2</div>
+    <div class="hero-value green">2.62x</div>
+    <div class="hero-sub">Target ≥ 2.0x &nbsp;·&nbsp; $217.4M ÷ $82.9M restante&nbsp;<span class="up">✓ Saludable</span></div>
+  </div>
+
+  <div class="hero-kpi a">
+    <div class="hero-label">Open Deals &nbsp;·&nbsp; <span class="term">MQL + Activos<span class="term-tip">Total de deals en estado "open" en Pipedrive pipeline 1. Incluye todos los stages activos.</span></span></div>
+    <div class="hero-value amber">1,423</div>
+    <div class="hero-sub">708 MQL frío &nbsp;·&nbsp; 330 Re-contactar &nbsp;·&nbsp; 385 avanzados</div>
+  </div>
+
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     2. PIPELINE COVERAGE RATIO — Cobertura de pipeline vs meta de cierre
+═══════════════════════════════════════════════════════════════════════ -->
+<div class="section-title">Pipeline Coverage Ratio — Cobertura de Pipeline vs Meta Restante 2026 · Pipeline Pond. ÷ NB Restante</div>
+
+<div class="btb-card">
+  <div class="btb-main">
+    <div class="btb-eyebrow">Pipeline Coverage Ratio · H2 2026 · Corte 25 Jun 2026</div>
+    <div class="btb-number" style="color:var(--green)">2.62x</div>
+    <div class="btb-target">Target: ≥ 2.0x &nbsp;·&nbsp; Estado: <span style="color:var(--green)">✓ Por encima del mínimo</span></div>
+  </div>
+
+  <div class="btb-divider"></div>
+
+  <div class="btb-metrics">
+    <div>
+      <div class="btb-metric-label">Pipeline Total Ponderado</div>
+      <div class="btb-metric-val" style="color:var(--green)">$217.4M</div>
+      <div class="hero-sub" style="margin-top:4px">Bruto: $453.2M · 1,423 deals activos</div>
+    </div>
+    <div>
+      <div class="btb-metric-label">NB Meta Restante 2026</div>
+      <div class="btb-metric-val">$82.9M</div>
+      <div class="hero-sub" style="margin-top:4px">$117.5M meta − $34.62M YTD ganado</div>
+    </div>
+    <div>
+      <div class="btb-metric-label">NB Ganado YTD 2026</div>
+      <div class="btb-metric-val" style="color:var(--green)">$34.62M</div>
+      <div class="hero-sub" style="margin-top:4px">32 deals · Ene–Jun 2026 · jun$14.03M</div>
+    </div>
+    <div>
+      <div class="btb-metric-label">NB 2025 Full Year Empresa</div>
+      <div class="btb-metric-val">$115.7M</div>
+      <div class="hero-sub" style="margin-top:4px">Incluye CGO estratégico + exbajas + público</div>
+    </div>
+  </div>
+
+  <div class="btb-formula">
+    Pipeline Coverage H2 2026<br>
+    = Pipeline Pond. Total ÷ Meta Restante<br>
+    = $217.4M ÷ $82.9M<br>
+    <span style="color:var(--green);font-weight:700;">= 2.62x ✓</span><br>
+    <span style="color:var(--muted);font-size:9px;">Benchmark saludable: ≥ 2.0x para ciclos &gt;60 días</span><br>
+    <span style="color:var(--green);font-size:9px;">Negociaciones $123.9M bruto · Calientes $80.5M bruto · Propuesta Enviada $67.6M bruto</span>
+  </div>
+</div>
+
+<div class="benchmark-bar">
+  <strong>Benchmark Sectorial — Q2 FY2026:</strong>
+  <span class="bsep">·</span>
+  <span><strong>Accenture:</strong> $22.1B bookings · B2B=1.23x (NB÷Revenue) · <span style="color:var(--muted)">41 clientes $100M+ · Margen op. 13.8% · 786K empleados</span></span>
+  <span class="bsep">·</span>
+  <span><strong>Globant:</strong> win rate ~35% · IT services</span>
+  <span class="bsep">·</span>
+  <span><strong>Infosys:</strong> win rate ~30% · IT services / outsourcing</span>
+  <span class="bsep">·</span>
+  <span><strong>Wipro:</strong> win rate ~27% · IT services mid-market</span>
+  <span class="bsep">·</span>
+  <span style="color:var(--green)"><strong>Bambu Pipeline Coverage 2.62x ✓</strong> — NB YTD: $34.62M · NB target 2026: $117.5M · Pipeline Pond. $217.4M ÷ Meta Restante $82.9M · Pipeline total bruto $453.2M · mid-market MX · ~80 empleados</span>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     3. BDR QUOTA ATTAINMENT
+═══════════════════════════════════════════════════════════════════════ -->
+<div class="section-title">BDR Quota Attainment — Pipeline Ponderado Q2 vs Meta de Cierre · Corte 25 Jun 2026</div>
+
+<div class="bdr-grid">
+
+  <!-- ITZEL -->
+  <div class="bdr-card leader">
+    <div class="bdr-avatar leader">IA</div>
+    <div class="bdr-name">Itzel Arias</div>
+    <div class="bdr-role">BDR · Pareja: Sofia Santiago</div>
+    <div class="bdr-pipeline leader">$7.42M</div>
+    <div class="bdr-pl-label">PIPELINE PONDERADO Q2</div>
+    <div class="quota-track"><div class="quota-fill leader" style="width:100%;"></div></div>
+    <div class="quota-row">
+      <div class="quota-meta">Meta Q2: $7.0M</div>
+      <div class="quota-pct leader">106%</div>
+    </div>
+    <div class="bdr-footer">
+      <span>10 deals · $10.1M bruto</span>
+      <span style="color:var(--green-lt)">✓ Cubierta</span>
+    </div>
+  </div>
+
+  <!-- LUIS -->
+  <div class="bdr-card warning">
+    <div class="bdr-avatar warning">LC</div>
+    <div class="bdr-name">Luis Castro</div>
+    <div class="bdr-role">BDR · Pareja: Vicente Varela</div>
+    <div class="bdr-pipeline warning">$4.85M</div>
+    <div class="bdr-pl-label">PIPELINE PONDERADO Q2</div>
+    <div class="quota-track"><div class="quota-fill warning" style="width:81%;"></div></div>
+    <div class="quota-row">
+      <div class="quota-meta">Meta Q2: $6.0M</div>
+      <div class="quota-pct warning">81%</div>
+    </div>
+    <div class="bdr-footer">
+      <span>4 deals · $8.3M bruto</span>
+      <span style="color:var(--amber)">⚠ Cerca de meta</span>
+    </div>
+  </div>
+
+  <!-- VICTOR -->
+  <div class="bdr-card warning">
+    <div class="bdr-avatar warning">VV</div>
+    <div class="bdr-name">Víctor Villafañe</div>
+    <div class="bdr-role">BDR · Pareja: Emilio Mendoza</div>
+    <div class="bdr-pipeline warning">$3.24M</div>
+    <div class="bdr-pl-label">PIPELINE PONDERADO Q2</div>
+    <div class="quota-track"><div class="quota-fill warning" style="width:65%;"></div></div>
+    <div class="quota-row">
+      <div class="quota-meta">Meta Q2: $5.0M</div>
+      <div class="quota-pct warning">65%</div>
+    </div>
+    <div class="bdr-footer">
+      <span>3 deals · $8.1M bruto</span>
+      <span style="color:var(--amber)">⚠ En riesgo · Grimann 0%</span>
+    </div>
+  </div>
+
+  <!-- GABRIELA -->
+  <div class="bdr-card warning">
+    <div class="bdr-avatar warning">GR</div>
+    <div class="bdr-name">Gabriela Rivero</div>
+    <div class="bdr-role">BDR · Pareja: Harold Bautista</div>
+    <div class="bdr-pipeline warning">$2.62M</div>
+    <div class="bdr-pl-label">PIPELINE PONDERADO Q2</div>
+    <div class="quota-track"><div class="quota-fill warning" style="width:75%;"></div></div>
+    <div class="quota-row">
+      <div class="quota-meta">Meta Q2: $3.5M</div>
+      <div class="quota-pct warning">75%</div>
+    </div>
+    <div class="bdr-footer">
+      <span>1 deal · $3.3M bruto</span>
+      <span style="color:var(--amber)">⚠ Todo en GRUPO MIRA</span>
+    </div>
+  </div>
+
+  <!-- CECIA -->
+  <div class="bdr-card critical">
+    <div class="bdr-avatar critical">CL</div>
+    <div class="bdr-name">Cecia Lozano</div>
+    <div class="bdr-role">BDR · Pareja: Samantha Rivas</div>
+    <div class="bdr-pipeline critical">$3.39M</div>
+    <div class="bdr-pl-label">PIPELINE PONDERADO Q2</div>
+    <div class="quota-track"><div class="quota-fill critical" style="width:48%;"></div></div>
+    <div class="quota-row">
+      <div class="quota-meta">Meta Q2: $7.0M</div>
+      <div class="quota-pct critical">48%</div>
+    </div>
+    <div class="bdr-footer">
+      <span>6 deals · $4.9M bruto</span>
+      <span style="color:var(--red)">🔴 Vertiche → Q3</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- TOTAL ROW -->
+<div class="bdr-total">
+  <div>
+    <div class="bdr-total-label">Total Equipo BDR con Cuota Q2</div>
+    <div class="bdr-total-sub">5 reps sector privado · Nayeli Gómez excluida (sector público)</div>
+  </div>
+  <div>
+    <div class="bdr-total-val" style="color:var(--muted);font-size:9px;font-weight:400;text-align:right;">METAS</div>
+    <div class="bdr-total-val">$28.5M</div>
+  </div>
+  <div>
+    <div class="bdr-total-val" style="color:var(--muted);font-size:9px;font-weight:400;text-align:right;">POND. Q2</div>
+    <div class="bdr-total-val" style="color:var(--green);">$217.4M</div>
+  </div>
+  <div>
+    <div class="bdr-total-val" style="color:var(--muted);font-size:9px;font-weight:400;text-align:right;">COVERAGE</div>
+    <div class="bdr-total-val" style="color:var(--green);">262%</div>
+  </div>
+  <div>
+    <div class="bdr-total-val" style="color:var(--muted);font-size:9px;font-weight:400;text-align:right;">DEALS</div>
+    <div class="bdr-total-val">1,423</div>
+  </div>
+</div>
+
+<div class="alert-box red" style="margin-top:10px;">
+  <span class="alert-icon">🚨</span>
+  <div>
+    <strong style="color:var(--amber);">Corte 25 Jun 2026 — Pipeline Q3/H2 en construcción:</strong>
+    Pipeline total activo: $453.2M bruto · $217.4M ponderado · 1,423 deals. Negociaciones $123.9M + Calientes $80.5M + Propuesta Enviada $67.6M.
+    NB ganado en junio: $14.03M (mejor mes Q2). Brecha restante meta 2026: $82.9M.
+    <strong style="color:var(--green)">Pipeline coverage 2.62x — por encima del mínimo saludable de 2.0x.</strong>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     4. REP PERFORMANCE TABLE — 2025 FULL YEAR
+═══════════════════════════════════════════════════════════════════════ -->
+<div class="section-title">Performance por Rep BDR — 2025 Full Year · Solo cierres atribuidos a BDR (sector privado)</div>
+
+<div class="rep-table">
+  <div class="rep-table-head">
+    <span>BDR</span>
+    <span>Deals Won</span>
+    <span>New Bookings 2025</span>
+    <span>Ticket Prom.</span>
+    <span>% NB BDR</span>
+    <span>Status</span>
+  </div>
+  <div class="rep-row">
+    <div><div class="rep-name">Cecia Lozano</div><div class="rep-role-tag">BDR · Pareja: Samantha Rivas</div></div>
+    <div class="rep-val">34</div>
+    <div class="rep-val">$23.7M</div>
+    <div class="rep-val">$697K</div>
+    <div class="rep-val">42.3%</div>
+    <div><span class="status-badge st-track">On Track</span></div>
+  </div>
+  <div class="rep-row">
+    <div><div class="rep-name">Itzel Arias</div><div class="rep-role-tag">BDR · Pareja: Sofia Santiago</div></div>
+    <div class="rep-val">14</div>
+    <div class="rep-val">$22.1M</div>
+    <div class="rep-val">$1.58M</div>
+    <div class="rep-val">39.5%</div>
+    <div><span class="status-badge st-leader">Leader</span></div>
+  </div>
+  <div class="rep-row">
+    <div><div class="rep-name">Luis Castro</div><div class="rep-role-tag">BDR · Pareja: Vicente Varela</div></div>
+    <div class="rep-val">6</div>
+    <div class="rep-val">$10.2M</div>
+    <div class="rep-val">$1.70M</div>
+    <div class="rep-val">18.2%</div>
+    <div><span class="status-badge st-warning">En Riesgo</span></div>
+  </div>
+  <div class="rep-row" style="opacity:0.5">
+    <div><div class="rep-name" style="color:var(--muted)">Víctor Villafañe</div><div class="rep-role-tag">BDR · Pareja: Emilio Mendoza · 2025 sin cierres</div></div>
+    <div class="rep-val" style="color:var(--muted)">0</div>
+    <div class="rep-val" style="color:var(--muted)">—</div>
+    <div class="rep-val" style="color:var(--muted)">—</div>
+    <div class="rep-val" style="color:var(--muted)">—</div>
+    <div><span class="status-badge st-critical">Sin datos</span></div>
+  </div>
+  <div class="rep-row" style="opacity:0.5">
+    <div><div class="rep-name" style="color:var(--muted)">Gabriela Rivero</div><div class="rep-role-tag">BDR · Pareja: Harold Bautista · 2025 sin cierres</div></div>
+    <div class="rep-val" style="color:var(--muted)">0</div>
+    <div class="rep-val" style="color:var(--muted)">—</div>
+    <div class="rep-val" style="color:var(--muted)">—</div>
+    <div class="rep-val" style="color:var(--muted)">—</div>
+    <div><span class="status-badge st-critical">Sin datos</span></div>
+  </div>
+  <div class="rep-row" style="background:var(--surface)">
+    <div><div class="rep-name" style="color:var(--green)">Total BDR</div><div class="rep-role-tag" style="color:var(--muted)">⚠ Pre Sales excluidos — sus deals son mismatches en Pipedrive</div></div>
+    <div class="rep-val" style="color:var(--green)">54</div>
+    <div class="rep-val" style="color:var(--green)">$56.0M</div>
+    <div class="rep-val" style="color:var(--green)">$1.04M</div>
+    <div class="rep-val" style="color:var(--green)">100%</div>
+    <div><span class="status-badge st-leader">FY 2025 ✓</span></div>
+  </div>
+</div>
+
+<div class="alert-box red" style="margin-top:10px;">
+  <span class="alert-icon">🔴</span>
+  <div>
+    <strong style="color:var(--red);">Concentración crítica BDR:</strong>
+    Top 2 BDRs (Cecia + Itzel) generaron el <strong style="color:var(--text)">81.8% de NB atribuido a BDR 2025</strong> ($45.8M de $56.0M).
+    Luis Castro aporta el 18.2% restante. Víctor y Gabriela sin cierres 2025 — alta dependencia en 2 reps.
+    <strong style="color:var(--amber)">⚠ Mismatch Pipedrive:</strong> Samantha (21 deals/$28.4M), Emilio (9/$14.8M) y Vicente (4/$7.9M) aparecen como closers — revisar ownership en CRM.
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     5. Q2 PIPELINE MENSUAL
+═══════════════════════════════════════════════════════════════════════ -->
+<div class="section-title">Q2 Pipeline por Mes — Deals con Fecha Cierre Abr–Jun 2026</div>
+
+<div class="monthly-grid">
+
+  <div class="monthly-card past">
+    <div class="monthly-head">
+      <div class="monthly-period">Abril 2026</div>
+      <div class="monthly-tag">Cerrado · NB $2.8M ganado</div>
+    </div>
+    <div class="monthly-bruto">$2.8M</div>
+    <div class="monthly-sub-label">NB privado ganado en Abril</div>
+    <div class="m-row"><span>Deals ganados</span><span>5 deals</span></div>
+    <div class="m-row"><span>Pipeline overdue</span><span style="color:var(--amber)">$5.3M bruto aún abierto</span></div>
+    <div class="m-row"><span>Top overdue</span><span>Sabormex $2.7M (Cecia)</span></div>
+    <div class="m-row"><span>Sector público</span><span style="color:var(--muted)">INE + C5 Tlaxcala — excluidos</span></div>
+  </div>
+
+  <div class="monthly-card past">
+    <div class="monthly-head">
+      <div class="monthly-period">Mayo 2026</div>
+      <div class="monthly-tag">Cerrado · NB $5.2M ganado</div>
+    </div>
+    <div class="monthly-bruto">$5.2M</div>
+    <div class="monthly-sub-label">NB privado ganado en Mayo</div>
+    <div class="m-row"><span>Deals ganados</span><span>4 deals</span></div>
+    <div class="m-row"><span>Pérdidas críticas</span><span style="color:var(--red)">Traxión $30.2M · Power Gas $27M</span></div>
+    <div class="m-row"><span>Fecha pérdida</span><span style="color:var(--red)">29 May — $57.2M desaparecidos</span></div>
+    <div class="m-row"><span>Pipeline overdue</span><span style="color:var(--amber)">Sky Chef $2.4M (Itzel)</span></div>
+  </div>
+
+  <div class="monthly-card active">
+    <div class="monthly-head">
+      <div class="monthly-period">Junio 2026</div>
+      <div class="monthly-tag" style="color:var(--green)">Activo · 19 deals abiertos</div>
+    </div>
+    <div class="monthly-bruto active">$29.3M</div>
+    <div class="monthly-sub-label">Pipeline bruto privado — cierre Jun 23-30</div>
+    <div class="m-row"><span>Ponderado</span><span style="color:var(--green)">$17.3M</span></div>
+    <div class="m-row"><span>Prob. promedio</span><span style="color:var(--amber)">64%</span></div>
+    <div class="m-row"><span>Deal top</span><span>Grupo Excelencia $5.3M · Víctor (60%)</span></div>
+    <div class="m-row"><span>2° deal</span><span>BUAP $3.6M · Luis (50%)</span></div>
+    <div class="m-row"><span>3° deal</span><span>GRUPO MIRA $3.3M · Gabriela (80%)</span></div>
+    <div class="m-row"><span>BDRs líderes</span><span>Luis · Víctor · Gabriela</span></div>
+  </div>
+
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     6. REVENUE 2025 BAR CHART + 2026 YTD
+═══════════════════════════════════════════════════════════════════════ -->
+<div class="section-title">New Bookings Mensuales 2025 + Tendencia H1 2026 · Análisis de Patrón</div>
+
+<div class="rev-chart">
+  <div class="rev-chart-title">New Bookings por Mes — 2025 Full Year ($115.7M) + H1 2026 ($34.62M)</div>
+  <div class="rev-chart-sub">★ Mayo 2025 concentra 40% del año (GER $26M + Estrella Roja $16M). Sin mega-deals el run-rate sería ~$69.4M. Jun 2026 es el mejor mes del año ($14.03M) — impulsado por deals avanzados.</div>
+
+  <div class="bars-wrap">
+    <!-- Heights = month NB / 46.3M (max) × 100% -->
+    <div class="bar-col"><div class="bar-val">$3.2M</div><div class="bar" style="height:6.9%"></div><div class="bar-lbl">Ene</div></div>
+    <div class="bar-col"><div class="bar-val">$4.1M</div><div class="bar" style="height:8.9%"></div><div class="bar-lbl">Feb</div></div>
+    <div class="bar-col"><div class="bar-val">$5.8M</div><div class="bar" style="height:12.5%"></div><div class="bar-lbl">Mar</div></div>
+    <div class="bar-col"><div class="bar-val">$7.3M</div><div class="bar" style="height:15.8%"></div><div class="bar-lbl">Abr</div></div>
+    <div class="bar-col"><div class="bar-val" style="color:var(--green)">$46.3M</div><div class="bar peak" style="height:100%"></div><div class="bar-lbl" style="color:var(--green)">May ★</div></div>
+    <div class="bar-col"><div class="bar-val">$8.9M</div><div class="bar" style="height:19.2%"></div><div class="bar-lbl">Jun</div></div>
+    <div class="bar-col"><div class="bar-val">$6.2M</div><div class="bar" style="height:13.4%"></div><div class="bar-lbl">Jul</div></div>
+    <div class="bar-col"><div class="bar-val">$9.4M</div><div class="bar" style="height:20.3%"></div><div class="bar-lbl">Ago</div></div>
+    <div class="bar-col"><div class="bar-val">$5.1M</div><div class="bar" style="height:11.0%"></div><div class="bar-lbl">Sep</div></div>
+    <div class="bar-col"><div class="bar-val">$7.8M</div><div class="bar" style="height:16.8%"></div><div class="bar-lbl">Oct</div></div>
+    <div class="bar-col"><div class="bar-val">$6.4M</div><div class="bar" style="height:13.8%"></div><div class="bar-lbl">Nov</div></div>
+    <div class="bar-col"><div class="bar-val">$5.2M</div><div class="bar" style="height:11.2%"></div><div class="bar-lbl">Dic</div></div>
+    <!-- 2026 Q1 -->
+    <div class="bar-col" style="opacity:0.65">
+      <div class="bar-val" style="color:var(--blue)">$2.66M</div>
+      <div class="bar q26" style="height:5.7%"></div>
+      <div class="bar-lbl" style="color:var(--blue)">Ene'26</div>
+    </div>
+    <div class="bar-col" style="opacity:0.65">
+      <div class="bar-val" style="color:var(--red)">$0.26M</div>
+      <div class="bar q26 low" style="height:0.6%"></div>
+      <div class="bar-lbl" style="color:var(--red)">Feb'26🔴</div>
+    </div>
+    <div class="bar-col" style="opacity:0.65">
+      <div class="bar-val" style="color:var(--blue)">$2.20M</div>
+      <div class="bar q26" style="height:4.8%"></div>
+      <div class="bar-lbl" style="color:var(--blue)">Mar'26</div>
+    </div>
+    <!-- 2026 Q2 -->
+    <div class="bar-col" style="opacity:0.85">
+      <div class="bar-val" style="color:var(--green)">$10.33M</div>
+      <div class="bar q26" style="height:22.3%;background:var(--green-lt)"></div>
+      <div class="bar-lbl" style="color:var(--green)">Abr'26</div>
+    </div>
+    <div class="bar-col" style="opacity:0.85">
+      <div class="bar-val" style="color:var(--green)">$5.15M</div>
+      <div class="bar q26" style="height:11.1%;background:var(--green-lt)"></div>
+      <div class="bar-lbl" style="color:var(--green)">May'26</div>
+    </div>
+    <div class="bar-col" style="opacity:0.95">
+      <div class="bar-val" style="color:var(--green)">$14.03M★</div>
+      <div class="bar q26" style="height:30.3%;background:var(--green)"></div>
+      <div class="bar-lbl" style="color:var(--green)">Jun'26*</div>
+    </div>
+  </div>
+  <div class="bars-axis"></div>
+  <div style="font-size:8px;color:var(--muted);margin-top:8px;text-align:right;">* Jun'26 parcial al 25 Jun · Datos en tiempo real de Pipedrive</div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     7. REVENUE BRIDGE — Camino a la Meta
+═══════════════════════════════════════════════════════════════════════ -->
+<div class="section-title">New Bookings Bridge — Camino de $34.62M YTD a $117.5M Meta 2026</div>
+
+<div class="bridge-card">
+  <div class="bridge-title">Construcción de New Bookings Proyectados 2026 — Por componente de pipeline</div>
+
+  <div class="bridge-row">
+    <div class="bridge-label">✅ New Bookings YTD H1 2026 (deals ganados)</div>
+    <div class="bridge-track"><div class="bridge-fill bf-actual" style="width:29.5%"></div></div>
+    <div class="bridge-amt" style="color:var(--green)">$34.62M</div>
+  </div>
+  <div class="bridge-row">
+    <div class="bridge-label">🔥 Calientes — $88.7M × 65% conv.</div>
+    <div class="bridge-track"><div class="bridge-fill bf-hot" style="width:49%"></div></div>
+    <div class="bridge-amt">~$57.7M</div>
+  </div>
+  <div class="bridge-row">
+    <div class="bridge-label">🕯 Negociaciones — $165M × 17% conv.</div>
+    <div class="bridge-track"><div class="bridge-fill bf-negs" style="width:23.8%"></div></div>
+    <div class="bridge-amt">~$28.0M</div>
+  </div>
+  <div class="bridge-row">
+    <div class="bridge-label">🚀 Propuesta Enviada — $41.2M × 22%</div>
+    <div class="bridge-track"><div class="bridge-fill bf-props" style="width:7.7%"></div></div>
+    <div class="bridge-amt">~$9.1M</div>
+  </div>
+  <div class="bridge-row">
+    <div class="bridge-label">📥 Pipeline nuevo Abr–Dic 2026</div>
+    <div class="bridge-track"><div class="bridge-fill bf-new" style="width:8.5%"></div></div>
+    <div class="bridge-amt">~$10.0M</div>
+  </div>
+
+  <div class="bridge-total">
+    <div>
+      <div style="font-size:11px;color:var(--label)">Total New Bookings proyectados (escenario optimista)</div>
+      <div style="font-size:9px;color:var(--muted);margin-top:3px">Requiere: War Room Negociaciones + Deal Acceleration Calientes</div>
+    </div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:700;color:var(--green)">$119.3M</div>
+  </div>
+
+  <div class="scenarios">
+    <div class="scenario pess">
+      <div class="sc-label">Pesimista · 15% prob.</div>
+      <div class="sc-val red">$52–65M NB</div>
+      <div class="sc-meta">Sin intervención activa. Pace actual mantenido. -45% a -55% vs meta.</div>
+    </div>
+    <div class="scenario base">
+      <div class="sc-label">Base · 50% prob.</div>
+      <div class="sc-val amber">$95–109M NB</div>
+      <div class="sc-meta">Ejecución parcial. Cierra ~35% de Calientes + Negociaciones. -8% a -19%.</div>
+    </div>
+    <div class="scenario opti">
+      <div class="sc-label">Optimista · 35% prob.</div>
+      <div class="sc-val green">$117–132M NB</div>
+      <div class="sc-meta">Traxión + Power Gas + War Room. Palanca: $57.2M en 2 deals.</div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     8. CRITICAL DEALS — Cierre Q2 Semana del 23 Jun
+═══════════════════════════════════════════════════════════════════════ -->
+<div class="section-title">Deals Críticos — Cierre Q2 · Semana del 23 Jun 2026 · Pipeline Privado Activo</div>
+
+<div class="alert-box red" style="margin-bottom:12px">
+  <span class="alert-icon">💀</span>
+  <div>
+    <strong style="color:var(--red)">Traxión $30.2M + Power Gas $27.0M — AMBOS PERDIDOS el 29 de Mayo 2026.</strong>
+    $57.2M de pipeline desaparecieron en un solo día. El pipeline BDR ponderado colapsó de ~$56M a $21.5M.
+    Vertiche $21M movido a Q3 (nueva fecha: Jul 1). <strong style="color:var(--amber)">El trimestre depende de los deals activos de junio.</strong>
+  </div>
+</div>
+
+<div class="deals-grid">
+
+  <div class="deal-card">
+    <div class="deal-rank">#1 &nbsp;·&nbsp; MAYOR VALOR ACTIVO Q2</div>
+    <div class="deal-name">Grupo Excelencia</div>
+    <div class="deal-company">Grupo Excelencia &nbsp;·&nbsp; Servicios</div>
+    <div class="deal-amount">$5.29M</div>
+    <div class="deal-weighted">Ponderado: $3.18M &nbsp;·&nbsp; Probabilidad: 60%</div>
+    <div class="deal-meta">
+      <div><div class="dm-label">BDR</div><div class="dm-val">Víctor Villafañe</div></div>
+      <div><div class="dm-label">Pre Sales</div><div class="dm-val">Emilio Mendoza</div></div>
+      <div><div class="dm-label">Cierre est.</div><div class="dm-val" style="color:var(--amber)">Jun 30 ⚠</div></div>
+    </div>
+    <div class="deal-prob"><div class="dp-fill" style="width:60%;background:var(--amber)"></div></div>
+    <div class="deal-action"><strong>Acción:</strong> Deal más grande de Víctor en 2026. 60% prob = avanzado pero no cerrado. CGO + Emilio deben garantizar momentum esta semana para no perder a Q3.</div>
+  </div>
+
+  <div class="deal-card">
+    <div class="deal-rank">#2 &nbsp;·&nbsp; ALTA PROBABILIDAD · CIMACO</div>
+    <div class="deal-name">CIMACO</div>
+    <div class="deal-company">CIMACO &nbsp;·&nbsp; Retail</div>
+    <div class="deal-amount">$3.50M</div>
+    <div class="deal-weighted">Ponderado: $2.45M &nbsp;·&nbsp; Probabilidad: 70%</div>
+    <div class="deal-meta">
+      <div><div class="dm-label">BDR</div><div class="dm-val">Luis Castro</div></div>
+      <div><div class="dm-label">Pre Sales</div><div class="dm-val">Vicente Varela</div></div>
+      <div><div class="dm-label">Cierre est.</div><div class="dm-val" style="color:var(--amber)">Jun 30 ⚠</div></div>
+    </div>
+    <div class="deal-prob"><div class="dp-fill" style="width:70%;background:var(--amber)"></div></div>
+    <div class="deal-action"><strong>Acción:</strong> 70% prob = el más cercano a cerrar. Luis debe ejecutar cierre esta semana. Si cierra + BUAP = Luis cubre su meta Q2.</div>
+  </div>
+
+  <div class="deal-card">
+    <div class="deal-rank">#3 &nbsp;·&nbsp; OVERDUE · URGENTE</div>
+    <div class="deal-name">Sabormex</div>
+    <div class="deal-company">Sabormex &nbsp;·&nbsp; Alimentos</div>
+    <div class="deal-amount">$2.68M</div>
+    <div class="deal-weighted">Ponderado: $2.14M &nbsp;·&nbsp; Probabilidad: 80%</div>
+    <div class="deal-meta">
+      <div><div class="dm-label">BDR</div><div class="dm-val">Cecia Lozano</div></div>
+      <div><div class="dm-label">Cierre est.</div><div class="dm-val" style="color:var(--red)">Jun 01 🔴 Overdue</div></div>
+    </div>
+    <div class="deal-prob"><div class="dp-fill" style="width:80%;background:var(--green)"></div></div>
+    <div class="deal-action"><strong>Acción urgente:</strong> 80% prob y vencido 3 semanas. Alta probabilidad = hay avance pero algo frena el cierre formal. Cecia debe cerrar esta semana o mover fecha a Q3.</div>
+  </div>
+
+</div>
+
+<div class="alert-box amber" style="margin-top:12px">
+  <span class="alert-icon">⚡</span>
+  <div>
+    <strong style="color:var(--amber)">Palanca Q3 — Vertiche $21M + MAOSA $19M + Holcim $10.9M:</strong>
+    El pipeline Q3 privado es $127.9M bruto · $42.5M ponderado. Vertiche (Cecia, Jul 1), MAOSA (Víctor, Ago) y Holcim (Gabriela, Ago) son los 3 deals de mayor valor.
+    <strong style="color:var(--text)">El año se juega en Q3 — arrancar war room de Q3 desde esta semana.</strong>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     9. SEÑALES DE RIESGO + PALANCAS
+═══════════════════════════════════════════════════════════════════════ -->
+<div class="section-title">Señales de Riesgo + Palancas de Acción Inmediata</div>
+
+<div class="signals-grid">
+
+  <div class="signal-card">
+    <div class="signal-icon si-red">📉</div>
+    <div>
+      <div class="signal-title">NB YTD $34.62M — Pace 60.8% de Meta Anual · Junio fue el mejor mes Q2</div>
+      <div class="signal-body">NB YTD H1 2026: $34.62M vs meta $117.5M. Pace anualizado $71.4M. Junio 2026 fue el mejor mes del H1 con $14.03M ganado (parcial). Pipeline ponderado $217.4M — 2.62x coverage saludable. Q3 es la palanca clave para cerrar la brecha restante de $82.9M.</div>
+    </div>
+  </div>
+
+  <div class="signal-card">
+    <div class="signal-icon si-red">💀</div>
+    <div>
+      <div class="signal-title">$57.2M Perdidos — Traxión + Power Gas (29 May)</div>
+      <div class="signal-body">Ambos deals de Itzel Arias perdidos el mismo día. El pipeline BDR colapsó de ~$56M a $21.5M ponderado. Coverage cayó de 199% a 75%. Causa raíz desconocida — analizar motivos de pérdida con Itzel para no repetir en Q3.</div>
+    </div>
+  </div>
+
+  <div class="signal-card">
+    <div class="signal-icon si-red">🚨</div>
+    <div>
+      <div class="signal-title">4 BDRs sin Cubrir Meta Q2 · Solo Itzel en Verde</div>
+      <div class="signal-body">Cecia 48% · Víctor 65% · Gabriela 75% · Luis 81%. Solo Itzel cubre meta (106%). Cecia cayó de 196% por Vertiche moviéndose a Q3. Semana del 23-27 Jun es la última oportunidad de rescatar deals del trimestre.</div>
+    </div>
+  </div>
+
+  <div class="signal-card">
+    <div class="signal-icon si-amber">🕯</div>
+    <div>
+      <div class="signal-title">$145.3M Perdidos en Negociaciones (2025)</div>
+      <div class="signal-body">50.5% del valor perdido en 2025 se concentró en Negociaciones. Deals maduros que no se convierten por pricing, condiciones o competencia. War Room semanal en Negociaciones es la palanca #1 de win rate.</div>
+    </div>
+  </div>
+
+  <div class="signal-card">
+    <div class="signal-icon si-amber">🧟</div>
+    <div>
+      <div class="signal-title">880 MQL Zombies en Pipeline</div>
+      <div class="signal-body">54% del pipeline total son MQL con baja probabilidad de conversión — muchos desde 2024. Pipeline inflado = forecast no confiable. Campaña T6 Gayosso enviada a 174 leads MQL (Jun 2026). Pendiente medir respuesta.</div>
+    </div>
+  </div>
+
+  <div class="signal-card">
+    <div class="signal-icon si-green">🤖</div>
+    <div>
+      <div class="signal-title">AI Stack — 8 Workflows Activos</div>
+      <div class="signal-body">WF-01 Lead Scoring · WF-01 Decay · WF-03 Deal Alerts L/X/V · WF-08 Coaching Digest · WF-10A Intel Brief L-V · WF-10B Campañas Brevo · WF-10C Inbound · WF-11 Re-engagement. ROI estimado: 7-10x. Break-even: mes 3-4.</div>
+    </div>
+  </div>
+
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     10. AI AUTOMATION STACK STATUS
+═══════════════════════════════════════════════════════════════════════ -->
+<div class="section-title">AI Automation Stack — Estado de Producción (diferenciador competitivo)</div>
+
+<div class="ai-grid">
+  <div class="ai-card">
+    <div class="ai-status prod">● Producción</div>
+    <div class="ai-name">WF-01 Lead Scoring</div>
+    <div class="ai-desc">Score real-time vía Pipedrive webhook · Firmográfico (30) + Comportamiento (30) + BANT (40) · Lusha enrichment activo · Clasificación Frío/Tibio/Caliente/Hot</div>
+  </div>
+  <div class="ai-card">
+    <div class="ai-status prod">● Producción</div>
+    <div class="ai-name">WF-03 Deal Alerts</div>
+    <div class="ai-desc">Stall detection + role-based alerts · L/X/V 8am CDMX · Escalaciones automáticas a CGO · ROTATION_MODE deal_id%3 · Log Google Sheets</div>
+  </div>
+  <div class="ai-card">
+    <div class="ai-status prod">● Producción</div>
+    <div class="ai-name">WF-08 Coaching Digest</div>
+    <div class="ai-desc">Pipeline Pulse semanal por rep · Viernes 5pm CDMX · 10 coaching cards + 1 resumen ejecutivo global · CC automático a CGO</div>
+  </div>
+  <div class="ai-card">
+    <div class="ai-status prod">● Producción</div>
+    <div class="ai-name">WF-10A Intel Brief</div>
+    <div class="ai-desc">Inteligencia de mercado L-V 6:30am · 8 verticales · Tavily + Claude API · Dedup cross-run via URL History · Brevo distribution</div>
+  </div>
+  <div class="ai-card">
+    <div class="ai-status prod">● Producción</div>
+    <div class="ai-name">WF-10B Campaign Creator</div>
+    <div class="ai-desc">Dark theme Brevo campaigns · Copy thought leadership · Claude genera HTML email · Aprobación vía Google Sheet · CGO preview antes de envío</div>
+  </div>
+  <div class="ai-card">
+    <div class="ai-status prod">● Producción</div>
+    <div class="ai-name">WF-10C Inbound Lead</div>
+    <div class="ai-desc">Webhook Cliengo + formulario WA · Scoring automático al ingresar · Routing a rep asignado · Log en Sheets</div>
+  </div>
+  <div class="ai-card">
+    <div class="ai-status prod">● Producción</div>
+    <div class="ai-name">WF-11 Re-engagement</div>
+    <div class="ai-desc">Cola de re-engagement para deals dormidos · Fase 1: Score + priorización lunes 8am · Fase 2: Ejecución post-aprobación CGO · Sheet dashboard</div>
+  </div>
+  <div class="ai-card">
+    <div class="ai-status test">◐ Backlog</div>
+    <div class="ai-name">WF-02 / WF-04 / WF-12</div>
+    <div class="ai-desc">WF-02 Apollo Enrichment · WF-04 Proposal Gen · WF-12 Pre-Meeting Intel (bloqueado: Google SA + Apify). Próximas fases del roadmap.</div>
+  </div>
+</div>
+
+</main>
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     11. GLOSARIO DE TÉRMINOS
+═══════════════════════════════════════════════════════════════════════ -->
+<div class="section-title">Glosario de Términos Comerciales</div>
+
+<div class="glosario-grid">
+
+  <div class="glosario-card">
+    <div class="glosario-term">New Bookings</div>
+    <div class="glosario-def">Suma del valor total (TCV) de todos los deals marcados como Ganados en Pipedrive durante un período. No es facturación ni ingresos reconocidos — es el valor total comprometido por el cliente al momento de ganar el negocio, independiente de cómo se facture.</div>
+    <div class="glosario-formula">New Bookings = Σ TCV de deals Won en el período</div>
+  </div>
+
+  <div class="glosario-card">
+    <div class="glosario-term">TCV — Total Contract Value</div>
+    <div class="glosario-def">Valor total del contrato registrado en Pipedrive al momento de cerrar el deal. Refleja el monto completo del negocio, sin importar si se cobra en mensualidades, anualidades o en un solo pago. Es el número que determina el New Booking.</div>
+    <div class="glosario-formula">TCV = Valor total del deal en Pipedrive (campo "Value")</div>
+  </div>
+
+  <div class="glosario-card">
+    <div class="glosario-term">Pipeline Ponderado</div>
+    <div class="glosario-def">Valor bruto de cada deal en pipeline multiplicado por su probabilidad de cierre asignada en Pipedrive. Ajusta el pipeline bruto por el riesgo real de cada negocio. Permite comparar pipelines con distintas probabilidades de forma equitativa.</div>
+    <div class="glosario-formula">Pond. = Valor bruto × (Probabilidad / 100)
+Ej: $10M × 60% = $6M ponderado</div>
+  </div>
+
+  <div class="glosario-card">
+    <div class="glosario-term">Win Rate</div>
+    <div class="glosario-def">Porcentaje de deals ganados sobre el total de deals con resolución definitiva (ganados + perdidos) en el mismo período. No incluye deals que siguen abiertos. Mide la efectividad de conversión del equipo comercial.</div>
+    <div class="glosario-formula">Win Rate = Won / (Won + Lost) × 100
+Bambu 2025: 93 won / (93+261 lost) = 26.3%</div>
+  </div>
+
+  <div class="glosario-card">
+    <div class="glosario-term">Quota Coverage</div>
+    <div class="glosario-def">Pipeline ponderado del BDR dividido entre su meta de cierre para el período. Indica si un rep tiene suficiente pipeline para alcanzar su cuota. Se requiere ≥ 2.0x para ciclos de venta largos (más de 60 días) porque no todo el pipeline se cierra.</div>
+    <div class="glosario-formula">Coverage = Pipeline Pond. / Meta Q2 × 100
+Ej: $7.42M pond. / $7.0M meta = 106%</div>
+  </div>
+
+  <div class="glosario-card">
+    <div class="glosario-term">Pipeline Coverage Ratio</div>
+    <div class="glosario-def">Pipeline ponderado total del equipo dividido entre la meta de New Bookings del período. Versión agregada del Quota Coverage para medir la salud del pipeline a nivel equipo. Difiere del Book-to-Bill tradicional (NB ÷ Revenue facturado) porque Bambu no segrega datos de facturación.</div>
+    <div class="glosario-formula">PCR = Pipeline Pond. Total / Meta NB período
+Target saludable: ≥ 2.0x · Actual H2: 2.62x ✓</div>
+  </div>
+
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════════════
+     FOOTER
+═══════════════════════════════════════════════════════════════════════ -->
+<footer>
+  <div class="footer-left">
+    <strong>CONFIDENCIAL</strong> — Uso interno Bambu Tech Services &nbsp;·&nbsp; CGO: Roberto Esparza &nbsp;·&nbsp; roberto.esparza@bambu-techservices.com<br>
+    Fuente: Pipedrive API · Google Sheets · Corte de datos: 25 Jun 2026 · Generado con Claude Code + n8n Automation Stack
+  </div>
+  <div class="footer-right">
+    <span class="stack-tag">Pipedrive CRM</span>
+    <span class="stack-tag">n8n Cloud</span>
+    <span class="stack-tag">WF-03</span>
+    <span class="stack-tag">WF-08</span>
+    <span class="stack-tag">WF-10A/B/C</span>
+    <span class="stack-tag">WF-11</span>
+    <span class="stack-tag">Claude API</span>
+    <span class="stack-tag">Brevo</span>
+  </div>
+</footer>
+
+</body>
+</html>
