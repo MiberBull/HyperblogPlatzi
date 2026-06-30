@@ -462,6 +462,7 @@
   <a href="#scoring-accion">Lead Scoring en Acción</a>
   <a href="#proximos">Próximas incorporaciones</a>
   <a href="#arquitectura">Arquitectura</a>
+  <a href="#serie">La Serie</a>
 </nav>
 
 <!-- HERO -->
@@ -469,11 +470,11 @@
   <h1>Sistema de Automatización Comercial con IA</h1>
   <h2>Bambu Tech Services — Guía del Equipo Comercial</h2>
   <div class="hero-meta">
-    <span class="badge">📅 Junio 2026</span>
-    <span class="badge">⚙️ v1.2</span>
-    <span class="badge">✅ 9 módulos activos</span>
-    <span class="badge badge-green">🎯 710 leads calificados</span>
-    <span class="badge badge-green">📧 174 emails T6 enviados</span>
+    <span class="badge">📅 25 Jun 2026</span>
+    <span class="badge">⚙️ v1.3</span>
+    <span class="badge">✅ 10 módulos activos</span>
+    <span class="badge badge-green">📊 $34.62M NB YTD · 2.62x coverage</span>
+    <span class="badge badge-green">📰 9 verticales + radar competidores</span>
     <span class="badge">⏳ 4 en desarrollo</span>
   </div>
 </div>
@@ -493,6 +494,11 @@
         <span class="stack-item">Google Sheets</span>
         <span class="stack-item">Tavily</span>
         <span class="stack-item">Lusha</span>
+      </div>
+      <div style="margin-top:1.2rem;text-align:center;">
+        <a href="/dashboard-q2" target="_blank" style="display:inline-flex;align-items:center;gap:0.5rem;background:#1a1a2e;border:1px solid #00CC3C;color:#00CC3C;padding:0.6rem 1.4rem;border-radius:8px;text-decoration:none;font-weight:600;font-size:0.9rem;letter-spacing:0.02em;transition:background 0.2s;" onmouseover="this.style.background='#002208'" onmouseout="this.style.background='#1a1a2e'">
+          📊 Ver Dashboard de Resultados H1 2026 →
+        </a>
       </div>
     </div>
   </section>
@@ -578,6 +584,7 @@ flowchart LR
       <div class="sched-row">
         <div class="sched-label lv">📅 Lunes</div>
         <div class="sched-events">
+          <div class="sched-event"><span class="sched-time">8:00 am</span><span>📡</span><span><strong>WF-08 Monday Pipeline Pulse</strong> — snapshot semanal del pipeline al CGO: bruto, ponderado, coverage, NB YTD, delta semana anterior + link al dashboard</span></div>
           <div class="sched-event"><span class="sched-time">8:00 am</span><span>🔄</span><span><strong>WF-11 Re-engagement Fase 1</strong> — detecta deals dormidos y envía resumen de aprobación al CGO</span></div>
         </div>
       </div>
@@ -599,7 +606,7 @@ flowchart LR
       <div class="sched-row">
         <div class="sched-label vie">📅 Viernes</div>
         <div class="sched-events">
-          <div class="sched-event"><span class="sched-time">5:00 pm</span><span>📊</span><span><strong>WF-08 Coaching Digest</strong> — tarjeta de desempeño individual por rep + resumen CGO</span></div>
+          <div class="sched-event"><span class="sched-time">5:00 pm</span><span>📊</span><span><strong>WF-08 Coaching Digest</strong> — tarjeta de desempeño individual por rep + resumen ejecutivo global CGO</span></div>
         </div>
       </div>
 
@@ -628,8 +635,8 @@ flowchart LR
           <tr><td>01</td><td>Lead Scoring</td><td>WF-01 Score Engine</td><td><span class="status-prod">✅ Producción</span></td><td>Tiempo real (webhook)</td><td>Rep asignado + CGO (Hot/Caliente)</td></tr>
           <tr><td>01D</td><td>Score Decay</td><td>WF-01 Decay Engine</td><td><span class="status-prod">✅ Producción</span></td><td>Diario 7am</td><td>CGO (digest de cambios)</td></tr>
           <tr><td>03</td><td>Deal Alerts</td><td>WF-03 Stall Detection</td><td><span class="status-prod">✅ Producción</span></td><td>L/X/V 8am</td><td>Rep propietario + CGO (escalaciones)</td></tr>
-          <tr><td>08</td><td>Coaching Digest</td><td>WF-08 Pipeline Pulse</td><td><span class="status-prod">✅ Producción</span></td><td>Viernes 5pm</td><td>Cada rep (individual) + CGO</td></tr>
-          <tr><td>10A</td><td>Intel Brief</td><td>WF-10A News Engine</td><td><span class="status-active">🟢 Activo</span></td><td>L-V 6:30am</td><td>CGO + 18 destinatarios equipo</td></tr>
+          <tr><td>08</td><td>Coaching Digest + Monday Pulse</td><td>WF-08 Pipeline Pulse</td><td><span class="status-prod">✅ Producción</span></td><td>Viernes 5pm · Lunes 8am</td><td>Cada rep (individual) + CGO · CGO (Monday snapshot)</td></tr>
+          <tr><td>10A</td><td>Intel Brief</td><td>WF-10A News Engine</td><td><span class="status-active">🟢 Activo</span></td><td>L-V 6:30am</td><td>CGO + equipo · 9 verticales + radar 61 dominios</td></tr>
           <tr><td>10B</td><td>Campañas</td><td>WF-10B Campaign Creator</td><td><span class="status-prod">✅ Producción</span></td><td>Al aprobar brief (&lt;5 min)</td><td>Newsletter Brevo → 188 contactos · CGO notif</td></tr>
           <tr><td>10B</td><td>Engagement Handler</td><td>WF-10B Hot Signal</td><td><span class="status-active">🟢 Activo</span></td><td>Tiempo real</td><td>BDR cuando su contacto abre email</td></tr>
           <tr><td>10C</td><td>Inbound Lead</td><td>WF-10C Lead Ingestion</td><td><span class="status-active">🟢 Activo</span></td><td>Tiempo real</td><td>Pre Sales asignado + CGO</td></tr>
@@ -788,7 +795,7 @@ flowchart LR
         </div>
         <div class="wf-card-body">
           <p>Cada <strong>viernes a las 5pm</strong> recibes tu tarjeta de desempeño semanal personalizada. El CGO recibe 1 copia de cada tarjeta individual + 1 resumen ejecutivo global con ranking del equipo.</p>
-          <h4>Qué contiene tu tarjeta</h4>
+          <h4>Qué contiene tu tarjeta (Viernes 5pm)</h4>
           <ul>
             <li><strong>Semáforo de semana</strong> 🟢🟡🟠🔴 con diagnóstico</li>
             <li>Deals activos y valor total en tu pipeline</li>
@@ -798,11 +805,18 @@ flowchart LR
             <li><strong>Top 3 deals más urgentes</strong> con link directo a Pipedrive</li>
             <li><strong>Recomendación de acción</strong> basada en tu estado actual</li>
           </ul>
+          <h4>Monday Pipeline Pulse — nuevo (Lunes 8am → CGO)</h4>
+          <ul>
+            <li><strong>Snapshot semanal del pipeline total:</strong> bruto, ponderado, coverage ratio H2, NB YTD ganado</li>
+            <li><strong>Delta semana a semana</strong> — ▲▼ cambio en cada métrica vs el lunes anterior</li>
+            <li><strong>Breakdown por etapa</strong> — Negociaciones, Calientes, Propuesta Enviada, etc.</li>
+            <li><strong>Link al dashboard</strong> → <a href="https://bambu-sales-automatization.vercel.app/dashboard-q2" style="color:var(--gold)">bambu-sales-automatization.vercel.app/dashboard-q2</a></li>
+          </ul>
         </div>
         <div class="wf-card-footer">
-          <span>📅 Viernes 5pm</span>
-          <span>📧 Cada rep (individual) + CGO</span>
-          <span>📊 Log: Coaching Log</span>
+          <span>📅 Viernes 5pm + Lunes 8am</span>
+          <span>📧 Cada rep (individual) + CGO (doble trigger)</span>
+          <span>📊 Sheets: Coaching Log · Pipeline Snapshots</span>
         </div>
       </div>
 
@@ -817,9 +831,9 @@ flowchart LR
           <span class="wf-card-badge badge-active">🟢 Activo</span>
         </div>
         <div class="wf-card-body">
-          <p>De <strong>lunes a viernes a las 6:30am</strong>, el sistema recopila automáticamente noticias relevantes de 4 verticales clave y las analiza con Claude AI para identificar ángulos de venta para Bambu.</p>
-          <h4>Verticales monitoreadas</h4>
-          <p>Manufactura &nbsp;·&nbsp; Financiero &nbsp;·&nbsp; Retail &nbsp;·&nbsp; Ciberseguridad / Cloud / IA</p>
+          <p>De <strong>lunes a viernes a las 6:30am</strong>, el sistema recopila automáticamente noticias relevantes de <strong>8 verticales</strong> y un radar de competidores, y las analiza con Claude AI para identificar ángulos de venta para Bambu.</p>
+          <h4>Verticales monitoreadas (8 streams + radar)</h4>
+          <p>Manufactura &nbsp;·&nbsp; Financiero &nbsp;·&nbsp; Retail &nbsp;·&nbsp; Ciberseguridad/Cloud/IA &nbsp;·&nbsp; Salud/Farmacias &nbsp;·&nbsp; Gobierno/Seguridad Pública &nbsp;·&nbsp; Logística/Transporte &nbsp;·&nbsp; Servicios/Funerarias &nbsp;·&nbsp; 🔍 Radar Competidores (61 dominios: Tier 1–4)</p>
           <h4>Por cada noticia incluye</h4>
           <ul>
             <li>Contexto de la noticia</li>
@@ -832,8 +846,8 @@ flowchart LR
         </div>
         <div class="wf-card-footer">
           <span>📅 L-V 6:30am</span>
-          <span>📧 CGO + equipo (18 destinatarios)</span>
-          <span>📊 Sheet: Intel Briefs</span>
+          <span>📰 9 verticales · 61 dominios competidores · claude-opus-4-6 · 7,000 tokens</span>
+          <span>📊 Sheet: Intel Briefs + URL History</span>
         </div>
       </div>
 
@@ -1272,10 +1286,123 @@ flowchart TD
     </div>
   </section>
 
+  <!-- SERIE LINKEDIN -->
+  <section id="serie">
+    <div class="section-header">
+      <span class="section-num">8</span>
+      <h2>La Serie: Automatización Comercial con IA</h2>
+    </div>
+    <p class="section-intro">7 episodios documentando cómo se construyó este sistema desde adentro — decisiones de diseño, errores, números reales y lo que reveló en producción.</p>
+
+    <div style="background:#111;border:1px solid #2a2a2a;border-radius:12px;padding:1.5rem 2rem;margin-bottom:2rem;display:flex;align-items:center;gap:2rem;flex-wrap:wrap;">
+      <div style="flex:1;min-width:200px;">
+        <div style="color:#888;font-size:12px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;">Costo mensual — stack completo</div>
+        <div style="font-size:2rem;font-weight:700;color:var(--gold);">$650 <span style="font-size:1rem;color:#888;">USD/mes</span></div>
+        <div style="color:#888;font-size:13px;margin-top:.25rem;">CRM de 15 usuarios incluido</div>
+      </div>
+      <div style="flex:1;min-width:200px;">
+        <div style="color:#888;font-size:12px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;">Automatización pura (incremental)</div>
+        <div style="font-size:2rem;font-weight:700;color:var(--green);">$65 <span style="font-size:1rem;color:#888;">USD/mes</span></div>
+        <div style="color:#888;font-size:13px;margin-top:.25rem;">n8n · Claude · Lusha · Tavily · Brevo</div>
+      </div>
+      <div style="flex:1;min-width:200px;">
+        <div style="color:#888;font-size:12px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:.4rem;">Headcount equivalente</div>
+        <div style="font-size:2rem;font-weight:700;color:var(--red);">$40–70K <span style="font-size:1rem;color:#888;">MXN/mes</span></div>
+        <div style="color:#888;font-size:13px;margin-top:.25rem;">2–3 personas tiempo completo</div>
+      </div>
+      <div style="flex:1;min-width:200px;text-align:center;">
+        <div style="font-size:2.5rem;font-weight:800;color:var(--gold);">&lt;3%</div>
+        <div style="color:#888;font-size:13px;margin-top:.25rem;">del costo de la alternativa humana</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;">
+
+      <a href="https://www.linkedin.com/pulse/ep-1-constru%C3%AD-un-sistema-de-automatizaci%C3%B3n-comercial-roberto-esparza-nxdfc/" target="_blank" style="text-decoration:none;">
+        <div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;padding:1.25rem;transition:border-color .2s;" onmouseover="this.style.borderColor='#f5c842'" onmouseout="this.style.borderColor='#2a2a2a'">
+          <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.75rem;">
+            <span style="background:#f5c84222;color:var(--gold);font-size:11px;font-weight:700;padding:.2rem .6rem;border-radius:4px;">EP1</span>
+            <span style="color:#888;font-size:12px;">La arquitectura completa</span>
+          </div>
+          <div style="color:#e5e5e5;font-size:14px;font-weight:600;line-height:1.4;margin-bottom:.5rem;">Construí un sistema de automatización comercial con IA. Aquí está el mapa completo.</div>
+          <div style="color:#f5c842;font-size:12px;">Leer en LinkedIn →</div>
+        </div>
+      </a>
+
+      <a href="https://www.linkedin.com/pulse/ep2-lead-scoring-c%C3%B3mo-dej%C3%A9-de-adivinar-y-empec%C3%A9-saber-roberto-esparza-m6u5c/" target="_blank" style="text-decoration:none;">
+        <div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;padding:1.25rem;transition:border-color .2s;" onmouseover="this.style.borderColor='#f5c842'" onmouseout="this.style.borderColor='#2a2a2a'">
+          <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.75rem;">
+            <span style="background:#f5c84222;color:var(--gold);font-size:11px;font-weight:700;padding:.2rem .6rem;border-radius:4px;">EP2</span>
+            <span style="color:#888;font-size:12px;">Lead Scoring — WF-01</span>
+          </div>
+          <div style="color:#e5e5e5;font-size:14px;font-weight:600;line-height:1.4;margin-bottom:.5rem;">Cómo dejé de adivinar y empecé a saber qué leads merecen atención hoy.</div>
+          <div style="color:#f5c842;font-size:12px;">Leer en LinkedIn →</div>
+        </div>
+      </a>
+
+      <a href="https://www.linkedin.com/pulse/ep3-coaching-autom%C3%A1tico-c%C3%B3mo-garantic%C3%A9-que-cada-rep-reciba-esparza-hwkhc/" target="_blank" style="text-decoration:none;">
+        <div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;padding:1.25rem;transition:border-color .2s;" onmouseover="this.style.borderColor='#f5c842'" onmouseout="this.style.borderColor='#2a2a2a'">
+          <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.75rem;">
+            <span style="background:#f5c84222;color:var(--gold);font-size:11px;font-weight:700;padding:.2rem .6rem;border-radius:4px;">EP3</span>
+            <span style="color:#888;font-size:12px;">Coaching Digest — WF-08</span>
+          </div>
+          <div style="color:#e5e5e5;font-size:14px;font-weight:600;line-height:1.4;margin-bottom:.5rem;">Coaching automático: cómo garanticé que cada rep reciba feedback semanal con sus métricas reales.</div>
+          <div style="color:#f5c842;font-size:12px;">Leer en LinkedIn →</div>
+        </div>
+      </a>
+
+      <a href="https://www.linkedin.com/pulse/ep4-alerta-contexto-los-dos-sistemas-que-hacen-ning%C3%BAn-esparza-jzhtc/" target="_blank" style="text-decoration:none;">
+        <div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;padding:1.25rem;transition:border-color .2s;" onmouseover="this.style.borderColor='#f5c842'" onmouseout="this.style.borderColor='#2a2a2a'">
+          <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.75rem;">
+            <span style="background:#f5c84222;color:var(--gold);font-size:11px;font-weight:700;padding:.2rem .6rem;border-radius:4px;">EP4</span>
+            <span style="color:#888;font-size:12px;">Deal Alerts — WF-03</span>
+          </div>
+          <div style="color:#e5e5e5;font-size:14px;font-weight:600;line-height:1.4;margin-bottom:.5rem;">Alerta + contexto: los dos sistemas que hacen que ningún deal se pierda en silencio.</div>
+          <div style="color:#f5c842;font-size:12px;">Leer en LinkedIn →</div>
+        </div>
+      </a>
+
+      <a href="https://www.linkedin.com/pulse/ep5-re-engagement-c%C3%B3mo-escribirle-un-prospecto-que-te-roberto-esparza-imidc/" target="_blank" style="text-decoration:none;">
+        <div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;padding:1.25rem;transition:border-color .2s;" onmouseover="this.style.borderColor='#f5c842'" onmouseout="this.style.borderColor='#2a2a2a'">
+          <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.75rem;">
+            <span style="background:#f5c84222;color:var(--gold);font-size:11px;font-weight:700;padding:.2rem .6rem;border-radius:4px;">EP5</span>
+            <span style="color:#888;font-size:12px;">Re-engagement — WF-11</span>
+          </div>
+          <div style="color:#e5e5e5;font-size:14px;font-weight:600;line-height:1.4;margin-bottom:.5rem;">Cómo escribirle a un prospecto que te ignoró durante meses — y que responda.</div>
+          <div style="color:#f5c842;font-size:12px;">Leer en LinkedIn →</div>
+        </div>
+      </a>
+
+      <a href="https://www.linkedin.com/pulse/ep-6-inteligencia-campa%C3%B1a-el-ciclo-completo-que-va-de-esparza-fxz2c/" target="_blank" style="text-decoration:none;">
+        <div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:10px;padding:1.25rem;transition:border-color .2s;" onmouseover="this.style.borderColor='#f5c842'" onmouseout="this.style.borderColor='#2a2a2a'">
+          <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.75rem;">
+            <span style="background:#f5c84222;color:var(--gold);font-size:11px;font-weight:700;padding:.2rem .6rem;border-radius:4px;">EP6</span>
+            <span style="color:#888;font-size:12px;">Intel Brief + Campañas — WF-10A/B</span>
+          </div>
+          <div style="color:#e5e5e5;font-size:14px;font-weight:600;line-height:1.4;margin-bottom:.5rem;">De una noticia del mercado a 1,443 contactos en menos de 5 minutos.</div>
+          <div style="color:#f5c842;font-size:12px;">Leer en LinkedIn →</div>
+        </div>
+      </a>
+
+      <a href="https://www.linkedin.com/pulse/ep7-el-cierre-nueve-meses-workflows-y-la-verdad-que-cambi%C3%B3-esparza-f5yff/" target="_blank" style="text-decoration:none;">
+        <div style="background:#1a1a1a;border:2px solid var(--gold);border-radius:10px;padding:1.25rem;position:relative;">
+          <div style="position:absolute;top:-10px;right:1rem;background:var(--gold);color:#000;font-size:11px;font-weight:700;padding:.2rem .7rem;border-radius:4px;">NUEVO</div>
+          <div style="display:flex;align-items:center;gap:.6rem;margin-bottom:.75rem;">
+            <span style="background:#f5c84222;color:var(--gold);font-size:11px;font-weight:700;padding:.2rem .6rem;border-radius:4px;">EP7</span>
+            <span style="color:#888;font-size:12px;">El cierre — Retrospectiva</span>
+          </div>
+          <div style="color:#e5e5e5;font-size:14px;font-weight:600;line-height:1.4;margin-bottom:.5rem;">9 meses, 9 workflows, y la verdad que cambió cómo pienso en liderazgo comercial.</div>
+          <div style="color:#f5c842;font-size:12px;">Leer en LinkedIn →</div>
+        </div>
+      </a>
+
+    </div>
+  </section>
+
 </div><!-- /container -->
 
 <footer>
-  Proyecto diseñado y liderado por <strong>Roberto Esparza</strong> — CGO, Bambu Tech Services &nbsp;·&nbsp; Implementado con <strong>Claude AI</strong> &nbsp;·&nbsp; Junio 2026 &nbsp;·&nbsp; v1.2
+  Proyecto diseñado y liderado por <strong>Roberto Esparza</strong> — CGO, Bambu Tech Services &nbsp;·&nbsp; Implementado con <strong>Claude AI</strong> &nbsp;·&nbsp; 29 Jun 2026 &nbsp;·&nbsp; v1.4
 </footer>
 
 <script>
